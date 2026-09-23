@@ -119,40 +119,36 @@ the transfer matrix is an absolute difference in these points
 % While the observations reported in this section are based on the selected benchmarks due to page limitations, more comprehensive results across additional variants and budgets are included in Appendix~\ref{app:full_results}.
 % \td{is there an updated figure for this yet?} \yd{we need to put up the figures here.}
 
-%==================== Figure 1: empirical study (top float, replaces two wrapfigures) ====================
+%==================== Figure 1: empirical study (top float; all four panels share one height) ====================
 \begin{figure}[t]
   \centering
-  \begin{minipage}[b]{0.50\linewidth}
+  \captionsetup[sub]{font=footnotesize,skip=2pt}
+  \includegraphics[width=0.5\linewidth]{figure/icon.pdf}\\[2pt]
+  % panel widths follow from a common height of 72pt and each PDF's aspect ratio
+  \begin{subfigure}[b]{0.181\linewidth}
     \centering
-    \includegraphics[width=0.96\linewidth]{figure/icon.pdf}\\[1pt]
-    \begin{subfigure}[b]{0.455\linewidth}
-      \centering
-      \includegraphics[width=\linewidth]{figure/heatmap_small.pdf}
-      \caption{Small token budget}
-      \label{fig:heatmap_small}
-    \end{subfigure}\hfill
-    \begin{subfigure}[b]{0.525\linewidth}
-      \centering
-      \includegraphics[width=\linewidth]{figure/heatmap_large.pdf}
-      \caption{Large token budget}
-      \label{fig:heatmap_large}
-    \end{subfigure}
-  \end{minipage}\hfill
-  \begin{minipage}[b]{0.48\linewidth}
+    \includegraphics[height=72pt]{figure/heatmap_small.pdf}
+    \caption{Small budget}
+    \label{fig:heatmap_small}
+  \end{subfigure}\hfill
+  \begin{subfigure}[b]{0.209\linewidth}
     \centering
-    \begin{subfigure}[b]{0.53\linewidth}
-      \centering
-      \includegraphics[width=\linewidth]{figure/Dimenshing.pdf}
-      \caption{Diminishing returns}
-      \label{fig:diminishing_returns}
-    \end{subfigure}\hfill
-    \begin{subfigure}[b]{0.45\linewidth}
-      \centering
-      \includegraphics[width=\linewidth]{figure/spilover.pdf}
-      \caption{Rising spillover}
-      \label{fig:rising_spillover}
-    \end{subfigure}
-  \end{minipage}
+    \includegraphics[height=72pt]{figure/heatmap_large.pdf}
+    \caption{Large budget}
+    \label{fig:heatmap_large}
+  \end{subfigure}\hfill
+  \begin{subfigure}[b]{0.306\linewidth}
+    \centering
+    \includegraphics[height=72pt]{figure/Dimenshing.pdf}
+    \caption{Diminishing returns}
+    \label{fig:diminishing_returns}
+  \end{subfigure}\hfill
+  \begin{subfigure}[b]{0.270\linewidth}
+    \centering
+    \includegraphics[height=72pt]{figure/spilover.pdf}
+    \caption{Rising spillover}
+    \label{fig:rising_spillover}
+  \end{subfigure}
   \caption{\rev{Exploratory study. (a--b) Cross-capability transfer under
   single-capability distillation: larger budgets sharpen target gains but expose
   stronger negative transfer. (c--d) Budget waste: extra tokens yield smaller
