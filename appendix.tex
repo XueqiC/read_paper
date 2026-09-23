@@ -61,6 +61,18 @@ For each capability, we build a capability-specific distillation pool from the c
 We repeat this process under multiple token budgets (e.g., 20M, 80M, 150M tokens) to form a budget-dependent capability transfer matrix, where each entry is the score change on a destination capability when distilling toward a source capability at budget $B$. 
 We use deterministic decoding for generation benchmarks (temperature $=0$) with a fixed prompt template across methods, and we compute each capability score as the average over its associated benchmarks in the table. We instantiate a simple but representative set of capability distillation baselines by combining three supervision forms that expose different levels of teacher knowledge---\textit{Resp} (final answer only), \textit{CoT} (rationale plus final answer), and \textit{Logit} (token-level soft targets)—with two standard objectives, \textit{SFT} and \textit{KD}, yielding six baselines in total.
 
+\rev{\textbf{Scoring and normalization.} Each benchmark in
+Table~\ref{tab:capabilities-benchmarks} is scored with its standard metric
+(accuracy, exact match, pass@1, or tool-call success rate) expressed in
+percentage points; LongBench reports its own per-task normalized score on the
+same $0$--$100$ scale. A capability score is the unweighted mean of its
+benchmark scores, and a transfer-matrix entry $\mathbf{T}_{ij}(B)$ is the
+absolute difference in capability score between the distilled and the initial
+student. No min--max rescaling or gap-closure normalization is applied to the
+reported tables or transfer matrices, so a change of one point is one
+percentage point of the underlying metric, and small absolute changes remain
+small in the figures.}
+
 \section{Additional Theoretical Analysis}\label{sec:app_theory}
 \textbf{Uncertainty-aware UCB allocation}. Here, we conduct an uncertainty-aware UCB allocation analysis showing that action-level regret is controlled by predictive uncertainty. At interval $t$, ReAD maintains a bandit context
 \begin{equation}
@@ -74,7 +86,7 @@ where $\mathbf{r}_\tau\in\Delta$ is the task requirement vector, $\mathbf{s}(S_{
 \end{equation}
 where $\widehat{R}_t$ is the proxy reward used as shown in Eq.~\eqref{eq:reward}.
 
-\begin{assumption}[Calibrated uncertainty]\label{ass:calibrated_uncertainty}
+\begin{assumption}[Calibrated uncertainty]\label{ass:calibrated_uncertainty_app}
     For a confidence level $\delta\in(0,1)$, with probability at least $1-\delta$, for all encountered $(\mathbf{x}_t,\mathbf{w})$,
 \begin{equation}
 \big|\mu(\mathbf{x}_t,\mathbf{w})-\bar R(\mathbf{x}_t,\mathbf{w})\big| \le \sigma(\mathbf{x}_t,\mathbf{w}),
@@ -83,10 +95,10 @@ where $\widehat{R}_t$ is the proxy reward used as shown in Eq.~\eqref{eq:reward}
 where $\mu$ and $\sigma$ are the ensemble mean and standard deviation defined from the reward regressors.
 \end{assumption}
 
-Since ReAD selects allocations by the UCB rule in Eq.~\eqref{eq:ucb}, we can compare its chosen action $\mathbf{w}_t$ to the optimal action $\mathbf{w}_t^\star$ under the same context and bound the resulting gap in conditional expected reward using the calibrated uncertainty condition in Assumption~\ref{ass:calibrated_uncertainty}, which leads to the following instantaneous regret bound.
+Since ReAD selects allocations by the UCB rule in Eq.~\eqref{eq:ucb}, we can compare its chosen action $\mathbf{w}_t$ to the optimal action $\mathbf{w}_t^\star$ under the same context and bound the resulting gap in conditional expected reward using the calibrated uncertainty condition in Assumption~\ref{ass:calibrated_uncertainty_app}, which leads to the following instantaneous regret bound\rev{ on the chosen action}.
 
 \begin{proposition}[Instantaneous regret bound]
-    Let $\mathbf{w}_t^\star\in\arg\max_{\mathbf{w}\in\mathcal{A}(\tau)} \bar R(\mathbf{x}_t,\mathbf{w})$. Under Assumption~\ref{ass:calibrated_uncertainty},
+    Let $\mathbf{w}_t^\star\in\arg\max_{\mathbf{w}\in\mathcal{A}(\tau)} \bar R(\mathbf{x}_t,\mathbf{w})$. Under Assumption~\ref{ass:calibrated_uncertainty_app},
 \begin{equation}
 \bar R(\mathbf{x}_t,\mathbf{w}_t^\star)-\bar R(\mathbf{x}_t,\mathbf{w}_t)\ \le\ 2\kappa\,\sigma(\mathbf{x}_t,\mathbf{w}_t),
 \label{eq:inst_regret_short}
@@ -211,7 +223,7 @@ $\mathbf{84.10\pm0.90}$ \\
 \centering
 \tiny
 \setlength\tabcolsep{1pt}
-\caption{Capability profile of different methods under a 20M-token budget (Qwen). ReAD consistently outperforms all six baselines.}
+\caption{Capability profile of different methods under a 20M-token budget (Qwen). ReAD consistently outperforms all six \rev{one-hot} baselines\rev{ on every capability}.}
 \begin{tabular}{lcccccccc}
 \toprule
 \textbf{Method} &
@@ -421,6 +433,21 @@ $\mathbf{90.54 \pm 0.92}$ \\
 
 
 \textbf{Additional evidence showing that ReAD improves capability distillation under a fixed budget}. We compare ReAD with six capability distillation baselines. Tables~\ref{tab:llama_20m} (in the main text) and~\ref{tab:llama_150m} report the Llama results at $B{=}20$M and $B{=}150$M, and Tables~\ref{tab:qwen_20m} and~\ref{tab:qwen_150m} report the corresponding Qwen results. In both budgets and for both model families, ReAD achieves the best overall capability profile and outperforms all six baselines on every capability, with the largest improvements appearing on bottleneck capabilities such as Steerability and Math while still maintaining strong gains on Code, Tool Use, and LCU. Scaling the budget from 20M to 150M strengthens all methods, but ReAD benefits more consistently, indicating that its allocation policy converts additional tokens into broader capability improvements rather than concentrating gains on a narrow subset of skills. Across model families, Qwen starts from a stronger student and teacher on most capabilities and also reaches higher absolute performance after distillation, but the relative ordering between methods is unchanged and ReAD remains the top performer, suggesting that ReAD is robust to the choice of teacher--student backbone and that its advantage is not tied to a specific LLM family.
+\rev{Figure~\ref{fig:gain_over_student} visualizes the same Llama numbers as
+absolute gains over the initial student, next to the best one-hot baseline of
+each capability, which makes the per-capability margins directly comparable.}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figure/gain_over_student.pdf}
+  \caption{\rev{Points gained over the initial student on each capability at
+  20M (left) and 150M (right) for ReAD and for the best one-hot baseline of
+  that capability, read off Tables~\ref{tab:llama_20m}
+  and~\ref{tab:llama_150m}. Error bars are the standard deviation over three
+  seeds of the distilled student's score. Values are absolute percentage
+  points, so small changes stay small.}}
+  \label{fig:gain_over_student}
+\end{figure}
 
 \begin{wrapfigure}{r}{0.45\columnwidth}
   \centering
@@ -439,6 +466,13 @@ capabilities, we include three representative methods that are commonly used for
 % \subsection{Held-out Downstream Transfer}
 % \label{sec:app_xstest}
 
+\textbf{Local proxy validation.}
+The proxy validation supports ReAD's use of local action ranking. Predicted
+next-step gains align with observed gains, especially for small budget moves,
+which matches ReAD's stepwise allocation regime. The requirement vectors are
+stable across runs, and the reward regressors are accurate enough to guide the
+uncertainty-aware bandit updates. \rev{(Moved from the main text.)}
+
 \textbf{Held-out Downstream Transfer}. To test whether ReAD transfers beyond capability-aligned benchmark tasks, we
 evaluate on XSTest using the same requirement identifier and allocation pipeline
 without adding a new capability head. Lower safe-refusal and higher
@@ -448,7 +482,7 @@ unsafe-refusal scores are better.
   \centering
   \caption{
   Held-out XSTest evaluation. ``Best baseline'' denotes the best of the six
-  SFT/KD baselines for each metric.
+  SFT/KD baselines for each metric\rev{ and budget separately}.
   }
   \label{tab:xstest}
   \scriptsize
@@ -483,6 +517,24 @@ unsafe-refusal scores are better.
 \textbf{Capability Distillation for Large Language Models.}\label{sec:relate_kd}
 Recent work on capability distillation has focused on transferring specific capabilities such as instruction following and context manipulation~\citep{taori2023stanford, chiang2023vicuna, peng2023instruction, xu2023wizardlm}, thinking patterns~\citep{zhang2024knowledgeable, cheng2023adapting}, or text and code generation capability~\citep{zhang2025recommendation, li2023starcoder}. These methods typically steer a teacher LLM via prompts or rationales, generate distillation data or logits, and fine-tune the student on that evidence. However, the majority of methods operate under the assumption that distilling one target capability or domain is sufficient and rarely analyze how that focused training influences broader capability interactions within the student model. To the best of our knowledge, ReAD is the first framework that explicitly accounts for capability interdependence during the distillation.
 
+\rev{\textbf{Distillation objectives, data mixtures, and forgetting.} Beyond
+capability-specific recipes, LLM distillation methods differ in where the
+training sequences come from. Sequence-level KD and its descendants train on
+teacher-generated outputs~\citep{hinton2015distilling,kim2016sequence}, whereas
+on-policy methods train on student-generated sequences scored by the teacher,
+which reduces exposure bias~\citep{gu2024minillm,agarwal2024gkd,ko2024distillm}.
+ReAD is off-policy in this sense and treats the objective as a plug-in: its
+contribution is the allocation of a fixed budget across capabilities, not a new
+loss. A separate line of work optimizes the \emph{mixture} of training data:
+DoReMi~\citep{xie2023doremi} and RegMix~\citep{liu2024regmix} learn static
+domain weights before, or without observing, the target model's training
+trajectory, whereas ReAD re-estimates the mixture online from the student's
+measured capability profile and the remaining budget. Finally, the off-target
+degradation we measure is related to catastrophic forgetting in continual
+fine-tuning~\citep{kirkpatrick2017overcoming,luo2023empirical}; ReAD adds no
+explicit anti-forgetting regularizer but penalizes measured spillover on
+task-essential capabilities directly in its reward (Eq.~\ref{eq:reward}).}
+
 \section{Broader Impact}
 \label{sec:broader_impact}
 
@@ -492,7 +544,7 @@ impact is that smaller student models can become more useful under fixed compute
 budgets, potentially reducing deployment cost and improving access to LLM-based
 systems in resource-constrained settings. ReAD also explicitly monitors
 cross-capability transfer, which can help practitioners diagnose when improving
-one capability degrades others.
+one capability degrades \rev{other capabilities that a deployment depends on}.
 
 At the same time, more efficient distillation may lower the cost of producing
 specialized models with dual-use capabilities, such as code generation, tool use,
@@ -508,7 +560,7 @@ with task-specific safety evaluation, robustness and bias audits, data filtering
 red-team testing, and monitoring of off-target capability changes. Any release
 or deployment of distilled models should follow the usage restrictions of the
 underlying models and include appropriate documentation of intended use,
-limitations, and safety evaluations.
+limitations, and \rev{the safety evaluations that were actually performed}.
 
 \section{Limitation and Future Work}
 

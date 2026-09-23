@@ -6,6 +6,11 @@ over capabilities. At each step, it estimates task requirements, generates
 capability-targeted teacher supervision, and uses an uncertainty-aware contextual
 bandit to choose the next token allocation. As the student profile changes, ReAD
 can shift budget away from saturated or high-spillover capabilities.
+\rev{ReAD is \emph{off-policy} in the sense of \citet{agarwal2024gkd}: the
+student trains on teacher completions to generated prompts and never samples
+its own training sequences. The allocator is orthogonal to the inner objective,
+and on-policy losses~\citep{gu2024minillm,ko2024distillm} could replace the
+token-level loss in Section~\ref{sec:method:bandit} unchanged.}
 
 \subsection{Identifying Task-Essential Capabilities}
 \label{sec:method:essential}
@@ -52,7 +57,7 @@ U_\tau(S')-U_\tau(S)
 \nabla_{\mathbf{s}}F_\tau(\mathbf{s})^\top\Delta\mathbf{s}.
 \label{eq:local_linear}
 \end{equation}
-Thus, $\mathbf{r}_\tau$ is trained as a simplex-constrained surrogate for the beneficial part of the local utility sensitivity, e.g., $\mathbf{r}_\tau\approx\Pi_\Delta([\nabla_{\mathbf{s}}F_\tau(\mathbf{s})]_+)$. This does not assume that the true sensitivity has no negative coordinates; it only converts the sensitivity into a nonnegative budget-allocation prior.
+Thus, $\mathbf{r}_\tau$ is trained as a simplex-constrained surrogate for the beneficial part of the local utility sensitivity, e.g., $\mathbf{r}_\tau\approx\Pi_\Delta([\nabla_{\mathbf{s}}F_\tau(\mathbf{s})]_+)$.
 
 \paragraph{Offline pretraining.}
 We construct an intervention set
@@ -97,7 +102,7 @@ At decision step $t$, ReAD samples a capability label according to the selected 
 \label{sec:method:bandit}
 
 \paragraph{Decision loop.}
-ReAD runs for $T_{\mathrm{step}}=20$ decision steps. Thus, the bandit update, data resampling, and proxy refresh occur every $1.0$M tokens in the $20$M setting and every $7.5$M tokens in the $150$M setting. At step $t$, the context summarizes the task requirement, current student profile, remaining budget, and recent allocation history:
+ReAD runs for $T_{\mathrm{step}}=20$ decision steps\rev{, with the bandit update, data resampling, and proxy refresh at every step (Section~\ref{subsec:exp_setup})}. At step $t$, the context summarizes the task requirement, current student profile, remaining budget, and recent allocation history:
 \begin{equation}
 \mathbf{x}_t=[\mathbf{r}_\tau;\mathbf{s}^{\mathrm{probe}}(S_t);b_t;\boldsymbol{\rho}_t],
 \label{eq:bandit_context}

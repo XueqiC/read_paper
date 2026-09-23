@@ -44,7 +44,11 @@ Under the two local approximations above, the expected change in capability $c$ 
 \end{proposition}
 
 \noindent\textit{Interpretation.}
-The matrix $\Gamma$ is the local analogue of the empirical capability-transfer matrix. Diagonal terms capture intended gains, while off-diagonal terms capture transfer or interference. Off-diagonal terms are nonzero whenever the update direction for capability $c'$ is not orthogonal to the readout direction of capability $c$, which is expected under shared representations. This is the decision-step explanation for why allocating budget to one capability can alter others.
+\rev{$\Gamma$ is the local analogue of the empirical transfer matrix: diagonal
+terms are intended gains, and off-diagonal terms are nonzero whenever the update
+direction for $c'$ is not orthogonal to the readout direction of $c$, which is
+expected under shared representations. This is why allocating budget to one
+capability alters others at the decision-step level.}
 
 \subsection{Budget Waste from Diminishing Returns}
 \label{subsec:theory_diminish_short}
@@ -84,14 +88,18 @@ r_{\tau,\bar c}G'_{\tau,\bar c}(b_{\bar c})$.
 \end{proposition}
 
 \noindent\textit{Implication for ReAD.}
-This analysis formalizes budget waste: once the target capability saturates, additional tokens can have lower task-aligned marginal value than tokens assigned elsewhere. The actual ReAD reward in Eq.~\eqref{eq:reward} is richer than this proxy because it also penalizes observed spillover. Thus, the theory motivates adaptive allocation, while the allocator directly optimizes a step-level reward that accounts for both diminishing returns and cross-capability degradation.
+\rev{This formalizes budget waste: once the target saturates, further tokens have
+lower task-aligned marginal value than tokens assigned elsewhere. ReAD's reward
+in Eq.~\eqref{eq:reward} is richer than this proxy because it also penalizes
+observed spillover, so the allocator optimizes a step-level reward that
+accounts for both diminishing returns and cross-capability degradation.}
 
 \subsection{Why Uncertainty-Aware Allocation Helps}
 \label{subsec:theory_ucb_short}
 
 At step $t$, ReAD chooses from a finite action set $\mathcal{A}(\tau)$ using the ensemble mean $\mu(\mathbf{x}_t,\mathbf{w})$ and uncertainty $\sigma(\mathbf{x}_t,\mathbf{w})$ in Eq.~\eqref{eq:ucb}. Let $\overline{R}(\mathbf{x},\mathbf{w})
 :=
-\mathbb{E}[\widehat{R}_t\mid \mathbf{x}_t=\mathbf{x},\mathbf{w}_t=\mathbf{w}]$ be the conditional expected proxy reward.
+\mathbb{E}[\widehat{R}_t\mid \mathbf{x}_t=\mathbf{x},\mathbf{w}_t=\mathbf{w}]$ be the conditional expected proxy reward\rev{ of action $\mathbf{w}$ in context $\mathbf{x}$}.
 
 \begin{assumption}[Calibrated ensemble uncertainty]
 \label{ass:calibrated_uncertainty}

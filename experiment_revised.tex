@@ -22,15 +22,27 @@ sampling. The six main baselines combine three teacher signals---final response
 (Resp), chain-of-thought plus response (CoT), and token-level logits (Logit)---
 with two objectives, SFT and KD. Each baseline is one-hot at the capability
 level, spending the full budget on the target-capability pool.
+\rev{We also compare against four allocation baselines that share ReAD's
+generator, teacher, and budget and differ only in how $\mathbf{w}_t$ is chosen
+(Table~\ref{tab:budget_diagnostics}): \emph{Uniform static}
+($\mathbf{w}_t=\mathbf{1}/|\mathcal{C}|$), \emph{Task-static mix}
+($\mathbf{w}_t=\mathbf{r}_\tau$), \emph{Greedy one-step} (re-selects
+$\mathbf{w}_t$ each step by the ensemble mean alone, $\kappa=0$), and
+\emph{Grid-searched} (best fixed allocation in $\mathcal{A}(\tau)$ on the
+profiling split). These are the matched reference points for adaptive allocation.}
 
 \textbf{ReAD implementation.}
 ReAD runs for $20$ decision steps, with bandit updates, proxy refreshes, and data
 resampling every $1.0$M tokens in the $20$M setting and every $7.5$M tokens in
-the $150$M setting. Reward regressors are two-layer MLPs trained on the 10\%
-profiling split plus logged transitions, yielding $3.2$k--$4.9$k examples per
-task. Proxy refresh adds 3.12\% wall-clock overhead, the full online loop adds
+the $150$M setting. Proxy refresh adds 3.12\% wall-clock overhead, the full online loop adds
 5.63\%, and the reusable requirement identifier costs 3.79 GPU-hours to train
 once.
+\rev{\textbf{Cost accounting.} $B$ counts the teacher-generated tokens the
+student is trained on and is identical for all methods. Two ReAD-specific costs
+fall outside $B$ and are reported separately rather than folded into it: the
+identifier is trained once from auxiliary tasks and reused for every task and
+budget, so its 3.79 GPU-hours are amortized, and the fixed probe suite is the
+3.12\% overhead above.}
 
 
 \section{Experiments}
@@ -123,9 +135,12 @@ $\mathbf{77.06\pm0.97}$ & $\mathbf{29.82\pm0.64}$ & $\mathbf{33.58\pm0.49}$ & $\
 
 \paragraph{RQ1: Utility under a fixed budget.}
 Table~\ref{tab:llama_20m} shows that ReAD achieves the strongest capability
-profile at $20$M tokens, consistently outperforming all six baselines. The gains
+profile at $20$M tokens\rev{, outperforming the six one-hot baselines on every
+capability}. The gains
 are especially pronounced on bottleneck capabilities such as Steerability, Math,
-Tool Use, and LCU. The $150$M Llama results and Qwen results in
+Tool Use, and LCU. \rev{Since each one-hot baseline spends the whole budget on one capability,
+this isolates the value of distributing the budget at all; the matched
+comparison for \emph{how} to distribute it is Table~\ref{tab:budget_diagnostics}(b) (RQ3).} The $150$M Llama results and Qwen results in
 Appendix~\ref{sec:app_experiment} show the same ordering, suggesting that the
 improvement is not tied to a single teacher--student pair.
 
@@ -138,11 +153,10 @@ reduces wasted tokens on low-marginal-return updates.
 \begin{table}[t]
   \centering
   \captionsetup{font=small, width=0.96\linewidth, skip=3pt}
-  \caption{\textbf{Budget-allocation diagnostics.} Panel (a) reports the 150M-token gain--spillover trade-off computed from the
-capability transfer matrix: ReAD preserves near-best on-target gain while
-substantially reducing off-target degradation and negative transfer.
-Panel (b) compares matched-budget allocation schedules under the same generator,
-showing that adaptive bandit allocation outperforms static and greedy schedules.}
+  \caption{\rev{\textbf{Budget-allocation diagnostics.} (a) 150M-token
+gain--spillover trade-off from the capability transfer matrix: ReAD keeps
+near-best on-target gain with much less off-target degradation. (b)
+Matched-budget allocation schedules under the same generator.}}
   \label{tab:budget_diagnostics}
   \vspace{-0.4em}
 
@@ -226,6 +240,11 @@ baselines under the same generator and token budgets. Static schedules cannot
 adapt once marginal returns and spillover change during training, while the
 greedy heuristic ignores uncertainty and remaining budget. ReAD outperforms
 both, with a larger margin at $150$M where saturation and spillover are stronger.
+\rev{These margins are smaller than those over one-hot baselines ($+1.0$/$+1.2$
+over Greedy one-step and $+1.2$/$+1.4$ over Grid-searched at $20$M/$150$M, with
+seed standard deviations of $0.3$--$0.4$), as every allocation baseline already
+mixes capabilities; the remaining gain is the value of re-estimating the mix as
+the student and the remaining budget change.}
 
 \begin{wrapfigure}[8]{r}{0.42\textwidth}
   \vspace{-1.6em}
@@ -244,13 +263,6 @@ removing interaction awareness drops the spillover penalty.
 Figure~\ref{fig:rq3_ablation} shows that identification and adaptation drive the
 largest gains, while interaction modeling provides additional improvement by
 reducing harmful transfer.
-
-\paragraph{Local proxy validation.}
-The proxy validation supports ReAD's use of local action ranking. Predicted
-next-step gains align with observed gains, especially for small budget moves,
-which matches ReAD's stepwise allocation regime. The requirement vectors are
-stable across runs, and the reward regressors are accurate enough to guide the
-uncertainty-aware bandit updates.
 
 \paragraph{RQ4: Transfer beyond aligned benchmarks.}
 Finally, we evaluate ReAD on held-out XSTest~\citep{rottger2024xstest} using the same requirement
