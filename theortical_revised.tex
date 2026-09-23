@@ -47,11 +47,9 @@ penalizes measured spillover on task-essential capabilities.}
 \rev{\textbf{Why uncertainty-aware allocation helps.} Let
 $\overline{R}(\mathbf{x},\mathbf{w}):=\mathbb{E}[\widehat{R}_t\mid\mathbf{x}_t=\mathbf{x},\mathbf{w}_t=\mathbf{w}]$
 be the conditional expected proxy reward. If the ensemble is calibrated,
-$|\mu(\mathbf{x}_t,\mathbf{w})-\overline{R}(\mathbf{x}_t,\mathbf{w})|\le\kappa\,\sigma(\mathbf{x}_t,\mathbf{w})$
-with high probability, then the action chosen by Eq.~\eqref{eq:ucb} satisfies
-$\overline{R}(\mathbf{x}_t,\mathbf{w}_t^\star)-\overline{R}(\mathbf{x}_t,\mathbf{w}_t)\le2\kappa\,\sigma(\mathbf{x}_t,\mathbf{w}_t)$
-for the best action $\mathbf{w}_t^\star$ (Proposition~\ref{prop:regret}): the
-allocator can only be wrong where its own uncertainty is large, which is
-exactly where the exploration bonus directs budget. The bound justifies the
-local ranking rule at each budget step; it does not claim global optimality for
-nonconvex fine-tuning.}
+$|\mu-\overline{R}|\le\kappa\,\sigma$ with high probability, the action chosen
+by Eq.~\eqref{eq:ucb} is within $2\kappa\,\sigma(\mathbf{x}_t,\mathbf{w}_t)$ of
+the best action in expected reward (Proposition~\ref{prop:regret}): the
+allocator can only be wrong where its own uncertainty is large, which is where
+the exploration bonus directs budget. This justifies the local ranking rule at
+each step; it does not claim global optimality for nonconvex fine-tuning.}

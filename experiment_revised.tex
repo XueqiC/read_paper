@@ -180,8 +180,13 @@ maintains the strongest scaling trend, indicating that adaptive allocation
 reduces wasted tokens on low-marginal-return updates.
 \rev{Appendix Table~\ref{tab:scaling} states the same in absolute points:
 between the two budgets ReAD gains the most per additional $10$M tokens on six
-of the eight capabilities and on average, so it wastes the least of the
-additional budget across capabilities.}
+of the eight capabilities and on average. Conversely, interpolating each
+baseline log-linearly between its two measured budgets, the strongest one-hot
+baseline would need $1.3$--$6.5\times$ ReAD's tokens (median about $2\times$)
+to match ReAD's $20$M score, and none reaches ReAD's $20$M Tool Use score even
+at $150$M (Appendix Table~\ref{tab:equiv_budget}). This token saving is an
+order of magnitude larger than ReAD's $5.63\%$ online overhead, so the
+advantage does not rest on the costs that we exclude from the budget $B$.}
 
 \begin{table}[t]
   \centering

@@ -1,25 +1,16 @@
 \section{Preliminary}
 \label{sec:prelim}
 
-\subsection{Notation}
+\subsection{Notation and Formalization}
 
 In this paper, we study budgeted capability distillation from a large teacher model \(T\) to a
 smaller student model \(S\), with total training-token budget \(B\). Let
 \(\mathcal{C}=\{c_1,\ldots,c_{|\mathcal{C}|}\}\) denote a set of measurable
-capabilities, and let \(s_k(M)\) be model \(M\)'s benchmark score on capability
+capabilities\rev{, here the eight core capabilities of Appendix Table~\ref{tab:capabilities-benchmarks},} and let \(s_k(M)\) be model \(M\)'s benchmark score on capability
 \(c_k\). A distillation strategy \(\pi\) specifies how data is generated, how
 the teacher is queried, and how tokens are allocated across capabilities,
 assigning budgets \(\{b_k\}\) with \(\sum_k b_k\le B\), and producing a
 distilled student \(S_\pi\).
-
-\subsection{Intuition and Formalization}
-
-\rev{Distilling for one capability can inadvertently shift others, so a limited
-budget is easily spent inefficiently~\citep{zhong2024revisiting,
-fang2025kddd_survey,cloud2025subliminal}. To study these interactions, we
-evaluate eight core LLM capabilities with commonly adopted benchmarks
-(Appendix~\ref{sec:bench_datasets}, Table~\ref{tab:capabilities-benchmarks}),
-which motivate our unified \emph{capability distillation} formulation.}
 
 \begin{definition}[Capability distillation]\label{def:cap_distill}
 Given a teacher model \( T \), an initial student model \( S_0 \), and
@@ -45,7 +36,7 @@ cross-entropy or logit-matching between the student\rev{'s and the teacher's out
 \end{definition}
 
 \rev{Under shared representations, budget spent on one capability changes the
-others. We measure this effect with one-hot allocations:}
+others. We measure this cross-capability effect by distilling with one-hot allocations:}
 \begin{definition}[Capability interdependence]\label{def:cap_interdependence}
 Let \( S_0 \) be an initial student model, and let \( S(\mathbf{w},B) \) denote
 the student obtained after capability distillation under allocation
@@ -129,26 +120,22 @@ negative off-diagonals appear for specific non-targets.}
 
 \textbf{Observation 2: Capability distillation exhibits substantial budget waste
 due to diminishing returns and negative spillover.}
-\rev{Two diagnostics read off $\mathbf{T}(B)$ quantify the waste.
-\emph{Diminishing returns} compares the marginal target gain of
-20M$\rightarrow$80M with that of 80M$\rightarrow$150M: for the
-strongest-improving targets the first is consistently larger
-(Figure~\ref{fig:diminishing_returns}), i.e., the target saturates.
-\emph{Negative spillover} measures the drop on non-target capabilities as the
-target's budget grows, and it rises with budget
-(Figure~\ref{fig:rising_spillover}). Beyond a capability-specific knee point,
-extra tokens therefore buy little target benefit while amplifying
+\rev{For the strongest-improving targets, the marginal target gain of
+20M$\rightarrow$80M is consistently larger than that of 80M$\rightarrow$150M
+(\emph{diminishing returns}, Figure~\ref{fig:diminishing_returns}), while the
+drop on non-target capabilities grows with the target's budget (\emph{negative
+spillover}, Figure~\ref{fig:rising_spillover}). Beyond a capability-specific
+knee point, extra tokens thus buy little target benefit and amplify
 cross-capability degradation. Neither effect is new in isolation: off-target
 drops are a form of catastrophic
-forgetting~\citep{kirkpatrick2017overcoming,luo2023empirical}, and saturating
-gains are ordinary diminishing returns. What allocation can exploit is their
-\emph{structure}: transfer is signed and source-specific, it changes with
-budget, and the two effects interact, so a token's marginal value depends on
-where the budget has already gone.}
+forgetting~\citep{kirkpatrick2017overcoming,luo2023empirical}, and saturation
+is ordinary diminishing returns. What allocation can exploit is their
+\emph{structure}: transfer is signed, source-specific, and budget-dependent, so
+a token's marginal value depends on where the budget has already gone.}
 
 \rev{Effective distillation under a fixed budget must therefore reason jointly
 about task-relevant capabilities, their interactions, and allocation. We
-formalize this as a budget allocation problem across interdependent capabilities:}
+formalize this as a sequential budget allocation problem across interdependent capabilities, as follows:}
 
 \begin{problem}[Budget allocation for interdependent capability distillation]\label{prob:budget_alloc}
 Given a teacher model \( T \), an initial student model \( S_0 \), a downstream

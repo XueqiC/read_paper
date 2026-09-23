@@ -1,16 +1,30 @@
 \section{Methodology}
 \label{sec:method}
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figure/overview.pdf}
+  \vspace{-1.4em}
+  \caption{\rev{Overview of ReAD. (1) An identifier maps a task card to the
+  requirement vector $\mathbf{r}_\tau$. (2) Each step, the allocation
+  $\mathbf{w}_t$ decides which capabilities' prompts are generated; the teacher
+  answers them and the student is distilled on the answers. (3) Probes measure
+  the profile change $\Delta\mathbf{s}_t$, whose reward (gain minus spillover
+  and cost) updates a UCB bandit that picks $\mathbf{w}_{t+1}$. The example task
+  and all values shown in the figure are illustrative.}}
+  \label{fig:overview}
+  \vspace{-0.8em}
+\end{figure}
+
 ReAD treats Problem~\ref{prob:budget_alloc} as state-dependent budget allocation
-over capabilities. At each step, it estimates task requirements, generates
+over capabilities \rev{(Figure~\ref{fig:overview})}. At each step, it estimates task requirements, generates
 capability-targeted teacher supervision, and uses an uncertainty-aware contextual
 bandit to choose the next token allocation. As the student profile changes, ReAD
 can shift budget away from saturated or high-spillover capabilities.
-\rev{ReAD is \emph{off-policy} in the sense of \citet{agarwal2024gkd}: the
-student trains on teacher completions to generated prompts and never samples
-its own training sequences. The allocator is orthogonal to the inner objective,
-and on-policy losses~\citep{gu2024minillm,ko2024distillm} could replace the
-token-level loss in Section~\ref{sec:method:bandit} unchanged.}
+\rev{ReAD is \emph{off-policy}~\citep{agarwal2024gkd}: the student learns from
+teacher completions, never from its own samples. The allocator is orthogonal to
+this choice, so on-policy losses~\citep{gu2024minillm,ko2024distillm} could be
+plugged in unchanged.}
 
 \subsection{Identifying Task-Essential Capabilities}
 \label{sec:method:essential}
@@ -76,22 +90,18 @@ is not charged to the per-run distillation budget.}
 \subsection{On-the-Fly Capability-Targeted Data Generation}
 \label{sec:method-generator}
 
-\rev{Given $\mathbf{r}_\tau$, ReAD generates training examples on the fly from
-a capability-labeled template library: for each capability $c$, a template set
-$\mathcal{P}_c$ specifies an instruction scaffold, typed slots, and
-output-format constraints, and slot values are filled from deterministic seeds.
-Each prompt receives a deterministic difficulty score $d_c(x)\in[0,1]$, the
-average of capability-specific control factors (e.g., reasoning hops and
-constraints for reasoning, required functions and tests for code, rules and
-schema fields for steerability) normalized on a calibration pool
-(Appendix~\ref{sec:app_method}, Eq.~\ref{eq:difficulty_score}); tertiles of
-$d_c$ define easy, medium, and hard buckets. At decision step $t$, ReAD samples
-a capability according to $\mathbf{w}_t$, instantiates a prompt, queries the
-teacher $T$ for a completion $y$, and immediately distills on $(x,y)$. A
-curriculum shifts the within-capability difficulty mix from easy and medium
-toward hard examples over the run; it never chooses the capability allocation.
-Template frequencies are tracked and capped so that no single scaffold
-dominates the generated data.}
+\rev{Given $\mathbf{r}_\tau$, ReAD instantiates prompts on the fly from a
+capability-labeled template library, where each template specifies an
+instruction scaffold, typed slots filled from deterministic seeds, and
+output-format constraints. A deterministic difficulty score $d_c(x)\in[0,1]$
+averages capability-specific control factors (e.g., reasoning hops, required
+functions and tests, or schema rules; Eq.~\ref{eq:difficulty_score} in
+Appendix~\ref{sec:app_method}) and splits prompts into easy, medium, and hard
+tertiles. At step $t$, ReAD samples capabilities according to $\mathbf{w}_t$,
+queries the teacher $T$ for a completion $y$, and immediately distills on
+$(x,y)$. A curriculum moves the within-capability mix from easy toward hard
+examples without affecting the allocation, and per-template caps keep any single
+scaffold from dominating the generated data.}
 
 \subsection{Contextual Bandit for Capability Allocation}
 \label{sec:method:bandit}
