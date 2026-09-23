@@ -1,0 +1,252 @@
+\section{Preliminary}
+\label{sec:prelim}
+
+\subsection{Notation}
+
+% We use lowercase letters to denote scalars, bold lowercase letters for vectors, bold uppercase letters for matrices, and calligraphic letters for sets. 
+In this paper, we study budgeted capability distillation from a large teacher model \(T\) to a
+smaller student model \(S\), with total training-token budget \(B\). Let
+\(\mathcal{C}=\{c_1,\ldots,c_{|\mathcal{C}|}\}\) denote a set of measurable
+capabilities, and let \(s_k(M)\) be model \(M\)'s benchmark score on capability
+\(c_k\). A distillation strategy \(\pi\) specifies how data are generated, how
+the teacher is queried, and how tokens are allocated across capabilities,
+assigning budgets \(\{b_k\}\) with \(\sum_k b_k\le B\), and producing a
+distilled student \(S_\pi\).
+% The induced change in capability \( c_k \) is
+% defined as $\Delta s_k = s_k(S_\pi) - s_k(S_0)$, where \( S_0 \) denotes the initial student model.
+% \td{$K$ was not defined, above it was just $|C|$ (and actually a typo instead of being $|\mathcal{C}|$), if going to reuse K would be better to define above with capabilities set} \xq{fixed to only use $$|\mathcal{C}|$}
+
+\subsection{Intuition and Formalization}
+
+Existing work on LLM capability distillation often assumes that targeted
+capabilities remain independent under compression. However, distilling for one
+capability can inadvertently shift others, leading to inefficient or even
+counterproductive use of a limited budget~\citep{zhong2024revisiting,
+fang2025kddd_survey,cloud2025subliminal}. To study these interactions, we
+evaluate eight core LLM capabilities using commonly adopted benchmarks, with
+the full benchmark-to-metric mapping provided in Appendix~\ref{sec:bench_datasets},
+Table~\ref{tab:capabilities-benchmarks}. These capabilities span major dimensions
+of LLM behavior and motivate our unified \emph{capability distillation}
+formulation.
+
+\begin{definition}[Capability distillation]\label{def:cap_distill}
+Given a teacher model \( T \), an initial student model \( S_0 \), and
+capability-specific data distributions \( \{ \mathcal{D}_c \}_{c\in\mathcal{C}} \),
+capability distillation allocates a limited budget \( B \) across capabilities
+to improve task-relevant performance under shared representations by optimizing
+a weighted mixture of distillation objectives:
+\begin{equation}
+\begin{aligned}
+\min_{S,\,\mathbf{w}} \;&
+\mathbb{E}_{x\sim \mathcal{D}_{\mathbf{w}}}
+\!\left[\ell\!\left(S(x),T(x)\right)\right] \quad\
+\text{s.t.} \quad\
+\mathbf{w}\in\Delta_{|\mathcal{C}|},\; \mathrm{cost}(S;S_0)\le B .
+\end{aligned}
+\end{equation}
+where \( \mathcal{D}_{\mathbf{w}} := \sum_{c\in\mathcal{C}} w_c \mathcal{D}_c \), and $\mathrm{cost}(S;S_0)$ measures the distillation token budget consumed to obtain $S$ from $S_0$.
+Here \( \mathbf{w}=(w_c)_{c\in\mathcal{C}} \) lies in the probability simplex
+\[
+\Delta_{|\mathcal{C}|}=\Big\{\mathbf{w}\in\mathbb{R}^{|\mathcal{C}|}\ \big|\ w_c\ge 0,\ \sum_{c\in\mathcal{C}} w_c=1\Big\},
+\]
+which specifies the allocation of training effort across capabilities, and
+\( \ell \) denotes a standard distillation loss, such as token-level
+cross-entropy or logit-matching between the student and teacher outputs.
+\end{definition}
+
+We therefore conduct an empirical study to identify and quantify how allocating a limited distillation budget to specific capabilities induces systematic performance changes in other capabilities, thereby exposing the intrinsic interdependence structure among capabilities in LLMs.
+\begin{definition}[Capability interdependence]\label{def:cap_interdependence}
+Let \( S_0 \) be an initial student model, and let \( S(\mathbf{w},B) \) denote
+the student obtained after capability distillation under allocation
+\( \mathbf{w}\in\Delta_{|\mathcal{C}|} \) and budget \( B \). For each capability
+\( c_i \), define the one-hot allocation vector
+\( \mathbf{w}^{(i)}\in\Delta_{|\mathcal{C}|} \) by \( w^{(i)}_i=1 \) and
+\( w^{(i)}_j=0 \) for all \( j\neq i \). The \emph{capability interdependence}
+under capability distillation is characterized by the capability transfer matrix
+\[
+\mathbf{T}_{ij}(B)
+:= s_j\!\left(S(\mathbf{w}^{(i)},B)\right) - s_j(S_0),
+\]
+where $\mathbf{T}(B)\in\mathbb{R}^{|\mathcal{C}|\times|\mathcal{C}|}$, \( \mathbf{T}_{ij}(B) \) quantifies the effect of distilling
+toward capability \( c_i \) on the performance of capability \( c_j \).
+Non-zero off-diagonal entries indicate interdependence between capabilities
+under shared representations.
+\end{definition}
+
+
+% This problem formulation allows us to examine how distillation toward specific capabilities influences others and how budget efficiency degrades due to diminishing returns or negative cross-capability spillover, thereby revealing the empirical interdependence structure of capabilities in LLMs.
+
+
+% \subsection{Empirical Study: Observation and Analysis}
+
+
+% \begin{figure}[t]
+%   \centering
+
+%   \begin{subfigure}[t]{0.53\columnwidth}
+%     \centering
+%     \includegraphics[width=\linewidth]{figure/Dimenshing.pdf}
+%     \caption{Diminishing Returns}
+%     \label{fig:dimenshing}
+%   \end{subfigure}
+%   \hfill
+%   \begin{subfigure}[t]{0.46\columnwidth}
+%     \centering
+%     \includegraphics[width=\linewidth]{figure/spilover.pdf}
+%     \caption{Rising Spillover}
+%     \label{fig:spilover}
+%   \end{subfigure}
+
+%   \caption{Capability distillation exhibits diminishing returns and increasing negative spillover: Extra distillation tokens yield smaller additional gains on the target capability while causing larger average drops on other capabilities.}
+%   \label{fig:obs2}
+%   \vspace{-1em}
+% \end{figure}
+
+\vspace{-1em}
+
+\subsection{Exploratory Study and Problem Formulation}
+~\label{sec:emp_res}
+
+\vspace{-2em}
+% \yd{wait there cannot be two sets of pre studies so maybe simply make your previous one as intuition and formalization and only make this one as the Exploratory Study showing observations findings etc.}
+
+
+% \yd{we should need figure(s) to show the observation clearly: what is the findings from your Empirical Study? reviewer should immediately learn this at their first glance.}
+
+In this section, we analyze empirical capability interdependence through controlled distillation
+experiments. Across all experiments, we distill Llama-3.3-70B-Instruct into
+Llama-3.1-8B-Instruct under fixed token budgets, using the target capabilities
+in Appendix Table~\ref{tab:capabilities-benchmarks} and several representative
+capability-distillation strategies. For each strategy \( \pi \) and budget
+\( B \), we evaluate the student on all benchmarks to form a capability transfer
+matrix, capturing both target-capability gains and non-target changes. We
+normalize all benchmark scores to \( [0,100] \); details are provided in
+Appendix~\ref{sec:app_em}.
+% While the observations reported in this section are based on the selected benchmarks due to page limitations, more comprehensive results across additional variants and budgets are included in Appendix~\ref{app:full_results}.
+% \td{is there an updated figure for this yet?} \yd{we need to put up the figures here.}
+
+%==================== Wrapped Figure 1: capability transfer heatmaps ====================
+\begin{wrapfigure}[17]{r}{0.55\textwidth}
+  \vspace{-1.2em}
+  \centering
+  % \setlength{\abovecaptionskip}{2pt}
+  % \setlength{\belowcaptionskip}{-4pt}
+
+  \includegraphics[width=0.9\linewidth]{figure/icon.pdf}
+  \vspace{0.35em}
+
+  \begin{subfigure}[t]{0.445\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figure/heatmap_small.pdf}
+    \caption{Small token budget}
+    \label{fig:heatmap_small}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.525\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figure/heatmap_large.pdf}
+    \caption{Large token budget}
+    \label{fig:heatmap_large}
+  \end{subfigure}
+
+  \caption{
+  Cross-capability transfer under single-capability distillation.
+  Larger budgets sharpen target-capability gains but expose stronger negative transfer.
+  }
+  % \vspace{-2em}
+  \label{fig:capability_transfer_heatmaps}
+\end{wrapfigure}
+
+\textbf{Observation 1: Distilling a specific capability redistributes performance across other capabilities in a budget-dependent manner.} Figure~\ref{fig:capability_transfer_heatmaps} reports the visualization of the capability transfer matrices under different token budgets. Here, the off-diagonal mass is consistently non-zero, meaning optimizing a single capability alters other capabilities rather than leaving them unchanged. Besides, the structure varies with budget: at small budgets, changes are generally weak and diffuse, whereas at large budgets the diagonal strengthens, but negative off-diagonals become more visible for specific non-targets. Together, these results indicate that capability distillation induces a structured redistribution of performance.
+
+%==================== Wrapped Figure 2: budget waste mechanism ====================
+\begin{wrapfigure}[13]{r}{0.6\textwidth}
+  \centering
+
+  \begin{subfigure}[t]{0.515\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figure/Dimenshing.pdf}
+    \caption{Diminishing returns}
+    \label{fig:diminishing_returns}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.455\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figure/spilover.pdf}
+    \caption{Rising spillover}
+    \label{fig:rising_spillover}
+  \end{subfigure}
+
+  \caption{
+  Budget waste in capability distillation. Extra tokens yield smaller target gains
+  while increasing harmful spillover to non-target capabilities.
+  }
+  \label{fig:budget_waste_mechanism}
+  % \vspace{1.5em}
+\end{wrapfigure}
+
+\textbf{Observation 2: Capability distillation exhibits substantial budget waste
+due to diminishing returns and negative spillover.}
+Under a fixed distillation budget, additional tokens for a target capability
+should ideally provide meaningful target improvement without degrading other
+capabilities needed downstream. We test this using two diagnostics derived from
+the capability transfer matrix \(T(B)\). First, \emph{diminishing returns}
+measures whether marginal target gains shrink as the budget increases, comparing
+20M\(\rightarrow\)80M against 80M\(\rightarrow\)150M for the same target.
+Second, \emph{negative spillover} measures the drop on non-target capabilities
+as more budget is assigned to target.
+
+Figure~\ref{fig:diminishing_returns} shows that, for the strongest-improving
+targets, the 20M\(\rightarrow\)80M gain is consistently larger than the
+80M\(\rightarrow\)150M gain, indicating target-capability saturation.
+Figure~\ref{fig:rising_spillover} further shows that collateral harm to
+non-target capabilities grows with budget. Together, these trends reveal
+budget waste: beyond a capability-specific knee point, extra tokens yield
+limited target benefit while amplifying cross-capability degradation, motivating
+allocation strategies that explicitly trade off target gains against spillover.
+
+Overall, these observations suggest that effective capability distillation under a fixed budgets requires jointly reasoning about task-relevant capabilities, cross-capability interactions, and budget allocation. We formalize this as a budget allocation problem across interdependent capabilities:
+
+\begin{problem}[Budget allocation for interdependent capability distillation]\label{prob:budget_alloc}
+Given a teacher model \( T \), an initial student model \( S_0 \), a downstream
+task \( \tau \), and a total distillation budget \( B \), consider a sequential
+distillation process over steps \( t=1,\ldots,T \) with cumulative cost not
+exceeding \( B \). At each step \( t \), a capability allocation vector
+\( \mathbf{w}_t\in\Delta_{|\mathcal{C}|} \) is selected and applied to update
+the student, yielding \( S_t \). Let \( U_\tau(\cdot) \) is the task-dependent utility function, our target is to determine an allocation policy
+\( \{\mathbf{w}_t\}_{t=1}^T \) that maximizes the performance of
+the final student model:
+\begin{equation}
+\max_{\{\mathbf{w}_t\}_{t=1}^T}\ U_\tau\!\left(S_T\right), \
+\text{s.t.}\;
+\sum_{t=1}^T \mathrm{cost}\!\left(S_{t-1}\!\rightarrow\!S_t\right)\le B
+\end{equation}
+\end{problem}
+
+
+% \begin{table}[t]
+% \centering
+% \small
+% \caption{Knowledge distillation baselines focusing on capability-specific transfer.}
+% \begin{tabular}{ll}
+% \toprule
+% \textbf{Capability} & \textbf{Distillation Baselines} \\
+% \midrule
+% Reasoning
+% & SOCRATIC COT~\citep{shridhar2023distilling} \\
+% % FAIR~\citep{li2025learning}
+% Math 
+% & WizardMath~\citep{xu2024wizardlm}\\
+
+% Multilingual 
+% & d-CoT-nR~\citep{payoungkhamdee2024empirical} \\
+
+% Code
+% & CodePLAN~\citep{sun2024enhancing} \\
+
+% Tool Use 
+% & ToolLLM~\citep{qin2023toolllm}\\
+% \bottomrule
+% \end{tabular}
+% \label{tab:skill-kd-baselines}
+% \end{table}

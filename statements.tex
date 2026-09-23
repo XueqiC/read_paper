@@ -1,0 +1,49 @@
+% ICLR 2027: AI use statement (required), Ethics statement and
+% Reproducibility statement (recommended). All three go at the end of the
+% main text, before the references, and do not count toward the page limit.
+
+\subsection*{AI use statement}
+
+In this work, we used generative AI tools to assist with implementing parts of
+the experimental code (e.g., data processing, evaluation, and plotting scripts)
+and to improve the writing of the manuscript (grammar, wording, and
+formatting). We have not used generative AI tools to generate synthetic
+datasets, develop the theoretical model or conceptual framework, formulate or
+prove mathematical claims, propose or refine hypotheses, design the research
+methodology or experiments, or interpret results; the remaining tasks with
+required disclosure (e.g., translation and qualitative or thematic data
+analysis) are not applicable to this work. We have reviewed all AI-assisted
+work: AI-assisted code was checked and tested by the authors before use, and
+all AI-edited text was verified by the authors against the intended content.
+We take responsibility for the final content of this work, including text,
+claims, and artifacts produced with the aid of generative AI.
+
+\subsection*{Ethics statement}
+
+This work does not involve human subjects, crowdsourcing, or personally
+identifiable data. All experiments use publicly available pretrained models and
+public benchmarks, and evaluation is fully automated. ReAD is a method for
+allocating a fixed distillation budget across capabilities; it does not
+introduce new datasets or release new model weights. As with any distillation
+method, distilled students may inherit biases or unsafe behaviors from the
+teacher and the training data, and more efficient distillation may lower the
+cost of producing specialized models with dual-use capabilities. We discuss
+these risks and the corresponding mitigations (task-specific safety evaluation,
+bias and robustness audits, and monitoring of off-target capability changes) in
+Appendix~\ref{sec:broader_impact}.
+
+\subsection*{Reproducibility statement}
+
+We have made efforts to ensure that our results are reproducible.
+Section~\ref{subsec:exp_setup} specifies the teacher--student model pairs,
+token budgets, evaluation protocol, baselines, and the ReAD update schedule,
+and Section~\ref{sec:method} describes each component of ReAD.
+Appendix~\ref{sec:bench_datasets} lists the benchmarks, metrics, and data
+splits used for each capability, Appendix~\ref{sec:app_em} details the setting
+of the exploratory study, and Appendix~\ref{sec:app_experiment} reports
+additional experiments and ablations. The assumptions and full derivations for
+the theoretical results in Section~\ref{sec:theory} are given in
+Appendix~\ref{sec:app_theory}. All reported numbers are means and standard
+deviations over three seeds. An anonymized repository with our code,
+configuration files, and instructions for reproducing the main results is
+available at \url{https://anonymous.4open.science/r/ReAD-85EB}.

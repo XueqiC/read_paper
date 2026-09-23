@@ -1,0 +1,112 @@
+\section{Theoretical Analysis}
+\label{sec:theory}
+
+This section provides a local theoretical account of ReAD's allocation problem.
+We characterize cross-capability transfer under shared representations, show
+when diminishing returns make continued allocation wasteful, and motivate
+uncertainty-aware allocation under noisy reward estimates.
+
+\subsection{Local Cross-Capability Transfer}
+\label{subsec:theory_transfer_short}
+
+Let $\theta_t\in\mathbb{R}^p$ denote the parameters of the student $S_t$, and let $\Delta\theta_t=\theta_t-\theta_{t-1}$. We analyze one decision step, which is the regime in which ReAD re-estimates its allocation.
+
+\begin{assumption}[Mixture-structured update]
+At interval $t$, given an allocation vector $\mathbf{w}_t\in\Delta_{|\mathcal{C}|}$, the expected update admits a local mixture approximation $\mathbb{E}[\Delta\theta_t\mid \mathbf{w}_t,\theta_{t-1}]
+\approx
+\sum_{c\in\mathcal{C}} w_{t,c}\,d_c(\theta_{t-1})$, where $d_c(\theta)$ is the capability-conditioned local update direction.
+\end{assumption}
+
+\begin{assumption}[Local capability readout]
+The measured capability profile $\mathbf{s}(S)$ is represented locally as a differentiable function $\tilde{\mathbf{s}}(\theta)$. Near $\theta_{t-1}$,
+\begin{equation}
+\Delta s_{t,c}
+=
+[\mathbf{s}(S_t)]_c-[\mathbf{s}(S_{t-1})]_c
+\approx
+\nabla_\theta[\tilde{\mathbf{s}}(\theta_{t-1})]_c^\top\Delta\theta_t.
+\label{eq:local_linear_short}
+\end{equation}
+\end{assumption}
+
+\begin{proposition}[Local transfer decomposition]
+Under the two local approximations above, the expected change in capability $c$ satisfies
+\begin{equation}
+\Delta s_{t,c}
+\approx
+\sum_{c'\in\mathcal{C}} w_{t,c'}\,\Gamma_{c,c'}(\theta_{t-1}),
+\qquad
+\Gamma_{c,c'}(\theta)
+:=
+\nabla_\theta[\tilde{\mathbf{s}}(\theta)]_c^\top d_{c'}(\theta).
+\label{eq:transfer_decomp_short}
+\end{equation}
+\end{proposition}
+
+\noindent\textit{Interpretation.}
+The matrix $\Gamma$ is the local analogue of the empirical capability-transfer matrix. Diagonal terms capture intended gains, while off-diagonal terms capture transfer or interference. Off-diagonal terms are nonzero whenever the update direction for capability $c'$ is not orthogonal to the readout direction of capability $c$, which is expected under shared representations. This is the decision-step explanation for why allocating budget to one capability can alter others.
+
+\subsection{Budget Waste from Diminishing Returns}
+\label{subsec:theory_diminish_short}
+
+The previous subsection explains spillover. We now isolate diminishing returns with a simpler cumulative-budget proxy. Let $b_c\ge0$ be the total number of distillation tokens assigned to capability $c$, with $\sum_c b_c\le B$, and let $\mathbf{r}_\tau\in\Delta_{|\mathcal{C}|}$ be the task requirement vector.
+
+\begin{assumption}[Concave task-aligned gains]
+\label{assump:concave_gains_short}
+For task $\tau$ and capability $c$, there is a nondecreasing concave gain function $G_{\tau,c}:\mathbb{R}_{\ge0}\to\mathbb{R}_{\ge0}$ such that $\mathbb{E}[U_\tau(S)-U_\tau(S_0)]
+\approx
+\sum_{c\in\mathcal{C}} r_{\tau,c}G_{\tau,c}(b_c)$ where $\sum_{c\in\mathcal{C}} b_c\le B$.
+\end{assumption}
+
+Consider a restricted distillation strategy that allocates budget only to a subset $\mathcal{K}\subseteq\mathcal{C}$:
+\begin{equation}
+\max_{\{b_c\ge0\}_{c\in\mathcal{K}}}
+\sum_{c\in\mathcal{K}} r_{\tau,c}G_{\tau,c}(b_c)
+\quad\mathrm{s.t.}\quad
+\sum_{c\in\mathcal{K}} b_c\le B.
+\label{eq:alloc_proxy_subset}
+\end{equation}
+
+\begin{proposition}[Weighted marginal gain criterion]
+\label{prop:kkt_subset}
+Any optimum $\{b_c^\star\}_{c\in\mathcal{K}}$ of Eq.~\eqref{eq:alloc_proxy_subset} equalizes weighted marginal gains among active capabilities: there exists $\nu^\star\ge0$ such that
+\begin{equation}
+r_{\tau,c}G'_{\tau,c}(b_c^\star)\le\nu^\star
+\quad\forall c\in\mathcal{K},
+\qquad
+r_{\tau,c}G'_{\tau,c}(b_c^\star)=\nu^\star
+\quad\text{if } b_c^\star>0.
+\label{eq:kkt_subset}
+\end{equation}
+Moreover, in the single-capability case targeting $\bar c$, shifting an infinitesimal budget from $\bar c$ to another task-relevant capability $c'$ improves the proxy objective whenever $r_{\tau,c'}G'_{\tau,c'}(0)
+>
+r_{\tau,\bar c}G'_{\tau,\bar c}(b_{\bar c})$.
+\end{proposition}
+
+\noindent\textit{Implication for ReAD.}
+This analysis formalizes budget waste: once the target capability saturates, additional tokens can have lower task-aligned marginal value than tokens assigned elsewhere. The actual ReAD reward in Eq.~\eqref{eq:reward} is richer than this proxy because it also penalizes observed spillover. Thus, the theory motivates adaptive allocation, while the allocator directly optimizes a step-level reward that accounts for both diminishing returns and cross-capability degradation.
+
+\subsection{Why Uncertainty-Aware Allocation Helps}
+\label{subsec:theory_ucb_short}
+
+At step $t$, ReAD chooses from a finite action set $\mathcal{A}(\tau)$ using the ensemble mean $\mu(\mathbf{x}_t,\mathbf{w})$ and uncertainty $\sigma(\mathbf{x}_t,\mathbf{w})$ in Eq.~\eqref{eq:ucb}. Let $\overline{R}(\mathbf{x},\mathbf{w})
+:=
+\mathbb{E}[\widehat{R}_t\mid \mathbf{x}_t=\mathbf{x},\mathbf{w}_t=\mathbf{w}]$ be the conditional expected proxy reward.
+
+\begin{assumption}[Calibrated ensemble uncertainty]
+\label{ass:calibrated_uncertainty}
+For all encountered $(\mathbf{x}_t,\mathbf{w})$, with high probability, $|\mu(\mathbf{x}_t,\mathbf{w})-\overline{R}(\mathbf{x}_t,\mathbf{w})|
+\le
+\kappa\sigma(\mathbf{x}_t,\mathbf{w})$.
+\end{assumption}
+
+\begin{proposition}[Step-level regret bound]
+Let $\mathbf{w}_t^\star\in\arg\max_{\mathbf{w}\in\mathcal{A}(\tau)}\overline{R}(\mathbf{x}_t,\mathbf{w})$. Under Assumption~\ref{ass:calibrated_uncertainty}, the action selected by Eq.~\eqref{eq:ucb} satisfies $\overline{R}(\mathbf{x}_t,\mathbf{w}_t^\star)
+-
+\overline{R}(\mathbf{x}_t,\mathbf{w}_t)
+\le
+2\kappa\sigma(\mathbf{x}_t,\mathbf{w}_t)$.
+\end{proposition}
+
+\noindent\textit{Proof sketch.}
+By calibration, the true reward of any action is at most its upper confidence score, and the selected action maximizes this score. Applying the same calibration inequality to the selected action yields the bound. This result does not imply a global optimum for nonconvex fine-tuning; it justifies the local ranking rule used by ReAD at each budget step.
