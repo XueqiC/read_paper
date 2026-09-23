@@ -107,13 +107,10 @@ under shared representations.
 
 % \yd{we should need figure(s) to show the observation clearly: what is the findings from your Empirical Study? reviewer should immediately learn this at their first glance.}
 
-In this section, we analyze empirical capability interdependence through controlled distillation
-experiments. Across all experiments, we distill Llama-3.3-70B-Instruct into
-Llama-3.1-8B-Instruct under fixed token budgets, using the target capabilities
-in Appendix Table~\ref{tab:capabilities-benchmarks} and several representative
-capability-distillation strategies. For each strategy \( \pi \) and budget
-\( B \), we evaluate the student on all benchmarks to form a capability transfer
-matrix, capturing both target-capability gains and non-target changes. \rev{All
+\rev{We distill Llama-3.3-70B-Instruct into Llama-3.1-8B-Instruct under fixed
+token budgets, one target capability at a time, and evaluate the student on all
+benchmarks to form the transfer matrix of Definition~\ref{def:cap_interdependence}
+(strategies and settings in Appendix~\ref{sec:app_em}). All
 benchmark metrics are accuracies or success rates on a $0$--$100$ scale, a
 capability score is the unweighted mean over its benchmarks, and every entry of
 the transfer matrix is an absolute difference in these points
@@ -122,65 +119,50 @@ the transfer matrix is an absolute difference in these points
 % While the observations reported in this section are based on the selected benchmarks due to page limitations, more comprehensive results across additional variants and budgets are included in Appendix~\ref{app:full_results}.
 % \td{is there an updated figure for this yet?} \yd{we need to put up the figures here.}
 
-%==================== Wrapped Figure 1: capability transfer heatmaps ====================
-\begin{wrapfigure}[17]{r}{0.55\textwidth}
-  \vspace{-1.2em}
+%==================== Figure 1: empirical study (top float, replaces two wrapfigures) ====================
+\begin{figure}[t]
   \centering
-  % \setlength{\abovecaptionskip}{2pt}
-  % \setlength{\belowcaptionskip}{-4pt}
-
-  \includegraphics[width=0.9\linewidth]{figure/icon.pdf}
-  \vspace{0.35em}
-
-  \begin{subfigure}[t]{0.445\linewidth}
+  \begin{minipage}[b]{0.50\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{figure/heatmap_small.pdf}
-    \caption{Small token budget}
-    \label{fig:heatmap_small}
-  \end{subfigure}
-  \hfill
-  \begin{subfigure}[t]{0.525\linewidth}
+    \includegraphics[width=0.96\linewidth]{figure/icon.pdf}\\[1pt]
+    \begin{subfigure}[b]{0.455\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{figure/heatmap_small.pdf}
+      \caption{Small token budget}
+      \label{fig:heatmap_small}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{0.525\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{figure/heatmap_large.pdf}
+      \caption{Large token budget}
+      \label{fig:heatmap_large}
+    \end{subfigure}
+  \end{minipage}\hfill
+  \begin{minipage}[b]{0.48\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{figure/heatmap_large.pdf}
-    \caption{Large token budget}
-    \label{fig:heatmap_large}
-  \end{subfigure}
-
-  \caption{
-  Cross-capability transfer under single-capability distillation.
-  Larger budgets sharpen target-capability gains but expose stronger negative transfer.
-  }
-  % \vspace{-2em}
+    \begin{subfigure}[b]{0.53\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{figure/Dimenshing.pdf}
+      \caption{Diminishing returns}
+      \label{fig:diminishing_returns}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{0.45\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{figure/spilover.pdf}
+      \caption{Rising spillover}
+      \label{fig:rising_spillover}
+    \end{subfigure}
+  \end{minipage}
+  \caption{\rev{Exploratory study. (a--b) Cross-capability transfer under
+  single-capability distillation: larger budgets sharpen target gains but expose
+  stronger negative transfer. (c--d) Budget waste: extra tokens yield smaller
+  target gains while increasing harmful spillover to non-target capabilities.}}
   \label{fig:capability_transfer_heatmaps}
-\end{wrapfigure}
-
-\textbf{Observation 1: Distilling a specific capability redistributes performance across other capabilities in a budget-dependent manner.} Figure~\ref{fig:capability_transfer_heatmaps} reports the visualization of the capability transfer matrices under different token budgets. Here, the off-diagonal mass is consistently non-zero, meaning optimizing a single capability alters other capabilities rather than leaving them unchanged. Besides, the structure varies with budget: at small budgets, changes are generally weak and diffuse, whereas at large budgets the diagonal strengthens, but negative off-diagonals become more visible for specific non-targets. Together, these results indicate that capability distillation induces a structured\rev{, budget-dependent} redistribution of performance\rev{ across capabilities}.
-
-%==================== Wrapped Figure 2: budget waste mechanism ====================
-\begin{wrapfigure}[13]{r}{0.6\textwidth}
-  \centering
-
-  \begin{subfigure}[t]{0.515\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{figure/Dimenshing.pdf}
-    \caption{Diminishing returns}
-    \label{fig:diminishing_returns}
-  \end{subfigure}
-  \hfill
-  \begin{subfigure}[t]{0.455\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{figure/spilover.pdf}
-    \caption{Rising spillover}
-    \label{fig:rising_spillover}
-  \end{subfigure}
-
-  \caption{
-  Budget waste in capability distillation. Extra tokens yield smaller target gains
-  while increasing harmful spillover to non-target capabilities.
-  }
   \label{fig:budget_waste_mechanism}
-  % \vspace{1.5em}
-\end{wrapfigure}
+  \vspace{-0.6em}
+\end{figure}
+
+\textbf{Observation 1: Distilling a specific capability redistributes performance across other capabilities in a budget-dependent manner.} Figure~\ref{fig:capability_transfer_heatmaps}\rev{(a--b)} reports the visualization of the capability transfer matrices under different token budgets. Here, the off-diagonal mass is consistently non-zero, meaning optimizing a single capability alters other capabilities rather than leaving them unchanged. Besides, the structure varies with budget: at small budgets, changes are generally weak and diffuse, whereas at large budgets the diagonal strengthens, but negative off-diagonals become more visible for specific non-targets. Together, these results indicate that capability distillation induces a structured\rev{, budget-dependent} redistribution of performance\rev{ across capabilities}.
 
 \textbf{Observation 2: Capability distillation exhibits substantial budget waste
 due to diminishing returns and negative spillover.}

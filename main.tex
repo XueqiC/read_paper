@@ -51,6 +51,10 @@
 % Revision markup: text added or changed in the ICLR revision is shown in red.
 % Before submission, switch it off with:  \renewcommand{\rev}[1]{#1}
 \newcommand{\rev}[1]{{\color{red}#1}}
+% keep a heading with the lines that follow it (same idea as needspace.sty)
+\makeatletter
+\newcommand{\keepwithnext}[1]{\par\vskip\z@\@plus#1\penalty-100\vskip\z@\@plus-#1}
+\makeatother
 
 %\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
 \begin{document}

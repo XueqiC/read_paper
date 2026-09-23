@@ -449,14 +449,12 @@ each capability, which makes the per-capability margins directly comparable.}
   \label{fig:gain_over_student}
 \end{figure}
 
-\begin{wrapfigure}{r}{0.45\columnwidth}
+\begin{figure}[t]
   \centering
-  % \vspace{-0.8\baselineskip}
-  \includegraphics[width=0.45\columnwidth]{figure/rqX_radar_sota_vs_read_150m.pdf}
-  \caption{ReAD beats SOTA baselines that are specifically designed for reasoning, code, and math capabilities consistently.}
-  % \vspace{-1.2\baselineskip}
+  \includegraphics[width=0.42\columnwidth]{figure/rqX_radar_sota_vs_read_150m.pdf}
+  \caption{ReAD beats SOTA baselines that are specifically designed for reasoning, code, and math capabilities consistently\rev{, at the 150M-token budget}.}
   \label{fig:radar}
-\end{wrapfigure}
+\end{figure}
 
 \textbf{ReAD beats SOTA baselines.}
 To further validate ReAD against SOTA capability distillation baselines that are specifically designed for certain 
@@ -465,6 +463,22 @@ capabilities, we include three representative methods that are commonly used for
 
 % \subsection{Held-out Downstream Transfer}
 % \label{sec:app_xstest}
+
+\rev{\textbf{Significance and budget scaling of the reported numbers.}
+Table~\ref{tab:signif} applies unpaired two-sided Welch $t$-tests (three seeds
+per method) to the comparisons reported above, using only the printed means and
+standard deviations, with Holm correction within each block. At $150$M every
+gain over the allocation baselines of Table~\ref{tab:budget_diagnostics}(b)
+remains significant after correction, and so do the Steerability and
+Multilingual gains over the best one-hot baseline; at $20$M, with three seeds,
+most per-capability differences are individually significant only before
+correction. The XSTest safe-refusal improvements are not significant at this
+sample size. Table~\ref{tab:scaling} reports how much each method gains per
+additional $10$M tokens between the two budgets: ReAD has the largest marginal
+gain on six of the eight capabilities and on average, which is the
+budget-efficiency claim of RQ2 stated in absolute points.}
+
+\input{tables_signif}
 
 \textbf{Local proxy validation.}
 The proxy validation supports ReAD's use of local action ranking. Predicted

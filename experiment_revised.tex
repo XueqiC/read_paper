@@ -242,30 +242,30 @@ greedy heuristic ignores uncertainty and remaining budget. ReAD outperforms
 both, with a larger margin at $150$M where saturation and spillover are stronger.
 \rev{These margins are smaller than those over one-hot baselines ($+1.0$/$+1.2$
 over Greedy one-step and $+1.2$/$+1.4$ over Grid-searched at $20$M/$150$M, with
-seed standard deviations of $0.3$--$0.4$), as every allocation baseline already
+seed standard deviations of $0.3$--$0.4$; Welch tests in Appendix Table~\ref{tab:signif}), as every allocation baseline already
 mixes capabilities; the remaining gain is the value of re-estimating the mix as
 the student and the remaining budget change.}
 
-\begin{wrapfigure}[8]{r}{0.42\textwidth}
-  \vspace{-1.6em}
+\begin{figure}[t]
   \centering
-  \includegraphics[width=0.40\textwidth]{figure/rq3_ablation_avgmetric_20m_150m.pdf}
-  \caption{Ablation of ReAD components.}
+  \includegraphics[width=0.46\textwidth]{figure/rq3_ablation_avgmetric_20m_150m.pdf}
+  \vspace{-0.4em}
+  \caption{Ablation of ReAD components\rev{: average benchmark score over the eight
+  capabilities at 20M and 150M tokens (higher is better).}}
   \label{fig:rq3_ablation}
-  \vspace{-1.4em}
-\end{wrapfigure}
+  \vspace{-1.0em}
+\end{figure}
 
 \paragraph{Component ablation.}
-We ablate ReAD by removing one component while fixing the teacher, student,
-prompt pools, training recipe, and budget. Removing requirement identification
-makes the allocation uniform; removing adaptation uses a fixed allocation; and
-removing interaction awareness drops the spillover penalty.
-Figure~\ref{fig:rq3_ablation} shows that identification and adaptation drive the
-largest gains, while interaction modeling provides additional improvement by
-reducing harmful transfer.
+\rev{We remove one component at a time with everything else fixed: without the
+requirement identifier the allocation is uniform, without adaptation it is
+fixed, and without interaction awareness the spillover penalty is dropped.
+Figure~\ref{fig:rq3_ablation} shows that identification and adaptation drive
+the largest gains, while interaction modeling adds a further improvement by
+reducing harmful transfer.}
 
 \paragraph{RQ4: Transfer beyond aligned benchmarks.}
-Finally, we evaluate ReAD on held-out XSTest~\citep{rottger2024xstest} using the same requirement
-identifier and allocation pipeline without adding a new capability head. ReAD
-improves both safe-refusal and unsafe-refusal metrics over the best SFT/KD
-baseline; full results are reported in Appendix Table~\ref{tab:xstest}.
+\rev{On held-out XSTest~\citep{rottger2024xstest}, with the same identifier and
+allocation pipeline and no new capability head, ReAD improves both safe- and
+unsafe-refusal metrics over the best SFT/KD baseline (Appendix
+Table~\ref{tab:xstest}).}
