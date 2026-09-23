@@ -16,87 +16,82 @@ token-level loss in Section~\ref{sec:method:bandit} unchanged.}
 \label{sec:method:essential}
 
 \paragraph{Task requirement vector.}
-For each downstream task $\tau$, ReAD constructs a task card
-$\mathcal{D}^{\mathrm{spec}}_\tau$ from non-test data, containing a short task
-description, input/output format, evaluation target, and a few representative
-exemplars, with the test split reserved only for final reporting. From this
-task card, ReAD estimates a requirement vector
-$\mathbf{r}_\tau\in\Delta_{|\mathcal{C}|}$, where $r_{\tau,c}$ indicates how
-useful capability $c$ is for improving the task utility $U_\tau(\cdot)$. We use
-$\mathbf{r}_\tau$ as an actionable allocation prior: high-mass capabilities are
-prioritized for improvement, and drops on these capabilities are treated as
-harmful spillover. Since token allocations cannot be negative,
-$\mathbf{r}_\tau$ is constrained to the simplex; negative sensitivities are
-captured instead by signed capability changes and the spillover penalty in
-Section~\ref{sec:method:bandit}.
+\rev{For each downstream task $\tau$, ReAD builds a task card
+$\mathcal{D}^{\mathrm{spec}}_\tau$ from non-test data (a short description,
+input/output format, evaluation target, and a few exemplars) and estimates from
+it a requirement vector $\mathbf{r}_\tau\in\Delta_{|\mathcal{C}|}$, where
+$r_{\tau,c}$ is how useful capability $c$ is for the task utility
+$U_\tau(\cdot)$. $\mathbf{r}_\tau$ acts as an allocation prior: high-mass
+capabilities are prioritized, and drops on them are treated as harmful
+spillover. It lives on the simplex because token allocations cannot be
+negative; negative sensitivities enter through signed capability changes and
+the spillover penalty of Section~\ref{sec:method:bandit}.}
 
-\paragraph{Requirement identifier.}
-We learn a lightweight identifier $g_\phi$ that maps the task card to the requirement vector $\mathbf{r}_\tau = g_\phi(\mathcal{D}^{\mathrm{spec}}_\tau) \in \Delta_{|\mathcal{C}|}$.
-% \begin{equation}
-% \mathbf{r}_\tau = g_\phi(\mathcal{D}^{\mathrm{spec}}_\tau) \in \Delta_{|\mathcal{C}|}.
-% \label{eq:req_id}
-% \end{equation}
-The identifier is a small Transformer encoder over the task card, followed by a two-layer MLP and a softmax head. Since $\mathbf{r}_\tau$ is not directly observed, we supervise it through low-budget interventions in capability space.
-
-\paragraph{Local supervision signal.}
-Let $\mathbf{s}(S)\in\mathbb{R}^{|\mathcal{C}|}$ denote the measured capability profile of a student $S$, and write $U_\tau(S)=F_\tau(\mathbf{s}(S))$. For a small intervention that changes the profile from $\mathbf{s}$ to $\mathbf{s}+\Delta\mathbf{s}$,
-\begin{equation}
-F_\tau(\mathbf{s}+\Delta\mathbf{s})
-=
-F_\tau(\mathbf{s})+
-\nabla_{\mathbf{s}}F_\tau(\mathbf{s})^\top\Delta\mathbf{s}
-+o(\|\Delta\mathbf{s}\|),
-\label{eq:taylor}
-\end{equation}
-so the utility change is locally approximated by
+\paragraph{Requirement identifier and its supervision.}
+\rev{A lightweight identifier $g_\phi$ (a small Transformer encoder over the
+task card, a two-layer MLP, and a softmax head) maps the card to
+$\mathbf{r}_\tau=g_\phi(\mathcal{D}^{\mathrm{spec}}_\tau)$. Since
+$\mathbf{r}_\tau$ is not observed, we supervise it through low-budget
+interventions in capability space. Writing $U_\tau(S)=F_\tau(\mathbf{s}(S))$
+for the measured capability profile $\mathbf{s}(S)\in\mathbb{R}^{|\mathcal{C}|}$,
+a small intervention that moves the profile by $\Delta\mathbf{s}$ changes the
+utility by}
 \begin{equation}
 \Delta U_\tau
 =
 U_\tau(S')-U_\tau(S)
 \approx
-\nabla_{\mathbf{s}}F_\tau(\mathbf{s})^\top\Delta\mathbf{s}.
+\nabla_{\mathbf{s}}F_\tau(\mathbf{s})^\top\Delta\mathbf{s}
 \label{eq:local_linear}
 \end{equation}
-Thus, $\mathbf{r}_\tau$ is trained as a simplex-constrained surrogate for the beneficial part of the local utility sensitivity, e.g., $\mathbf{r}_\tau\approx\Pi_\Delta([\nabla_{\mathbf{s}}F_\tau(\mathbf{s})]_+)$.
+\rev{(first-order expansion, Appendix~\ref{sec:app_method}), so
+$\mathbf{r}_\tau$ is trained as a simplex-constrained surrogate for the
+beneficial part of this local sensitivity,
+$\mathbf{r}_\tau\approx\Pi_\Delta([\nabla_{\mathbf{s}}F_\tau(\mathbf{s})]_+)$.}
 
 \paragraph{Offline pretraining.}
-We construct an intervention set
-$\mathcal{Z}=\{(\mathcal{D}^{\mathrm{spec}}_\tau,\Delta\mathbf{s}^{(m)}_\tau,\Delta U^{(m)}_\tau)\}_{\tau,m}$ from auxiliary tasks and non-test splits. For each task $\tau$, we sample sparse allocation vectors $\mathbf{w}^{(m)}\in\Delta_{|\mathcal{C}|}$ by choosing a support set $\mathcal{I}^{(m)}\subseteq\mathcal{C}$, sampling nonzero weights from a Dirichlet distribution, and renormalizing them. A short probe distillation under a small budget $b_{\mathrm{probe}}$ produces an intervened student $S^{(m)}$, from which we measure
-\begin{equation}
-\Delta U^{(m)}_\tau := U_\tau(S^{(m)})-U_\tau(S_0),
-\qquad
-\Delta\mathbf{s}^{(m)}_\tau := \mathbf{s}(S^{(m)})-\mathbf{s}(S_0).
-\label{eq:probe_deltas}
-\end{equation}
-We pretrain $g_\phi$ by predicting the observed utility change from the induced capability change:
+\rev{We build an intervention set
+$\mathcal{Z}=\{(\mathcal{D}^{\mathrm{spec}}_\tau,\Delta\mathbf{s}^{(m)}_\tau,\Delta U^{(m)}_\tau)\}_{\tau,m}$
+from auxiliary tasks and non-test splits: for each task we sample sparse
+allocation vectors $\mathbf{w}^{(m)}\in\Delta_{|\mathcal{C}|}$ (a random
+support with Dirichlet weights), run a short probe distillation with a small
+budget $b_{\mathrm{probe}}$ to obtain an intervened student $S^{(m)}$, and
+record $\Delta U^{(m)}_\tau=U_\tau(S^{(m)})-U_\tau(S_0)$ and
+$\Delta\mathbf{s}^{(m)}_\tau=\mathbf{s}(S^{(m)})-\mathbf{s}(S_0)$. The
+identifier is pretrained to predict the utility change from the capability
+change,}
 \begin{equation}
 \min_\phi
 \sum_{(\tau,m)}
 \Big(\Delta U^{(m)}_\tau
 - g_\phi(\mathcal{D}^{\mathrm{spec}}_\tau)^\top\Delta\mathbf{s}^{(m)}_\tau\Big)^2
-+\lambda_{\mathrm{ent}}\,\mathcal{H}\!\left(g_\phi(\mathcal{D}^{\mathrm{spec}}_\tau)\right).
++\lambda_{\mathrm{ent}}\,\mathcal{H}\!\left(g_\phi(\mathcal{D}^{\mathrm{spec}}_\tau)\right),
 \label{eq:req_pretrain}
 \end{equation}
-The positive entropy penalty discourages near-uniform requirement vectors and makes the allocation prior more discriminative. At deployment time, ReAD computes $\mathbf{r}_\tau$ once and reuses it throughout the distillation run. Since the identifier is trained once and reused across tasks, it is not counted as part of the per-run student distillation budget.
+\rev{where the entropy penalty discourages near-uniform requirement vectors.
+At deployment, $\mathbf{r}_\tau$ is computed once per task and reused for the
+whole run; because the identifier is trained once and shared across tasks, it
+is not charged to the per-run distillation budget.}
 
 \subsection{On-the-Fly Capability-Targeted Data Generation}
 \label{sec:method-generator}
 
-\paragraph{Capability-conditioned templates.}
-Given $\mathbf{r}_\tau$, ReAD generates training examples on the fly from a capability-labeled template library. For each capability $c\in\mathcal{C}$, a template set $\mathcal{P}_c$ specifies an instruction scaffold, typed slots, and output-format constraints. Slot values are filled using deterministic seeds. The generator controls the form of teacher supervision
-
-\paragraph{Difficulty scoring.}
-For prompt $x$ in capability $c$, we compute a deterministic difficulty score
-\begin{equation}
-d_c(x)=\frac{1}{|\mathcal{F}_c|}\sum_{f\in\mathcal{F}_c}
-\frac{f(x)-\min_{x'\in\mathcal{Q}_c} f(x')}
-{\max_{x'\in\mathcal{Q}_c} f(x')-\min_{x'\in\mathcal{Q}_c} f(x')+\epsilon},
-\label{eq:difficulty_score}
-\end{equation}
-where $\mathcal{F}_c$ is the set of capability-specific control factors and $\mathcal{Q}_c$ is a calibration prompt pool for capability $c$. For example, reasoning templates use factors such as the number of constraints, reasoning hops, and symbolic complexity; code templates use the number of required functions and tests; steerability templates use the number of rules and schema fields. We split each capability's calibration pool into easy, medium, and hard buckets by tertiles of $d_c(x)$.
-
-\paragraph{Curriculum and sampling.}
-At decision step $t$, ReAD samples a capability label according to the selected allocation $\mathbf{w}_t$, instantiates a prompt from the corresponding template set, queries the teacher $T$ for a completion $y$, and immediately distills on $(x,y)$. The curriculum only adjusts the within-capability difficulty mix: early steps emphasize easy and medium examples, while later steps increase the probability of hard examples. It does not choose the capability allocation. We also track recent template frequencies and cap each template's share so that no single scaffold dominates.
+\rev{Given $\mathbf{r}_\tau$, ReAD generates training examples on the fly from
+a capability-labeled template library: for each capability $c$, a template set
+$\mathcal{P}_c$ specifies an instruction scaffold, typed slots, and
+output-format constraints, and slot values are filled from deterministic seeds.
+Each prompt receives a deterministic difficulty score $d_c(x)\in[0,1]$, the
+average of capability-specific control factors (e.g., reasoning hops and
+constraints for reasoning, required functions and tests for code, rules and
+schema fields for steerability) normalized on a calibration pool
+(Appendix~\ref{sec:app_method}, Eq.~\ref{eq:difficulty_score}); tertiles of
+$d_c$ define easy, medium, and hard buckets. At decision step $t$, ReAD samples
+a capability according to $\mathbf{w}_t$, instantiates a prompt, queries the
+teacher $T$ for a completion $y$, and immediately distills on $(x,y)$. A
+curriculum shifts the within-capability difficulty mix from easy and medium
+toward hard examples over the run; it never chooses the capability allocation.
+Template frequencies are tracked and capped so that no single scaffold
+dominates the generated data.}
 
 \subsection{Contextual Bandit for Capability Allocation}
 \label{sec:method:bandit}
@@ -113,12 +108,6 @@ where $\boldsymbol{\rho}_t$ stores a short record of recent allocations and obse
 At each step, ReAD selects an allocation $\mathbf{w}_t$ from a finite candidate set $\mathcal{A}(\tau)$ consisting of local perturbations around the previous allocation and sparse actions concentrated on the top-$k$ capabilities under $\mathbf{r}_\tau$. Weights are chosen from a fixed grid and renormalized to sum to one. Given $\mathbf{w}_t$, ReAD samples capability-targeted data and updates the student by minimizing $\mathcal{L}_{\mathrm{distill}}(\theta_t)
 =-\mathbb{E}_{(x,y)}\sum_{j=1}^{|y|}
 \log p_{\theta_t}(y_j\mid x,y_{<j})$ to produce $S_{t+1}$.
-% \begin{equation}
-% \mathcal{L}_{\mathrm{distill}}(\theta_t)
-% =-\mathbb{E}_{(x,y)}\sum_{j=1}^{|y|}
-% \log p_{\theta_t}(y_j\mid x,y_{<j}),
-% \label{eq:distill_loss}
-% \end{equation}
 
 \paragraph{Proxy reward.}
 After the update, ReAD measures the probe-profile change
@@ -135,15 +124,14 @@ $\Delta\mathbf{s}^{\mathrm{probe}}_t=\mathbf{s}^{\mathrm{probe}}(S_{t+1})-\mathb
 Here $\mathcal{C}_{\mathrm{ess}}$ contains the top-$k$ capabilities under $\mathbf{r}_\tau$, and $\mathrm{cost}_t$ is the token budget consumed at the step. The first term rewards task-aligned capability gains, the second penalizes regressions on task-essential capabilities, and the third enforces budget awareness.
 
 \paragraph{Reward model and UCB allocation.}
-We append $(\mathbf{x}_t,\mathbf{w}_t,\widehat{R}_t)$ to a history buffer and train an ensemble of $J$ two-layer MLP reward regressors $\{h_{\eta_j}\}_{j=1}^J$. Each regressor maps $(\mathbf{x},\mathbf{w})$ to a scalar next-step reward and is trained on a bootstrap resample of the 10\% profiling split plus logged transitions from earlier steps, yielding about $3.2$k--$4.9$k examples per task in our experiments. For a candidate allocation $\mathbf{w}$, the ensemble mean and uncertainty are
-\begin{equation}
-\mu(\mathbf{x}_t,\mathbf{w})=\frac{1}{J}\sum_{j=1}^J h_{\eta_j}(\mathbf{x}_t,\mathbf{w}),
-\quad
-\sigma(\mathbf{x}_t,\mathbf{w})=
-\sqrt{\frac{1}{J-1}\sum_{j=1}^J\big(h_{\eta_j}(\mathbf{x}_t,\mathbf{w})-\mu(\mathbf{x}_t,\mathbf{w})\big)^2}.
-\label{eq:ensemble_mu_sigma}
-\end{equation}
-ReAD then selects the next allocation using an upper-confidence rule,
+\rev{We append $(\mathbf{x}_t,\mathbf{w}_t,\widehat{R}_t)$ to a history buffer
+and train an ensemble of $J$ two-layer MLP reward regressors
+$\{h_{\eta_j}\}_{j=1}^J$, each on a bootstrap resample of the 10\% profiling
+split plus the logged transitions ($3.2$k--$4.9$k examples per task). For a
+candidate $\mathbf{w}$, $\mu(\mathbf{x}_t,\mathbf{w})$ and
+$\sigma(\mathbf{x}_t,\mathbf{w})$ denote the ensemble mean and standard
+deviation (Appendix~\ref{sec:app_method}), and ReAD selects the next allocation
+with an upper-confidence rule,}
 \begin{equation}
 \mathbf{w}_{t+1}
 =\arg\max_{\mathbf{w}\in\mathcal{A}(\tau)}

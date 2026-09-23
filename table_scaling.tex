@@ -1,0 +1,22 @@
+\begin{table}[t]
+  \centering
+  \caption{\rev{Marginal gain from the $20$M to the $150$M budget, in points per
+  additional $10$M tokens, computed from Table~\ref{tab:llama_20m} as $(s_{150\mathrm{M}}-s_{20\mathrm{M}})/13$. Bold:
+  largest per column.}}
+  \label{tab:scaling}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{@{}lccccccccc@{}}
+    \toprule
+    \textbf{Method} & \textbf{General} & \textbf{Steer.} & \textbf{Reason.} & \textbf{Math} & \textbf{Code} & \textbf{Tool} & \textbf{LCU} & \textbf{Multi.} & \textbf{Mean} \\
+    \midrule
+    Resp-SFT & $0.39$ & $1.22$ & $0.04$ & $0.89$ & $0.39$ & $0.12$ & $0.11$ & $0.63$ & $0.48$ \\
+    CoT-SFT & $0.38$ & $1.21$ & $0.05$ & $1.00$ & $0.39$ & $0.12$ & $0.13$ & $0.61$ & $0.49$ \\
+    Logit-SFT & $0.42$ & $1.26$ & $0.04$ & $0.92$ & $0.40$ & $0.13$ & $0.12$ & $0.65$ & $0.49$ \\
+    Resp-KD & $0.45$ & $1.34$ & $0.05$ & $0.95$ & $0.45$ & $0.15$ & $0.14$ & $0.67$ & $0.52$ \\
+    CoT-KD & $0.44$ & $1.30$ & $0.05$ & $1.05$ & $0.44$ & $0.15$ & $0.13$ & $0.66$ & $0.53$ \\
+    Logit-KD & $0.47$ & $1.42$ & $\mathbf{0.05}$ & $1.01$ & $0.46$ & $\mathbf{0.16}$ & $0.15$ & $0.70$ & $0.55$ \\
+    \textbf{ReAD} & $\mathbf{0.52}$ & $\mathbf{1.55}$ & $0.03$ & $\mathbf{1.09}$ & $\mathbf{0.53}$ & $0.11$ & $\mathbf{0.16}$ & $\mathbf{0.85}$ & $\mathbf{0.60}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}

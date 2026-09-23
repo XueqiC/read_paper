@@ -73,8 +73,135 @@ reported tables or transfer matrices, so a change of one point is one
 percentage point of the underlying metric, and small absolute changes remain
 small in the figures.}
 
+\section{Method Details}\label{sec:app_method}
+\rev{The following details were moved here from Section~\ref{sec:method}.}
+
+\textbf{Local utility sensitivity.} With $U_\tau(S)=F_\tau(\mathbf{s}(S))$, a small intervention that changes the profile from $\mathbf{s}$ to $\mathbf{s}+\Delta\mathbf{s}$ gives
+\begin{equation}
+F_\tau(\mathbf{s}+\Delta\mathbf{s})
+=
+F_\tau(\mathbf{s})+
+\nabla_{\mathbf{s}}F_\tau(\mathbf{s})^\top\Delta\mathbf{s}
++o(\|\Delta\mathbf{s}\|),
+\label{eq:taylor}
+\end{equation}
+which yields the local approximation in Eq.~\eqref{eq:local_linear}. This does not assume that the true sensitivity has no negative coordinates; the requirement vector only converts the sensitivity into a nonnegative budget-allocation prior over capabilities.
+
+\textbf{Difficulty scoring.} For prompt $x$ in capability $c$, we compute a deterministic difficulty score
+\begin{equation}
+d_c(x)=\frac{1}{|\mathcal{F}_c|}\sum_{f\in\mathcal{F}_c}
+\frac{f(x)-\min_{x'\in\mathcal{Q}_c} f(x')}
+{\max_{x'\in\mathcal{Q}_c} f(x')-\min_{x'\in\mathcal{Q}_c} f(x')+\epsilon},
+\label{eq:difficulty_score}
+\end{equation}
+where $\mathcal{F}_c$ is the set of capability-specific control factors and $\mathcal{Q}_c$ is a calibration prompt pool for capability $c$. For example, reasoning templates use factors such as the number of constraints, reasoning hops, and symbolic complexity; code templates use the number of required functions and tests; steerability templates use the number of rules and schema fields. We split each capability's calibration pool into easy, medium, and hard buckets by tertiles of $d_c(x)$.
+
+\textbf{Ensemble mean and uncertainty.} For a candidate allocation $\mathbf{w}$, the ensemble of $J$ reward regressors gives
+\begin{equation}
+\mu(\mathbf{x}_t,\mathbf{w})=\frac{1}{J}\sum_{j=1}^J h_{\eta_j}(\mathbf{x}_t,\mathbf{w}),
+\quad
+\sigma(\mathbf{x}_t,\mathbf{w})=
+\sqrt{\frac{1}{J-1}\sum_{j=1}^J\big(h_{\eta_j}(\mathbf{x}_t,\mathbf{w})-\mu(\mathbf{x}_t,\mathbf{w})\big)^2}.
+\label{eq:ensemble_mu_sigma}
+\end{equation}
+
 \section{Additional Theoretical Analysis}\label{sec:app_theory}
-\textbf{Uncertainty-aware UCB allocation}. Here, we conduct an uncertainty-aware UCB allocation analysis showing that action-level regret is controlled by predictive uncertainty. At interval $t$, ReAD maintains a bandit context
+\rev{This appendix states the assumptions and results summarized in
+Section~\ref{sec:theory}. The first two parts were moved here from the main text for space.}
+
+\subsection{Local Cross-Capability Transfer}
+\label{subsec:theory_transfer_short}
+
+Let $\theta_t\in\mathbb{R}^p$ denote the parameters of the student $S_t$, and let $\Delta\theta_t=\theta_t-\theta_{t-1}$. We analyze one decision step, which is the regime in which ReAD re-estimates its allocation.
+
+\begin{assumption}[Mixture-structured update]\label{ass:mixture_update}
+At interval $t$, given an allocation vector $\mathbf{w}_t\in\Delta_{|\mathcal{C}|}$, the expected update admits a local mixture approximation $\mathbb{E}[\Delta\theta_t\mid \mathbf{w}_t,\theta_{t-1}]
+\approx
+\sum_{c\in\mathcal{C}} w_{t,c}\,d_c(\theta_{t-1})$, where $d_c(\theta)$ is the capability-conditioned local update direction.
+\end{assumption}
+
+\begin{assumption}[Local capability readout]\label{ass:local_readout}
+The measured capability profile $\mathbf{s}(S)$ is represented locally as a differentiable function $\tilde{\mathbf{s}}(\theta)$. Near $\theta_{t-1}$,
+\begin{equation}
+\Delta s_{t,c}
+=
+[\mathbf{s}(S_t)]_c-[\mathbf{s}(S_{t-1})]_c
+\approx
+\nabla_\theta[\tilde{\mathbf{s}}(\theta_{t-1})]_c^\top\Delta\theta_t.
+\label{eq:local_linear_short}
+\end{equation}
+\end{assumption}
+
+\begin{proposition}[Local transfer decomposition]\label{prop:transfer}
+Under Assumptions~\ref{ass:mixture_update} and~\ref{ass:local_readout}, the expected change in capability $c$ satisfies Eq.~\eqref{eq:transfer_decomp_short}, i.e.,
+$\Delta s_{t,c}\approx\sum_{c'\in\mathcal{C}} w_{t,c'}\,\Gamma_{c,c'}(\theta_{t-1})$ with
+$\Gamma_{c,c'}(\theta):=\nabla_\theta[\tilde{\mathbf{s}}(\theta)]_c^\top d_{c'}(\theta)$.
+\end{proposition}
+\begin{proof}
+\rev{Substituting the mixture update of Assumption~\ref{ass:mixture_update} into the local readout of Assumption~\ref{ass:local_readout} gives
+\[
+\Delta s_{t,c}\approx\nabla_\theta[\tilde{\mathbf{s}}(\theta_{t-1})]_c^\top\sum_{c'}w_{t,c'}d_{c'}(\theta_{t-1})=\sum_{c'}w_{t,c'}\Gamma_{c,c'}(\theta_{t-1}).
+\]}
+\end{proof}
+
+\noindent\textit{Interpretation.}
+$\Gamma$ is the local analogue of the empirical transfer matrix: diagonal
+terms are intended gains, and off-diagonal terms are nonzero whenever the update
+direction for $c'$ is not orthogonal to the readout direction of $c$, which is
+expected under shared representations. This is why allocating budget to one
+capability alters others at the decision-step level.
+
+\subsection{Budget Waste from Diminishing Returns}
+\label{subsec:theory_diminish_short}
+
+The previous subsection explains spillover. We now isolate diminishing returns with a simpler cumulative-budget proxy. Let $b_c\ge0$ be the total number of distillation tokens assigned to capability $c$, with $\sum_c b_c\le B$, and let $\mathbf{r}_\tau\in\Delta_{|\mathcal{C}|}$ be the task requirement vector.
+
+\begin{assumption}[Concave task-aligned gains]
+\label{assump:concave_gains_short}
+For task $\tau$ and capability $c$, there is a nondecreasing concave gain function $G_{\tau,c}:\mathbb{R}_{\ge0}\to\mathbb{R}_{\ge0}$ such that $\mathbb{E}[U_\tau(S)-U_\tau(S_0)]
+\approx
+\sum_{c\in\mathcal{C}} r_{\tau,c}G_{\tau,c}(b_c)$ where $\sum_{c\in\mathcal{C}} b_c\le B$.
+\end{assumption}
+
+Consider a restricted distillation strategy that allocates budget only to a subset $\mathcal{K}\subseteq\mathcal{C}$:
+\begin{equation}
+\max_{\{b_c\ge0\}_{c\in\mathcal{K}}}
+\sum_{c\in\mathcal{K}} r_{\tau,c}G_{\tau,c}(b_c)
+\quad\mathrm{s.t.}\quad
+\sum_{c\in\mathcal{K}} b_c\le B.
+\label{eq:alloc_proxy_subset}
+\end{equation}
+
+\begin{proposition}[Weighted marginal gain criterion]
+\label{prop:kkt}
+Any optimum $\{b_c^\star\}_{c\in\mathcal{K}}$ of Eq.~\eqref{eq:alloc_proxy_subset} equalizes weighted marginal gains among active capabilities: there exists $\nu^\star\ge0$ such that
+\begin{equation}
+r_{\tau,c}G'_{\tau,c}(b_c^\star)\le\nu^\star
+\quad\forall c\in\mathcal{K},
+\qquad
+r_{\tau,c}G'_{\tau,c}(b_c^\star)=\nu^\star
+\quad\text{if } b_c^\star>0.
+\label{eq:kkt_subset}
+\end{equation}
+Moreover, in the single-capability case targeting $\bar c$, shifting an infinitesimal budget from $\bar c$ to another task-relevant capability $c'$ improves the proxy objective whenever $r_{\tau,c'}G'_{\tau,c'}(0)
+>
+r_{\tau,\bar c}G'_{\tau,\bar c}(b_{\bar c})$.
+\end{proposition}
+\begin{proof}
+\rev{The objective is a nonnegative combination of concave functions and the feasible set is convex, so the Karush--Kuhn--Tucker conditions are necessary and sufficient. With $\nu^\star$ the multiplier of the budget constraint and $\xi_c\ge0$ those of $b_c\ge0$, stationarity gives $r_{\tau,c}G'_{\tau,c}(b_c^\star)=\nu^\star-\xi_c\le\nu^\star$, and complementary slackness ($\xi_c b_c^\star=0$) gives equality whenever $b_c^\star>0$. For the single-target case, moving $\epsilon$ tokens from $\bar c$ to $c'$ changes the objective by $\epsilon\,[r_{\tau,c'}G'_{\tau,c'}(0)-r_{\tau,\bar c}G'_{\tau,\bar c}(b_{\bar c})]+o(\epsilon)$, which is positive under the stated condition.}
+\end{proof}
+
+\noindent\textit{Implication for ReAD.}
+This formalizes budget waste: once the target saturates, further tokens have
+lower task-aligned marginal value than tokens assigned elsewhere. ReAD's reward
+in Eq.~\eqref{eq:reward} is richer than this proxy because it also penalizes
+observed spillover, so the allocator optimizes a step-level reward that
+accounts for both diminishing returns and cross-capability degradation.
+
+\subsection{Uncertainty-Aware UCB Allocation}
+\label{subsec:theory_ucb_short}
+
+Here, we show that action-level regret is controlled by predictive uncertainty. At interval $t$, ReAD maintains a bandit context
 \begin{equation}
 \mathbf{x}_t := [\,\mathbf{r}_\tau;\ \mathbf{s}(S_{t});\ b_t\,],
 \label{eq:context_short}
@@ -89,15 +216,15 @@ where $\widehat{R}_t$ is the proxy reward used as shown in Eq.~\eqref{eq:reward}
 \begin{assumption}[Calibrated uncertainty]\label{ass:calibrated_uncertainty_app}
     For a confidence level $\delta\in(0,1)$, with probability at least $1-\delta$, for all encountered $(\mathbf{x}_t,\mathbf{w})$,
 \begin{equation}
-\big|\mu(\mathbf{x}_t,\mathbf{w})-\bar R(\mathbf{x}_t,\mathbf{w})\big| \le \sigma(\mathbf{x}_t,\mathbf{w}),
+\big|\mu(\mathbf{x}_t,\mathbf{w})-\bar R(\mathbf{x}_t,\mathbf{w})\big| \le \rev{\kappa\,}\sigma(\mathbf{x}_t,\mathbf{w}),
 \label{eq:calibration_short}
 \end{equation}
-where $\mu$ and $\sigma$ are the ensemble mean and standard deviation defined from the reward regressors.
+where $\mu$ and $\sigma$ are the ensemble mean and standard deviation defined from the reward regressors\rev{, and $\kappa$ is the exploration coefficient of Eq.~\eqref{eq:ucb}}.
 \end{assumption}
 
 Since ReAD selects allocations by the UCB rule in Eq.~\eqref{eq:ucb}, we can compare its chosen action $\mathbf{w}_t$ to the optimal action $\mathbf{w}_t^\star$ under the same context and bound the resulting gap in conditional expected reward using the calibrated uncertainty condition in Assumption~\ref{ass:calibrated_uncertainty_app}, which leads to the following instantaneous regret bound\rev{ on the chosen action}.
 
-\begin{proposition}[Instantaneous regret bound]
+\begin{proposition}[Instantaneous regret bound]\label{prop:regret}
     Let $\mathbf{w}_t^\star\in\arg\max_{\mathbf{w}\in\mathcal{A}(\tau)} \bar R(\mathbf{x}_t,\mathbf{w})$. Under Assumption~\ref{ass:calibrated_uncertainty_app},
 \begin{equation}
 \bar R(\mathbf{x}_t,\mathbf{w}_t^\star)-\bar R(\mathbf{x}_t,\mathbf{w}_t)\ \le\ 2\kappa\,\sigma(\mathbf{x}_t,\mathbf{w}_t),
@@ -110,113 +237,14 @@ and consequently,
 \label{eq:cum_regret_short}
 \end{equation}
 \end{proposition}
+\begin{proof}[Proof sketch]
+By calibration, the true reward of any action is at most its upper confidence score $\mu+\kappa\sigma$, and the selected action maximizes this score; applying the calibration inequality once more to the selected action yields Eq.~\eqref{eq:inst_regret_short}, and summing over steps gives Eq.~\eqref{eq:cum_regret_short}. This result does not imply a global optimum for nonconvex fine-tuning; it justifies the local ranking rule used by ReAD at each budget step rather than a global guarantee.
+\end{proof}
 
 \section{Additional Experiments}\label{sec:app_experiment}
 
-\begin{table*}[t]
-\centering
-\tiny
-\setlength\tabcolsep{1pt}
-\caption{Capability profile of different methods under a 150M-token budget (LLama). ReAD consistently outperforms all six baselines.}
-\begin{tabular}{lcccccccc}
-\toprule
-\textbf{Method} &
-\textbf{General} &
-\textbf{Steerability} &
-\textbf{Reasoning} &
-\textbf{Math} &
-\textbf{Code} &
-\textbf{Tool Use} &
-\textbf{LCU} &
-\textbf{Multilingual} \\
-\midrule
-Teacher only &
-$48.13\pm0.35$ &
-$89.98\pm0.40$ &
-$10.51\pm0.12$ &
-$48.34\pm0.55$ &
-$88.40\pm0.70$ &
-$31.90\pm0.45$ &
-$36.20\pm0.40$ &
-$91.10\pm0.55$ \\
-Student only &
-$31.09\pm0.40$ &
-$49.22\pm0.55$ &
-$8.72\pm0.15$ &
-$15.56\pm0.60$ &
-$72.60\pm0.95$ &
-$25.83\pm0.60$ &
-$30.40\pm0.45$ &
-$68.90\pm0.80$ \\
-\midrule
-Resp-SFT &
-$38.41\pm0.58$ &
-$68.73\pm0.94$ &
-$9.55\pm0.14$ &
-$28.72\pm1.08$ &
-$79.18\pm1.26$ &
-$28.53\pm0.82$ &
-$32.69\pm0.73$ &
-$78.23\pm1.12$ \\
-CoT-SFT &
-$38.02\pm0.61$ &
-$67.92\pm0.89$ &
-$10.14\pm0.12$ &
-$31.58\pm0.97$ &
-$78.86\pm1.33$ &
-$28.41\pm0.79$ &
-$32.83\pm0.68$ &
-$77.77\pm1.06$ \\
-Logit-SFT &
-$39.03\pm0.56$ &
-$69.38\pm0.86$ &
-$9.70\pm0.13$ &
-$29.61\pm1.02$ &
-$79.69\pm1.21$ &
-$28.71\pm0.77$ &
-$33.01\pm0.70$ &
-$78.63\pm1.09$ \\
-Resp-KD &
-$39.62\pm0.53$ &
-$70.98\pm0.84$ &
-$9.82\pm0.12$ &
-$30.21\pm0.98$ &
-$80.09\pm1.18$ &
-$29.09\pm0.74$ &
-$33.42\pm0.66$ &
-$79.18\pm1.03$ \\
-CoT-KD &
-$39.12\pm0.55$ &
-$69.84\pm0.88$ &
-$10.26\pm0.11$ &
-$33.02\pm0.92$ &
-$79.81\pm1.24$ &
-$29.01\pm0.71$ &
-$33.19\pm0.69$ &
-$78.71\pm1.01$ \\
-Logit-KD &
-$40.18\pm0.51$ &
-$72.63\pm0.79$ &
-$9.95\pm0.12$ &
-$31.36\pm0.95$ &
-$80.57\pm1.16$ &
-$29.48\pm0.69$ &
-$33.73\pm0.64$ &
-$79.97\pm0.97$ \\
-\midrule
-\textbf{ReAD} &
-$\mathbf{41.80\pm0.45}$ &
-$\mathbf{78.20\pm0.70}$ &
-$\mathbf{10.40\pm0.10}$ &
-$\mathbf{35.20\pm0.80}$ &
-$\mathbf{83.90\pm1.00}$ &
-$\mathbf{31.30\pm0.55}$ &
-$\mathbf{35.60\pm0.55}$ &
-$\mathbf{84.10\pm0.90}$ \\
-\bottomrule
-\end{tabular}
-\label{tab:llama_150m}
-\end{table*}
+\rev{(The 150M Llama table was merged into Table~\ref{tab:llama_20m} in the main text.)}
+
 
 % ----------------------------- Qwen: B = 20M -----------------------------
 \begin{table*}[t]
@@ -432,53 +460,34 @@ $\mathbf{90.54 \pm 0.92}$ \\
 
 
 
-\textbf{Additional evidence showing that ReAD improves capability distillation under a fixed budget}. We compare ReAD with six capability distillation baselines. Tables~\ref{tab:llama_20m} (in the main text) and~\ref{tab:llama_150m} report the Llama results at $B{=}20$M and $B{=}150$M, and Tables~\ref{tab:qwen_20m} and~\ref{tab:qwen_150m} report the corresponding Qwen results. In both budgets and for both model families, ReAD achieves the best overall capability profile and outperforms all six baselines on every capability, with the largest improvements appearing on bottleneck capabilities such as Steerability and Math while still maintaining strong gains on Code, Tool Use, and LCU. Scaling the budget from 20M to 150M strengthens all methods, but ReAD benefits more consistently, indicating that its allocation policy converts additional tokens into broader capability improvements rather than concentrating gains on a narrow subset of skills. Across model families, Qwen starts from a stronger student and teacher on most capabilities and also reaches higher absolute performance after distillation, but the relative ordering between methods is unchanged and ReAD remains the top performer, suggesting that ReAD is robust to the choice of teacher--student backbone and that its advantage is not tied to a specific LLM family.
+\textbf{Additional evidence showing that ReAD improves capability distillation under a fixed budget}. We compare ReAD with six capability distillation baselines. \rev{Table~\ref{tab:llama_20m} (main text) reports the Llama results at $B{=}20$M and $B{=}150$M, and Tables~\ref{tab:qwen_20m} and~\ref{tab:qwen_150m} report the corresponding Qwen results.} In both budgets and for both model families, ReAD achieves the best overall capability profile and outperforms all six baselines on every capability, with the largest improvements appearing on bottleneck capabilities such as Steerability and Math while still maintaining strong gains on Code, Tool Use, and LCU. Scaling the budget from 20M to 150M strengthens all methods, but ReAD benefits more consistently, indicating that its allocation policy converts additional tokens into broader capability improvements rather than concentrating gains on a narrow subset of skills. Across model families, Qwen starts from a stronger student and teacher on most capabilities and also reaches higher absolute performance after distillation, but the relative ordering between methods is unchanged and ReAD remains the top performer, suggesting that ReAD is robust to the choice of teacher--student backbone and that its advantage is not tied to a specific LLM family.
 \rev{Figure~\ref{fig:gain_over_student} visualizes the same Llama numbers as
 absolute gains over the initial student, next to the best one-hot baseline of
-each capability, which makes the per-capability margins directly comparable.}
+each capability, which makes the per-capability margins directly comparable.
+Table~\ref{tab:scaling} reports how much each method gains per additional
+$10$M tokens between the two budgets.}
+
+\input{table_scaling}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figure/gain_over_student.pdf}
   \caption{\rev{Points gained over the initial student on each capability at
   20M (left) and 150M (right) for ReAD and for the best one-hot baseline of
-  that capability, read off Tables~\ref{tab:llama_20m}
-  and~\ref{tab:llama_150m}. Error bars are the standard deviation over three
+  that capability, read off Table~\ref{tab:llama_20m}. Error bars are the standard deviation over three
   seeds of the distilled student's score. Values are absolute percentage
   points, so small changes stay small.}}
   \label{fig:gain_over_student}
 \end{figure}
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.42\columnwidth]{figure/rqX_radar_sota_vs_read_150m.pdf}
-  \caption{ReAD beats SOTA baselines that are specifically designed for reasoning, code, and math capabilities consistently\rev{, at the 150M-token budget}.}
-  \label{fig:radar}
-\end{figure}
 
-\textbf{ReAD beats SOTA baselines.}
-To further validate ReAD against SOTA capability distillation baselines that are specifically designed for certain 
-capabilities, we include three representative methods that are commonly used for specializing student models, one per capability: step-by-step distillation~\citep{hsieh2023stepbystep} for reasoning, Equation-of-Thought Distillation (EoTD)~\citep{zhu2024distilling} for math, and CodePLAN~\citep{sun2024enhancing} for code. For a fair comparison under our setting, we adapt each baseline to our LLaMa teacher-student pair and token budget as $150$M, and we distill the student using only the corresponding capability pool. We report the resulting capability profiles on all eight benchmarks using the same evaluation protocol as the main experiments in Figure~\ref{fig:radar}. The results show that these capability-targeted baselines mainly concentrate gains on their target capability and exhibit weaker transfer to other capabilities, producing an imbalanced profile that matches the interaction patterns observed in our empirical study. In contrast, ReAD achieves a consistently stronger and more balanced profile across capabilities, and it is never worse than these baselines on its target capability, while improving substantially on non-target capabilities.
 
 
 % \subsection{Held-out Downstream Transfer}
 % \label{sec:app_xstest}
 
-\rev{\textbf{Significance and budget scaling of the reported numbers.}
-Table~\ref{tab:signif} applies unpaired two-sided Welch $t$-tests (three seeds
-per method) to the comparisons reported above, using only the printed means and
-standard deviations, with Holm correction within each block. At $150$M every
-gain over the allocation baselines of Table~\ref{tab:budget_diagnostics}(b)
-remains significant after correction, and so do the Steerability and
-Multilingual gains over the best one-hot baseline; at $20$M, with three seeds,
-most per-capability differences are individually significant only before
-correction. The XSTest safe-refusal improvements are not significant at this
-sample size. Table~\ref{tab:scaling} reports how much each method gains per
-additional $10$M tokens between the two budgets: ReAD has the largest marginal
-gain on six of the eight capabilities and on average, which is the
-budget-efficiency claim of RQ2 stated in absolute points.}
 
-\input{tables_signif}
+\rev{(The comparison with capability-specific distillation methods, the XSTest evaluation, and the significance analysis were moved to Section~\ref{sec:exp}.)}
 
 \textbf{Local proxy validation.}
 The proxy validation supports ReAD's use of local action ranking. Predicted
@@ -487,43 +496,6 @@ which matches ReAD's stepwise allocation regime. The requirement vectors are
 stable across runs, and the reward regressors are accurate enough to guide the
 uncertainty-aware bandit updates. \rev{(Moved from the main text.)}
 
-\textbf{Held-out Downstream Transfer}. To test whether ReAD transfers beyond capability-aligned benchmark tasks, we
-evaluate on XSTest using the same requirement identifier and allocation pipeline
-without adding a new capability head. Lower safe-refusal and higher
-unsafe-refusal scores are better.
-
-\begin{table}[h]
-  \centering
-  \caption{
-  Held-out XSTest evaluation. ``Best baseline'' denotes the best of the six
-  SFT/KD baselines for each metric\rev{ and budget separately}.
-  }
-  \label{tab:xstest}
-  \scriptsize
-  \setlength{\tabcolsep}{4pt}
-  \renewcommand{\arraystretch}{0.95}
-
-  \begin{tabular}{@{}lcccc@{}}
-    \toprule
-    \textbf{Method}
-      & \textbf{20M safe $\downarrow$}
-      & \textbf{20M unsafe $\uparrow$}
-      & \textbf{150M safe $\downarrow$}
-      & \textbf{150M unsafe $\uparrow$} \\
-    \midrule
-    Best baseline
-      & $15.1\pm0.77$
-      & $75.5\pm1.09$
-      & $13.1\pm0.69$
-      & $79.0\pm0.88$ \\
-    \textbf{ReAD}
-      & $\mathbf{13.8\pm0.72}$
-      & $\mathbf{78.1\pm0.97}$
-      & $\mathbf{11.8\pm0.58}$
-      & $\mathbf{81.6\pm0.83}$ \\
-    \bottomrule
-  \end{tabular}
-\end{table}
 
 \section{Related Work}
 \label{sec:relate}

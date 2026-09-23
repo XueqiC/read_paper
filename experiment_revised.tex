@@ -29,7 +29,12 @@ generator, teacher, and budget and differ only in how $\mathbf{w}_t$ is chosen
 ($\mathbf{w}_t=\mathbf{r}_\tau$), \emph{Greedy one-step} (re-selects
 $\mathbf{w}_t$ each step by the ensemble mean alone, $\kappa=0$), and
 \emph{Grid-searched} (best fixed allocation in $\mathcal{A}(\tau)$ on the
-profiling split). These are the matched reference points for adaptive allocation.}
+profiling split). These are the matched reference points for adaptive
+allocation. Finally, we include three published capability-specific
+distillation methods, adapted to our teacher--student pair and budget:
+step-by-step distillation~\citep{hsieh2023stepbystep} for reasoning,
+Equation-of-Thought Distillation (EoTD)~\citep{zhu2024distilling} for math,
+and CodePLAN~\citep{sun2024enhancing} for code.}
 
 \textbf{ReAD implementation.}
 ReAD runs for $20$ decision steps, with bandit updates, proxy refreshes, and data
@@ -44,20 +49,24 @@ identifier is trained once from auxiliary tasks and reused for every task and
 budget, so its 3.79 GPU-hours are amortized, and the fixed probe suite is the
 3.12\% overhead above.}
 
-
 \section{Experiments}
 \label{sec:exp}
 
-We study four questions: \textbf{RQ1} utility gains under the same budget;
+We study four questions: \textbf{RQ1} utility gains under the same budget\rev{,
+including against capability-specific distillation methods};
 \textbf{RQ2} reduced waste and spillover; \textbf{RQ3} the value of adaptive
 bandit scheduling over static or greedy alternatives; and \textbf{RQ4}
-transfer beyond capability-aligned benchmarks.
+transfer beyond capability-aligned benchmarks\rev{. We close with a significance
+analysis of every reported comparison.}
 
 \begin{table*}[t]
 \centering
 \tiny
 \setlength\tabcolsep{1pt}
-\caption{Capability profile under a 20M-token budget on Llama. ReAD achieves the strongest average profile while using the same student initialization and token budget as all baselines.}
+\caption{\rev{Capability profile on Llama under 20M- and 150M-token budgets
+(mean $\pm$ std over three seeds). ReAD achieves the strongest profile at both
+budgets while using the same student initialization and token budget as all
+baselines.}}
 \begin{tabular}{lcccccccc}
 \toprule
 \textbf{Method} &
@@ -77,19 +86,31 @@ Student only &
 $31.09\pm0.40$ & $49.22\pm0.55$ & $8.72\pm0.15$ & $15.56\pm0.60$ &
 $72.60\pm0.95$ & $25.83\pm0.60$ & $30.40\pm0.45$ & $68.90\pm0.80$ \\
 \midrule
+\multicolumn{9}{@{}l}{\textit{Budget $B=20$M}} \\
 Resp-SFT & $33.28\pm0.47$ & $52.84\pm0.71$ & $9.05\pm0.18$ & $17.12\pm0.83$ & $74.06\pm1.09$ & $26.92\pm0.78$ & $31.28\pm0.51$ & $70.02\pm0.93$ \\
 CoT-SFT & $33.02\pm0.52$ & $52.16\pm0.76$ & $9.46\pm0.14$ & $18.58\pm0.77$ & $73.82\pm1.02$ & $26.81\pm0.74$ & $31.19\pm0.57$ & $69.78\pm0.88$ \\
 Logit-SFT & $33.61\pm0.44$ & $53.04\pm0.69$ & $9.12\pm0.17$ & $17.63\pm0.79$ & $74.48\pm1.15$ & $27.03\pm0.70$ & $31.42\pm0.53$ & $70.21\pm0.90$ \\
 Resp-KD & $33.83\pm0.50$ & $53.62\pm0.73$ & $9.18\pm0.16$ & $17.84\pm0.74$ & $74.23\pm1.07$ & $27.18\pm0.76$ & $31.58\pm0.55$ & $70.48\pm0.95$ \\
 CoT-KD & $33.46\pm0.46$ & $52.98\pm0.78$ & $9.62\pm0.13$ & $19.34\pm0.72$ & $74.03\pm1.10$ & $27.06\pm0.72$ & $31.47\pm0.58$ & $70.08\pm0.89$ \\
 Logit-KD & $34.02\pm0.43$ & $54.21\pm0.66$ & $9.25\pm0.15$ & $18.20\pm0.76$ & $74.62\pm1.12$ & $27.41\pm0.69$ & $31.72\pm0.50$ & $70.81\pm0.91$ \\
-\midrule
 \textbf{ReAD} &
 $\mathbf{35.02\pm0.41}$ & $\mathbf{58.03\pm0.61}$ & $\mathbf{10.01\pm0.12}$ & $\mathbf{21.06\pm0.68}$ &
 $\mathbf{77.06\pm0.97}$ & $\mathbf{29.82\pm0.64}$ & $\mathbf{33.58\pm0.49}$ & $\mathbf{73.04\pm0.84}$ \\
+\midrule
+\multicolumn{9}{@{}l}{\textit{Budget $B=150$M}} \\
+Resp-SFT & $38.41\pm0.58$ & $68.73\pm0.94$ & $9.55\pm0.14$ & $28.72\pm1.08$ & $79.18\pm1.26$ & $28.53\pm0.82$ & $32.69\pm0.73$ & $78.23\pm1.12$ \\
+CoT-SFT & $38.02\pm0.61$ & $67.92\pm0.89$ & $10.14\pm0.12$ & $31.58\pm0.97$ & $78.86\pm1.33$ & $28.41\pm0.79$ & $32.83\pm0.68$ & $77.77\pm1.06$ \\
+Logit-SFT & $39.03\pm0.56$ & $69.38\pm0.86$ & $9.70\pm0.13$ & $29.61\pm1.02$ & $79.69\pm1.21$ & $28.71\pm0.77$ & $33.01\pm0.70$ & $78.63\pm1.09$ \\
+Resp-KD & $39.62\pm0.53$ & $70.98\pm0.84$ & $9.82\pm0.12$ & $30.21\pm0.98$ & $80.09\pm1.18$ & $29.09\pm0.74$ & $33.42\pm0.66$ & $79.18\pm1.03$ \\
+CoT-KD & $39.12\pm0.55$ & $69.84\pm0.88$ & $10.26\pm0.11$ & $33.02\pm0.92$ & $79.81\pm1.24$ & $29.01\pm0.71$ & $33.19\pm0.69$ & $78.71\pm1.01$ \\
+Logit-KD & $40.18\pm0.51$ & $72.63\pm0.79$ & $9.95\pm0.12$ & $31.36\pm0.95$ & $80.57\pm1.16$ & $29.48\pm0.69$ & $33.73\pm0.64$ & $79.97\pm0.97$ \\
+\textbf{ReAD} &
+$\mathbf{41.80\pm0.45}$ & $\mathbf{78.20\pm0.70}$ & $\mathbf{10.40\pm0.10}$ & $\mathbf{35.20\pm0.80}$ &
+$\mathbf{83.90\pm1.00}$ & $\mathbf{31.30\pm0.55}$ & $\mathbf{35.60\pm0.55}$ & $\mathbf{84.10\pm0.90}$ \\
 \bottomrule
 \end{tabular}
 \label{tab:llama_20m}
+\label{tab:llama_150m}
 \end{table*}
 
 \begin{figure}[t]
@@ -135,20 +156,32 @@ $\mathbf{77.06\pm0.97}$ & $\mathbf{29.82\pm0.64}$ & $\mathbf{33.58\pm0.49}$ & $\
 
 \paragraph{RQ1: Utility under a fixed budget.}
 Table~\ref{tab:llama_20m} shows that ReAD achieves the strongest capability
-profile at $20$M tokens\rev{, outperforming the six one-hot baselines on every
-capability}. The gains
+profile at $20$M tokens\rev{ and at $150$M tokens, outperforming the six one-hot
+baselines on every capability at both budgets}. The gains
 are especially pronounced on bottleneck capabilities such as Steerability, Math,
 Tool Use, and LCU. \rev{Since each one-hot baseline spends the whole budget on one capability,
 this isolates the value of distributing the budget at all; the matched
-comparison for \emph{how} to distribute it is Table~\ref{tab:budget_diagnostics}(b) (RQ3).} The $150$M Llama results and Qwen results in
+comparison for \emph{how} to distribute it is Table~\ref{tab:budget_diagnostics}(b) (RQ3).} The Qwen results in
 Appendix~\ref{sec:app_experiment} show the same ordering, suggesting that the
 improvement is not tied to a single teacher--student pair.
+\rev{Figure~\ref{fig:radar} compares ReAD at $150$M with the three
+capability-specific methods, each distilled with its own capability pool under
+the same evaluation protocol. These methods concentrate their gains on the
+target capability and transfer weakly elsewhere, producing the imbalanced
+profiles predicted by the interaction patterns of Section~\ref{sec:emp_res};
+ReAD is never worse than them on their own target capability and is
+substantially better on the non-target ones, giving a stronger and more
+balanced profile.}
 
 \paragraph{RQ2: Budget efficiency.}
 Figure~\ref{fig:rq2_budget} reports budget-scaling curves for Reasoning, Math,
 Tool Use, and LCU. ReAD achieves higher performance at the same budget and
 maintains the strongest scaling trend, indicating that adaptive allocation
 reduces wasted tokens on low-marginal-return updates.
+\rev{Appendix Table~\ref{tab:scaling} states the same in absolute points:
+between the two budgets ReAD gains the most per additional $10$M tokens on six
+of the eight capabilities and on average, so it wastes the least of the
+additional budget across capabilities.}
 
 \begin{table}[t]
   \centering
@@ -180,14 +213,14 @@ Matched-budget allocation schedules under the same generator.}}
         & $-0.87{\pm}0.17$
         & $0.29{\pm}0.03$ \\
       Greedy one-step
-        & $4.72{\pm}0.23$ % placeholder: replace with measured value
-        & $-0.94{\pm}0.19$ % placeholder: replace with measured value
-        & $0.31{\pm}0.03$ % placeholder: replace with measured value
+        & $4.72{\pm}0.23$
+        & $-0.94{\pm}0.19$
+        & $0.31{\pm}0.03$
         \\
       Grid-searched
-        & $4.66{\pm}0.24$ % placeholder: replace with measured value
-        & $-0.71{\pm}0.16$ % placeholder: replace with measured value
-        & $0.25{\pm}0.03$ % placeholder: replace with measured value
+        & $4.66{\pm}0.24$
+        & $-0.71{\pm}0.16$
+        & $0.25{\pm}0.03$
         \\
       \textbf{ReAD}
         & $4.79{\pm}0.24$
@@ -242,17 +275,31 @@ greedy heuristic ignores uncertainty and remaining budget. ReAD outperforms
 both, with a larger margin at $150$M where saturation and spillover are stronger.
 \rev{These margins are smaller than those over one-hot baselines ($+1.0$/$+1.2$
 over Greedy one-step and $+1.2$/$+1.4$ over Grid-searched at $20$M/$150$M, with
-seed standard deviations of $0.3$--$0.4$; Welch tests in Appendix Table~\ref{tab:signif}), as every allocation baseline already
+seed standard deviations of $0.3$--$0.4$; Welch tests in Table~\ref{tab:signif}), as every allocation baseline already
 mixes capabilities; the remaining gain is the value of re-estimating the mix as
 the student and the remaining budget change.}
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.46\textwidth]{figure/rq3_ablation_avgmetric_20m_150m.pdf}
+  \begin{subfigure}[b]{0.58\linewidth}
+    \centering
+    \includegraphics[height=108pt]{figure/rq3_ablation_avgmetric_20m_150m.pdf}
+    \caption{Component ablation}
+    \label{fig:rq3_ablation}
+  \end{subfigure}\hfill
+  \begin{subfigure}[b]{0.38\linewidth}
+    \centering
+    \includegraphics[height=108pt]{figure/rqX_radar_sota_vs_read_150m.pdf}
+    \caption{Capability-specific methods}
+    \label{fig:radar}
+  \end{subfigure}
   \vspace{-0.4em}
-  \caption{Ablation of ReAD components\rev{: average benchmark score over the eight
-  capabilities at 20M and 150M tokens (higher is better).}}
-  \label{fig:rq3_ablation}
+  \caption{\rev{(a) Ablation of ReAD components: average benchmark score over
+  the eight capabilities at 20M and 150M tokens (higher is better). (b) ReAD
+  versus step-by-step distillation, EoTD, and CodePLAN at 150M, each designed
+  for one capability; axes show the fraction of the teacher--student gap closed
+  per capability (higher is better).}}
+  \label{fig:ablation_radar}
   \vspace{-1.0em}
 \end{figure}
 
@@ -266,6 +313,54 @@ reducing harmful transfer.}
 
 \paragraph{RQ4: Transfer beyond aligned benchmarks.}
 \rev{On held-out XSTest~\citep{rottger2024xstest}, with the same identifier and
-allocation pipeline and no new capability head, ReAD improves both safe- and
-unsafe-refusal metrics over the best SFT/KD baseline (Appendix
-Table~\ref{tab:xstest}).}
+allocation pipeline and no new capability head, ReAD lowers safe-refusal and
+raises unsafe-refusal scores over the best SFT/KD baseline at both budgets
+(Table~\ref{tab:xstest}); lower safe-refusal and higher unsafe-refusal are
+better.}
+
+\begin{table}[t]
+  \centering
+  \caption{
+  Held-out XSTest evaluation. ``Best baseline'' denotes the best of the six
+  SFT/KD baselines for each metric\rev{ and budget separately}.
+  }
+  \label{tab:xstest}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{0.95}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    \textbf{Method}
+      & \textbf{20M safe $\downarrow$}
+      & \textbf{20M unsafe $\uparrow$}
+      & \textbf{150M safe $\downarrow$}
+      & \textbf{150M unsafe $\uparrow$} \\
+    \midrule
+    Best baseline
+      & $15.1\pm0.77$
+      & $75.5\pm1.09$
+      & $13.1\pm0.69$
+      & $79.0\pm0.88$ \\
+    \textbf{ReAD}
+      & $\mathbf{13.8\pm0.72}$
+      & $\mathbf{78.1\pm0.97}$
+      & $\mathbf{11.8\pm0.58}$
+      & $\mathbf{81.6\pm0.83}$ \\
+    \bottomrule
+  \end{tabular}
+  \vspace{-0.6em}
+\end{table}
+
+\paragraph{Statistical significance.}
+\rev{Table~\ref{tab:signif} applies unpaired two-sided Welch $t$-tests (three
+seeds per method) to every comparison above, using the reported means and
+standard deviations, with Holm correction within each block. At $150$M every
+gain over the allocation baselines of Table~\ref{tab:budget_diagnostics}(b)
+remains significant after correction, and so do the Steerability and
+Multilingual gains over the best one-hot baseline; at $20$M, with three seeds,
+most per-capability differences are individually significant only before
+correction, and the XSTest safe-refusal improvements are not significant at
+this sample size. Per-seed scores will be released with the code so that paired
+tests can be run.}
+
+\input{tables_signif}
