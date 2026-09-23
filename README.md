@@ -22,6 +22,8 @@ latexmk -pdf main.tex
 | `tables_signif.tex`, `table_scaling.tex`, `table_equiv_budget.tex` | significance, marginal-gain and equivalent-budget tables, computed from the reported means and standard deviations |
 | `figure/` | figures (`figure/overview.pdf` is the method overview) |
 | `scripts_fig/overview_fig.py` | regenerates `figure/overview.pdf` (`python scripts_fig/overview_fig.py`; needs matplotlib and pillow) |
+| `scripts_fig/fig_significance.py` | regenerates `figure/signif_xstest.pdf` from the reported means and standard deviations (needs matplotlib and scipy) |
+| `xstest_table.tex` | XSTest table (appendix; the main text shows it as a figure) |
 | `iclr2027_conference.sty`, `iclr2027_conference.bst`, `fancyhdr.sty`, `natbib.sty`, `math_commands.tex` | official ICLR 2027 style files (unmodified) |
 
 ## Camera-ready

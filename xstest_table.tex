@@ -1,0 +1,31 @@
+\begin{table}[h]
+  \centering
+  \caption{
+  Held-out XSTest evaluation. ``Best baseline'' denotes the best of the six
+  SFT/KD baselines for each metric\rev{ and budget separately}.
+  }
+  \label{tab:xstest}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{0.95}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    \textbf{Method}
+      & \textbf{20M safe $\downarrow$}
+      & \textbf{20M unsafe $\uparrow$}
+      & \textbf{150M safe $\downarrow$}
+      & \textbf{150M unsafe $\uparrow$} \\
+    \midrule
+    Best baseline
+      & $15.1\pm0.77$
+      & $75.5\pm1.09$
+      & $13.1\pm0.69$
+      & $79.0\pm0.88$ \\
+    \textbf{ReAD}
+      & $\mathbf{13.8\pm0.72}$
+      & $\mathbf{78.1\pm0.97}$
+      & $\mathbf{11.8\pm0.58}$
+      & $\mathbf{81.6\pm0.83}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
