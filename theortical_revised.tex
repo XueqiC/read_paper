@@ -1,9 +1,7 @@
 \section{Theoretical Analysis}
 \label{sec:theory}
 
-\rev{We give a local account of the three phenomena ReAD acts on: spillover,
-diminishing returns, and noisy reward estimates. The assumptions, full
-statements, and proofs are in Appendix~\ref{sec:app_theory}.}
+\rev{This section gives a local account of three phenomena that ReAD acts on, namely spillover, diminishing returns, and noisy reward estimates. Appendix~\ref{sec:app_theory} gives the assumptions and proofs.}
 
 \rev{\textbf{Local cross-capability transfer.} Let $\theta_t$ be the student
 parameters after decision step $t$ and $\Delta\theta_t=\theta_t-\theta_{t-1}$.
@@ -22,10 +20,7 @@ change of each capability $c$ at step $t$ decomposes as}
 \nabla_\theta[\tilde{\mathbf{s}}(\theta)]_c^\top d_{c'}(\theta).
 \label{eq:transfer_decomp_short}
 \end{equation}
-\rev{$\Gamma$ is the local analogue of the empirical transfer matrix: an
-off-diagonal entry is nonzero whenever the update direction for $c'$ is not
-orthogonal to the readout direction of $c$, which shared representations make
-common, so allocating budget to one capability alters others at every step.}
+\rev{$\Gamma$ is a local analogue of the empirical transfer matrix. An off-diagonal entry is nonzero whenever the update direction for $c'$ is not orthogonal to the readout direction of $c$. Shared representations likely make this common, so budget given to one capability can alter others at every step.}
 
 \rev{\textbf{Diminishing returns and budget waste.} Let $b_c\ge0$ be the tokens
 assigned to capability $c$, $\sum_c b_c\le B$, and suppose task-aligned gains
@@ -35,9 +30,7 @@ with $G_{\tau,c}$ nondecreasing and concave. An optimal allocation equalizes
 weighted marginal gains across active capabilities (Proposition~\ref{prop:kkt}),
 so moving a small budget from a single target $\bar c$ to another capability
 $c'$ helps whenever
-$r_{\tau,c'}G'_{\tau,c'}(0)>r_{\tau,\bar c}G'_{\tau,\bar c}(b_{\bar c})$: once
-the target saturates, further tokens can be worth less than tokens spent
-elsewhere (Observation~2). This proxy ignores spillover, which ReAD's reward in
+$r_{\tau,c'}G'_{\tau,c'}(0)>r_{\tau,\bar c}G'_{\tau,\bar c}(b_{\bar c})$. Once the target saturates, further tokens can be worth less than tokens spent elsewhere (Observation~2). This proxy ignores spillover, which ReAD's reward in
 Eq.~\eqref{eq:reward} penalizes separately.}
 
 \rev{\textbf{Uncertainty-aware allocation.} Let
@@ -45,7 +38,4 @@ $\overline{R}(\mathbf{x},\mathbf{w})$ be the conditional expected proxy reward
 of allocation $\mathbf{w}$ in context $\mathbf{x}$. If the ensemble is
 calibrated, $|\mu-\overline{R}|\le\kappa\,\sigma$ with high probability, the
 action chosen by Eq.~\eqref{eq:ucb} is within $2\kappa\,\sigma(\mathbf{x}_t,\mathbf{w}_t)$
-of the best action in expected reward (Proposition~\ref{prop:regret}): the
-allocator errs substantially only where its own uncertainty is large, which is
-where the bonus directs exploration. This is a local, per-step statement, not a
-global guarantee for nonconvex fine-tuning.}
+of the best action in expected reward (Proposition~\ref{prop:regret}). Large errors can then occur only where the allocator's own uncertainty is large, which is also where the bonus directs exploration. The statement holds locally at each step and offers no global guarantee.}

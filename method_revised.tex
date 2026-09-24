@@ -6,23 +6,17 @@
   \includegraphics[width=\linewidth]{figure/overview.pdf}
   \vspace{-1.4em}
   \caption{\rev{Overview of ReAD. \textbf{(1)} A pretrained identifier sets the
-  task's capability priorities $\mathbf{r}_\tau$. ReAD then repeats three steps
-  until the budget $B$ is spent: \textbf{(2)} a bandit selects the allocation
-  $\mathbf{w}_t$ by UCB; \textbf{(3)} the student is distilled on teacher outputs
-  for prompts sampled from $\mathbf{w}_t$; \textbf{(4)} the measured capability
-  change yields a proxy reward that updates the bandit.}}
+  task's capability priorities $\mathbf{r}_\tau$. ReAD then repeats three steps until the budget $B$ is spent. \textbf{(2)} A bandit selects the allocation $\mathbf{w}_t$ by UCB. \textbf{(3)} The student is distilled on teacher outputs for prompts sampled from $\mathbf{w}_t$. \textbf{(4)} The measured capability change gives a proxy reward, which updates the bandit.}}
   \label{fig:overview}
   \vspace{-0.8em}
 \end{figure}
 
 ReAD treats Problem~\ref{prob:budget_alloc} as state-dependent budget allocation
-over capabilities \rev{(Figure~\ref{fig:overview})}. \rev{It first sets task-conditioned capability priorities; then, at each step, it} generates
+over capabilities \rev{(Figure~\ref{fig:overview})}. \rev{It first sets task-conditioned capability priorities. Then, at each step, it} generates
 capability-targeted teacher supervision\rev{ and} uses an uncertainty-aware contextual
 bandit to choose the next token allocation. As the student profile changes, ReAD
 can shift budget away from saturated or high-spillover capabilities.
-\rev{ReAD is \emph{off-policy}~\citep{agarwal2024gkd}: the student learns from
-teacher completions, and on-policy losses~\citep{gu2024minillm,ko2024distillm}
-could replace this objective without changing the allocator.}
+\rev{ReAD is \emph{off-policy}~\citep{agarwal2024gkd}. The student learns from teacher completions, and on-policy losses~\citep{gu2024minillm,ko2024distillm} could replace this objective without changing the allocator.}
 
 \subsection{\rev{Task-Conditioned Capability Priorities}}
 \label{sec:method:essential}
@@ -34,9 +28,7 @@ input/output format, evaluation target, and a few exemplars) and estimates from
 it a capability-priority vector $\mathbf{r}_\tau\in\Delta_{|\mathcal{C}|}$, a
 simplex-constrained allocation prior in which $r_{\tau,c}$ is the priority of
 capability $c$ for the task utility $U_\tau(\cdot)$. High-mass capabilities
-are prioritized in the candidate allocations, and regressions on them are penalized. It lives on the simplex because token allocations cannot be
-negative; negative sensitivities enter through signed capability changes and
-the regression penalty of Section~\ref{sec:method:bandit}.}
+are prioritized in the candidate allocations, and regressions on them are penalized. We keep it on the simplex because token allocations cannot be negative. Negative sensitivities enter through signed capability changes and the regression penalty of Section~\ref{sec:method:bandit}.}
 
 \paragraph{\rev{Priority identifier and its supervision.}}
 \rev{A lightweight identifier $g_\phi$ (a small Transformer encoder over the
@@ -55,15 +47,12 @@ U_\tau(S')-U_\tau(S)
 \nabla_{\mathbf{s}}F_\tau(\mathbf{s})^\top\Delta\mathbf{s}
 \label{eq:local_linear}
 \end{equation}
-\rev{(first-order expansion, Appendix~\ref{sec:app_method}). This expansion
-motivates the training signal only: $\mathbf{r}_\tau$ is not an estimate of
-the true sensitivity but an allocation prior whose inner product with a
-capability change is fit to the observed utility change, as follows.}
+\rev{(first-order expansion, Appendix~\ref{sec:app_method}). This expansion only motivates the training signal. The vector $\mathbf{r}_\tau$ is an allocation prior, fit so that its inner product with a profile change predicts the utility change.}
 
 \paragraph{Offline pretraining.}
 \rev{We build an intervention set
 $\mathcal{Z}=\{(\mathcal{D}^{\mathrm{spec}}_\tau,\Delta\mathbf{s}^{(m)}_\tau,\Delta U^{(m)}_\tau)\}_{\tau,m}$
-from auxiliary tasks and non-test splits: for each task we sample sparse
+from auxiliary tasks and non-test splits. For each task, we sample sparse
 allocation vectors $\mathbf{w}^{(m)}\in\Delta_{|\mathcal{C}|}$ (a random
 support with Dirichlet weights), run a short probe distillation with a small
 budget $b_{\mathrm{probe}}$ to obtain an intervened student $S^{(m)}$, and
@@ -80,9 +69,7 @@ change,}
 \label{eq:req_pretrain}
 \end{equation}
 \rev{where the entropy penalty discourages near-uniform priority vectors.
-At deployment, $\mathbf{r}_\tau$ is computed once per task and reused for the
-whole run; because the identifier is trained once and shared across tasks, it
-is not charged to the per-run distillation budget.}
+At deployment, ReAD computes $\mathbf{r}_\tau$ once per task and reuses it for the whole run. The identifier is trained once and shared across tasks, so we do not charge it to the per-run distillation budget.}
 
 \subsection{On-the-Fly Capability-Targeted Data Generation}
 \label{sec:method-generator}
@@ -128,7 +115,7 @@ $\Delta\mathbf{s}^{\mathrm{probe}}_t=\mathbf{s}^{\mathrm{probe}}(S_{t+1})-\mathb
  r_{\tau,c}\,[-\Delta s^{\mathrm{probe}}_{t,c}]_+
 \label{eq:reward}
 \end{equation}
-Here $\mathcal{C}_{\mathrm{pri}}$ contains the top-$k$ \rev{(prioritized)} capabilities under $\mathbf{r}_\tau$, and $\mathrm{cost}_t$ is the token budget consumed at the step. The first term rewards task-aligned capability gains\rev{ and the second adds an extra penalty for regressions on prioritized capabilities, which already lower the first term. Because every step in our experiments consumes the same number of tokens, the third term is constant; the budget is enforced by the fixed total $B$ and the update schedule.}
+Here $\mathcal{C}_{\mathrm{pri}}$ contains the top-$k$ \rev{(prioritized)} capabilities under $\mathbf{r}_\tau$, and $\mathrm{cost}_t$ is the token budget consumed at the step. The first term rewards task-aligned capability gains\rev{ and the second adds an extra penalty for regressions on prioritized capabilities, which already lower the first term. Every step in our experiments consumes the same number of tokens, so the third term is constant. The fixed total $B$ and the update schedule enforce the budget.}
 
 \paragraph{Reward model and UCB allocation.}
 \rev{We append $(\mathbf{x}_t,\mathbf{w}_t,\widehat{R}_t)$ to a history buffer

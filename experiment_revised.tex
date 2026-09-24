@@ -23,17 +23,14 @@ sampling. The six main baselines combine three teacher signals---final response
 with two objectives, SFT and KD. Each baseline is one-hot at the capability
 level, spending the full budget on the target-capability pool.
 \rev{We also compare against four allocation baselines that share ReAD's
-generator, teacher, and budget and differ only in how $\mathbf{w}_t$ is chosen
-(Figure~\ref{fig:diagnostics}c): \emph{Uniform static}
+generator, teacher, and budget and differ only in how $\mathbf{w}_t$ is chosen (Figure~\ref{fig:diagnostics}c). They are \emph{Uniform static}
 ($\mathbf{w}_t=\mathbf{1}/|\mathcal{C}|$), \emph{Task-static mix}
 ($\mathbf{w}_t=\mathbf{r}_\tau$), \emph{Greedy one-step} (re-selects
 $\mathbf{w}_t$ each step from the same context, including the remaining budget,
 but without the uncertainty bonus, $\kappa=0$), and
 \emph{Grid-searched} (best fixed allocation in $\mathcal{A}(\tau)$ on the
 profiling split). These baselines separate the allocation schedule
-from the rest of the pipeline. Finally, we include three published capability-specific
-distillation methods, adapted to our teacher--student pair and budget:
-step-by-step distillation~\citep{hsieh2023stepbystep} for reasoning,
+from the rest of the pipeline. Finally, we adapt three published capability-specific distillation methods to our teacher--student pair and budget, namely step-by-step distillation~\citep{hsieh2023stepbystep} for reasoning,
 Equation-of-Thought Distillation (EoTD)~\citep{zhu2024distilling} for math,
 and CodePLAN~\citep{sun2024enhancing} for code.}
 
@@ -44,11 +41,7 @@ the $150$M setting. Proxy refresh adds 3.12\% wall-clock overhead, the full onli
 5.63\%, and the reusable \rev{priority} identifier costs 3.79 GPU-hours to train
 once.
 \rev{\textbf{Cost accounting.} $B$ counts the teacher-generated tokens the
-student is trained on and is identical for all methods. Two ReAD-specific costs
-fall outside $B$ and are reported separately rather than folded into it: the
-identifier is trained once from auxiliary tasks and reused for every task and
-budget, so its 3.79 GPU-hours are amortized, and the fixed probe suite is the
-3.12\% overhead above.}
+student is trained on and is identical for all methods. Two ReAD-specific costs fall outside $B$, and we report them separately. The identifier is trained once from auxiliary tasks and reused for every task and budget, so its 3.79 GPU-hours are amortized. The fixed probe suite accounts for the 3.12\% overhead above.}
 
 \section{Experiments}
 \label{sec:exp}
@@ -137,8 +130,7 @@ $\mathbf{83.90\pm1.00}$ & $\mathbf{31.30\pm0.55}$ & $\mathbf{35.60\pm0.55}$ & $\
   \end{subfigure}
   \caption{\rev{ReAD's advantage with unadjusted 95\% Welch intervals from the
   reported means and standard deviations (three seeds; blue circles 20M, orange
-  squares 150M). Filled markers stay significant after Holm correction per panel
-  and budget; safe-refusal is shown as a reduction, so positive values favor ReAD in all panels.}}
+  squares 150M). Filled markers stay significant after Holm correction per panel and budget. Safe-refusal is shown as a reduction, so positive values favor ReAD in all panels.}}
   \label{fig:signif}
 \end{figure}
 
@@ -146,33 +138,15 @@ $\mathbf{83.90\pm1.00}$ & $\mathbf{31.30\pm0.55}$ & $\mathbf{35.60\pm0.55}$ & $\
 \label{subsec:exp_results}
 \label{subsec:rq1}
 
-\rev{Table~\ref{tab:llama_20m} reports on-target performance across separate
-distillation tasks: for each target capability, every baseline is distilled
-separately toward it, ReAD allocates supervision across capabilities for the
-same target, and all methods are scored on that target. ReAD achieves the
-highest mean on-target score for all eight targets at both budgets.} \rev{The
+\rev{Table~\ref{tab:llama_20m} reports on-target performance across separate distillation tasks. For each target capability, every baseline is distilled toward it alone, ReAD allocates supervision across capabilities for the same target, and all methods are scored on that target. ReAD has the highest mean on-target score for all eight targets at both budgets.} \rev{The
 largest margins are on Steerability at both budgets, followed by Code and Tool
-Use at $20$M and by Multilingual and Code at $150$M.} \rev{Because the baselines
-also differ from ReAD in how supervision is generated, this comparison measures
-the effect of the whole method; RQ2 compares allocation schedules under the same
-generator.} The Qwen results in Appendix~\ref{sec:app_experiment} show the same
+Use at $20$M and by Multilingual and Code at $150$M.} \rev{The baselines also differ from ReAD in how supervision is generated, so this comparison reflects the whole method. RQ2 compares allocation schedules under the same generator.} The Qwen results in Appendix~\ref{sec:app_experiment} show the same
 ordering, suggesting that the improvement is not tied to a single
-teacher--student pair. \rev{With three seeds, all sixteen differences are
-positive and all but Reasoning at $150$M are significant before correction;
-after Holm correction over the eight capabilities, Steerability at both budgets
-and Multilingual at $150$M remain significant (Figure~\ref{fig:signif}).}
+teacher--student pair. \rev{With three seeds, all sixteen differences are positive, and all but Reasoning at $150$M are significant before correction. After Holm correction over the eight capabilities, only Steerability at both budgets and Multilingual at $150$M remain significant (Figure~\ref{fig:signif}).}
 
-\rev{\textbf{Margin and teacher--student headroom.} The margin grows with the
-teacher--student headroom (Spearman $\rho=0.74$ at $150$M, $p=0.04$): it is
-largest on Steerability and Multilingual (teacher ahead by over $20$ points) and
-smallest on Reasoning ($1.8$ points). ReAD's gain over the student is
-$1.9\times$ that of the strongest baseline at $20$M and $1.3\times$ at $150$M,
-so the advantage peaks when tokens are scarce.}
+\rev{\textbf{Margin and teacher--student headroom.} The margin tends to grow with the teacher--student headroom (Spearman $\rho=0.74$ at $150$M, $p=0.04$). It is largest on Steerability and Multilingual, where the teacher leads by over $20$ points, and smallest on Reasoning ($1.8$ points). ReAD's gain over the student is $1.9\times$ that of the strongest baseline at $20$M and $1.3\times$ at $150$M, which suggests that the advantage is largest when tokens are scarce.}
 
-\rev{Against the three capability-specific methods at $150$M
-(Figure~\ref{fig:radar}), which concentrate gains on their own target as
-Section~\ref{sec:emp_res} predicts, ReAD distilled toward the same target is
-never worse on it.}
+\rev{Figure~\ref{fig:radar} compares ReAD with three capability-specific methods. These methods concentrate gains on their own target, as Section~\ref{sec:emp_res} predicts, and ReAD scores at least as high on each.}
 
 \begin{figure}[t]
   \centering
@@ -180,7 +154,7 @@ never worse on it.}
   \vspace{-1.6em}
   \caption{\rev{Budget-allocation diagnostics (mean $\pm$ std, three seeds; values in
   Appendix Table~\ref{tab:budget_diagnostics}). (a) On-target gain (up), off-target
-  change (down), and (b) negative transfer at 150M; (c) allocation schedules under a matched generator.}}
+  change (down), and (b) negative transfer at 150M. (c) Allocation schedules under a matched generator.}}
   \label{fig:diagnostics}
   \vspace{-0.8em}
 \end{figure}
@@ -209,7 +183,7 @@ never worse on it.}
   \caption{\rev{(a) Component ablation (average score over eight capabilities). (b)
   ReAD vs.\ step-by-step distillation, EoTD, and CodePLAN at 150M (fraction of the
   teacher--student gap closed). (c) XSTest refusal rates of ReAD and the best SFT/KD
-  baseline. Bars: blue /// 20M, orange dots 150M.}}
+  baseline. }}
   \label{fig:ablation_radar}
   \vspace{-1.0em}
 \end{figure}
@@ -220,24 +194,11 @@ never worse on it.}
 Figure~\ref{fig:diagnostics}c compares ReAD with \rev{the four} allocation
 baselines \rev{of Section~\ref{subsec:exp_setup}, which share its generator,
 teacher, and token budget and differ only in how $\mathbf{w}_t$ is chosen}.
-\rev{Static schedules keep one allocation for the whole run; Greedy one-step
-re-selects it every step from the same context, including the remaining budget,
-but without the uncertainty bonus.} ReAD outperforms \rev{all four}, with larger margins at $150$M. \rev{The margins ($+1.0$/$+1.2$ over
+\rev{Static schedules keep one allocation for the whole run. Greedy one-step re-selects it every step from the same context, including the remaining budget, but has no uncertainty bonus.} ReAD outperforms \rev{all four}, with larger margins at $150$M. \rev{The margins ($+1.0$/$+1.2$ over
 Greedy one-step and $+1.2$/$+1.4$ over Grid-searched at $20$M/$150$M; seed std
-$0.28$--$0.42$) are smaller than over the one-hot baselines because every
-schedule already mixes capabilities. Greedy one-step is only $0.15$--$0.20$
-points above the best static schedule, so in this comparison most of ReAD's gain
-comes from uncertainty-aware selection on top of dynamic updates rather than
-from re-estimating the mix alone. All four gains remain significant after Holm
-correction at $150$M, and the gain over Uniform static also at $20$M
-(Figure~\ref{fig:signif}).}
+$0.28$--$0.42$) are smaller than those over the one-hot baselines, probably because every schedule already mixes capabilities. Greedy one-step sits only $0.15$--$0.20$ points above the best static schedule. In this comparison, most of ReAD's gain therefore appears to come from uncertainty-aware selection added on top of dynamic updates. All four gains remain significant after Holm correction at $150$M, and so does the gain over Uniform static at $20$M (Figure~\ref{fig:signif}).}
 
-\rev{\textbf{Component ablation.} Figure~\ref{fig:rq3_ablation} changes one
-component at a time: \emph{W/o Identifier} replaces the task-guided allocation
-with a uniform one (a component variant, not an isolated ablation of $g_\phi$),
-\emph{W/o Adaptation} fixes the allocation, and \emph{W/o Interaction} removes
-the extra regression penalty. The first two cause the largest drops, and the
-regression penalty adds a smaller further gain.}
+\rev{\textbf{Component ablation.} Figure~\ref{fig:rq3_ablation} changes one component at a time. \emph{W/o Identifier} replaces the task-guided allocation with a uniform one, so it alters more than $g_\phi$ alone. \emph{W/o Adaptation} fixes the allocation, and \emph{W/o Interaction} removes the extra regression penalty. The first two variants lose the most, and removing the regression penalty costs somewhat less. Because Figure~\ref{fig:rq3_ablation} averages over all eight capabilities, it mixes on-target and off-target effects.}
 
 \subsection{RQ3: Budget Efficiency and Spillover}
 \label{subsec:rq3}
@@ -284,28 +245,16 @@ regression penalty adds a smaller further gain.}
 
 Figure~\ref{fig:rq2_budget} reports budget-scaling curves for Reasoning, Math,
 Tool Use, and LCU. ReAD achieves higher performance at \rev{every} budget\rev{
-and scales most steeply on Math and LCU; on Reasoning and Tool Use the baselines
-narrow the gap by $150$M as all methods approach the teacher.}
+and scales most steeply on Math and LCU. On Reasoning and Tool Use, the baselines narrow the gap by $150$M as all methods approach the teacher.}
 \rev{ReAD also gains the most per additional $10$M tokens on six of the eight
-capabilities (Appendix Table~\ref{tab:scaling}). From only the two
-measured budgets, Table~\ref{tab:equiv_budget} estimates that matching ReAD's
-$20$M score would take the strongest one-hot baseline $1.3$--$6.5\times$ as
-many tokens (median about $2\times$) under log-linear and $1.8$--$7.0\times$
-(median about $3\times$) under linear interpolation, and Tool Use is not
-matched even at $150$M.}
+capabilities (Appendix Table~\ref{tab:scaling}). Table~\ref{tab:equiv_budget} turns the two measured budgets into rough estimates. To match ReAD's $20$M score, the strongest one-hot baseline would need about $1.3$--$6.5\times$ as many tokens (median about $2\times$) under log-linear interpolation and $1.8$--$7.0\times$ (median about $3\times$) under linear interpolation. It does not reach ReAD's $20$M Tool Use score even at $150$M. These estimates assume that each baseline changes smoothly between the two measured budgets.}
 
 Figure~\ref{fig:diagnostics}a--b shows \rev{the trade-off between target gain and
 spillover at $150$M}. Single-capability KD achieves strong target gains but
 causes larger off-target degradation, while static mixing reduces spillover at
-the cost of weaker target improvement. \rev{ReAD matches the on-target gain of
-single-capability KD with the smallest off-target decline and negative-transfer
-rate of all methods.}
+the cost of weaker target improvement. \rev{ReAD matches the on-target gain of single-capability KD, and its off-target decline and negative-transfer rate are the lowest in the comparison.}
 
 \subsection{RQ4: Transfer beyond Aligned Benchmarks}
 \label{subsec:rq4}
 
-\rev{On held-out XSTest~\citep{rottger2024xstest}, with the same pipeline and no new
-capability head, ReAD lowers safe-refusal and raises unsafe-refusal scores over the
-best SFT/KD baseline at both budgets (Figure~\ref{fig:xstest}). The four differences agree in direction, but none survives
-Holm correction with three seeds (Figure~\ref{fig:signif}), so this is only preliminary
-evidence of transfer beyond the eight capabilities.}
+\rev{On held-out XSTest~\citep{rottger2024xstest}, we reuse the pipeline without a new capability head. ReAD lowers safe-refusal and raises unsafe-refusal scores over the best SFT/KD baseline at both budgets (Figure~\ref{fig:xstest}, Appendix Table~\ref{tab:xstest}). The four differences agree in direction. None survives Holm correction (Figure~\ref{fig:signif}), so this is preliminary evidence of transfer beyond the eight capabilities.}

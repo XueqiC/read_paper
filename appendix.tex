@@ -4,9 +4,7 @@
 
 \rev{This work involves no human subjects or personal data and uses only public
 models and benchmarks. Distilled students may inherit biases or unsafe
-behaviors from their teachers, and cheaper distillation may ease building
-dual-use models; Appendix~\ref{sec:broader_impact} discusses these risks and
-mitigations.}
+behaviors from their teachers, and cheaper distillation may ease building dual-use models. Appendix~\ref{sec:broader_impact} discusses these risks and possible mitigations.}
 
 
 \section{Benchmark Datasets}\label{sec:bench_datasets}
@@ -71,15 +69,10 @@ We use deterministic decoding for generation benchmarks (temperature $=0$) with 
 
 \rev{\textbf{Scoring and normalization.} Each benchmark in
 Table~\ref{tab:capabilities-benchmarks} is scored with its standard metric
-(accuracy, exact match, pass@1, or tool-call success rate) expressed in
-percentage points; LongBench reports its own per-task normalized score on the
-same $0$--$100$ scale. A capability score is the unweighted mean of its
+(accuracy, exact match, pass@1, or tool-call success rate) expressed in percentage points. LongBench uses its own per-task normalized score on the same $0$--$100$ scale. A capability score is the unweighted mean of its
 benchmark scores, and a transfer-matrix entry $\mathbf{T}_{ij}(B)$ is the
 absolute difference in capability score between the distilled and the initial
-student. No min--max rescaling or gap-closure normalization is applied to the
-reported tables or transfer matrices, so a change of one point is one
-percentage point of the underlying metric, and small absolute changes remain
-small in the figures.}
+student. We apply no min--max rescaling or gap-closure normalization to the reported tables or transfer matrices. A change of one point is therefore one percentage point of the underlying metric.}
 
 \section{Method Details}\label{sec:app_method}
 \rev{The following details were moved here from Section~\ref{sec:method}.}
@@ -93,7 +86,7 @@ F_\tau(\mathbf{s})+
 +o(\|\Delta\mathbf{s}\|),
 \label{eq:taylor}
 \end{equation}
-which yields the local approximation in Eq.~\eqref{eq:local_linear}. This does not assume that the true sensitivity has no negative coordinates\rev{. The expansion only motivates the training signal of Eq.~\eqref{eq:req_pretrain}: the priority vector $\mathbf{r}_\tau$ is a nonnegative, simplex-constrained allocation prior over capabilities, not an estimate of the sensitivity itself; negative sensitivities enter through the signed capability changes in the reward.}
+which yields the local approximation in Eq.~\eqref{eq:local_linear}. This does not assume that the true sensitivity has no negative coordinates\rev{. We use the expansion only to motivate the training signal of Eq.~\eqref{eq:req_pretrain}. The priority vector $\mathbf{r}_\tau$ is a nonnegative, simplex-constrained allocation prior over capabilities, and we do not interpret it as an estimate of the sensitivity. Negative sensitivities enter through the signed capability changes that feed the reward.}
 
 \textbf{Difficulty scoring.} For prompt $x$ in capability $c$, we compute a deterministic difficulty score
 \begin{equation}
@@ -259,7 +252,7 @@ By calibration, the true reward of any action is at most its upper confidence sc
 \centering
 \tiny
 \setlength\tabcolsep{1pt}
-\caption{\rev{Target-specific distillation performance under a 20M-token budget (Qwen). ReAD outperforms all six one-hot baselines on every target.}}
+\caption{\rev{Target-specific distillation performance under a 20M-token budget (Qwen). ReAD has a higher mean score than all six one-hot baselines on every target.}}
 \begin{tabular}{lcccccccc}
 \toprule
 \textbf{Method} &
@@ -365,7 +358,7 @@ $\mathbf{87.23 \pm 0.95}$ \\
 \centering
 \tiny
 \setlength\tabcolsep{1pt}
-\caption{\rev{Target-specific distillation performance under a 150M-token budget (Qwen). ReAD outperforms all six one-hot baselines on every target.}}
+\caption{\rev{Target-specific distillation performance under a 150M-token budget (Qwen). ReAD has a higher mean score than all six one-hot baselines on every target.}}
 \begin{tabular}{lcccccccc}
 \toprule
 \textbf{Method} &
@@ -470,17 +463,9 @@ $\mathbf{90.54 \pm 0.92}$ \\
 \textbf{\rev{Results across model families and budgets.}} We compare ReAD with six capability distillation baselines. \rev{Table~\ref{tab:llama_20m} (main text) reports the Llama results at $B{=}20$M and $B{=}150$M, and Tables~\ref{tab:qwen_20m} and~\ref{tab:qwen_150m} report the corresponding Qwen results.} \rev{In both budgets and for both model families, ReAD achieves the highest
 mean on-target score on every target capability. The
 largest margin is on Steerability and the smallest on Reasoning in all four
-settings, in line with the headroom analysis of Section~\ref{subsec:rq1}. Scaling
-the budget from 20M to 150M strengthens all methods; ReAD's average margin over the
-strongest baseline grows for Llama ($+2.0$ to $+2.6$ points) and narrows slightly
-for Qwen ($+1.8$ to $+1.6$ points), whose stronger student leaves less headroom.
-Qwen starts from a stronger student and teacher on every capability and reaches
-higher absolute scores after distillation, but the strongest baseline for each
-capability and the top rank of ReAD are unchanged, suggesting that ReAD's advantage
-is not tied to a specific LLM family.}
+settings, in line with the headroom analysis of Section~\ref{subsec:rq1}. Scaling the budget from 20M to 150M strengthens all methods. ReAD's average margin over the strongest baseline grows for Llama ($+2.0$ to $+2.6$ points) and narrows slightly for Qwen ($+1.8$ to $+1.6$ points), perhaps because Qwen's stronger student leaves less headroom. Qwen starts from a stronger student and teacher on every capability and reaches higher absolute scores after distillation. The strongest baseline for each capability and the top rank of ReAD stay the same, which suggests that ReAD's advantage does not depend on one LLM family.}
 \rev{Figure~\ref{fig:gain_over_student} visualizes the same Llama numbers as
-absolute gains over the initial student, next to the best one-hot baseline of
-each capability, which makes the per-capability margins directly comparable.
+absolute gains over the initial student, next to the best one-hot baseline of each capability, so the per-capability margins can be compared directly.
 Table~\ref{tab:scaling} reports how much each method gains per additional
 $10$M tokens between the two budgets, and Table~\ref{tab:equiv_budget} in the main text
 gives interpolation-based estimates of how many tokens the strongest one-hot
@@ -504,8 +489,7 @@ baseline would need to reach ReAD's $20$M score on each of the eight capabilitie
 \rev{\textbf{Tabulated values.} Figure~\ref{fig:signif} in Section~\ref{sec:exp} shows
 ReAD's advantage in every comparison with its confidence interval. Table~\ref{tab:xstest} lists the XSTest scores shown in
 Figure~\ref{fig:xstest}, Table~\ref{tab:budget_diagnostics} the values of Figure~\ref{fig:diagnostics}, and Table~\ref{tab:signif} lists the differences and
-Welch $t$ statistics shown in Figure~\ref{fig:signif}, with significance marks
-after Holm correction within each block and budget, exactly as in the figure.}
+Welch $t$ statistics shown in Figure~\ref{fig:signif}, with significance marks after Holm correction within each block and budget, as in the figure.}
 
 \input{xstest_table}
 
@@ -596,7 +580,7 @@ allocation schedules under the same generator.}}
 \label{sec:relate}
 
 \textbf{Capability Distillation for Large Language Models.}\label{sec:relate_kd}
-Recent work on capability distillation has focused on transferring specific capabilities such as instruction following and context manipulation~\citep{taori2023stanford, chiang2023vicuna, peng2023instruction, xu2023wizardlm}, thinking patterns~\citep{zhang2024knowledgeable, cheng2023adapting}, or text and code generation capability~\citep{zhang2025recommendation, li2023starcoder}. These methods typically steer a teacher LLM via prompts or rationales, generate distillation data or logits, and fine-tune the student on that evidence. \rev{These methods typically devote the supervision budget to the target capability or domain itself. ReAD asks a complementary question: how to allocate a fixed budget across capability-targeted supervision so as to improve a specified target capability, rather than spending all of it on the target itself.}
+Recent work on capability distillation has focused on transferring specific capabilities such as instruction following and context manipulation~\citep{taori2023stanford, chiang2023vicuna, peng2023instruction, xu2023wizardlm}, thinking patterns~\citep{zhang2024knowledgeable, cheng2023adapting}, or text and code generation capability~\citep{zhang2025recommendation, li2023starcoder}. These methods typically steer a teacher LLM via prompts or rationales, generate distillation data or logits, and fine-tune the student on that evidence. \rev{These methods typically devote the supervision budget to the target capability or domain itself. ReAD asks a related question, how to spread a fixed budget across capability-targeted supervision when the goal is a specified target.}
 
 \rev{\textbf{Distillation objectives, data mixtures, and forgetting.} Beyond
 capability-specific recipes, LLM distillation methods differ in where the
@@ -604,26 +588,15 @@ training sequences come from. Sequence-level KD and its descendants train on
 teacher-generated outputs~\citep{hinton2015distilling,kim2016sequence}, whereas
 on-policy methods train on student-generated sequences scored by the teacher,
 which reduces exposure bias~\citep{gu2024minillm,agarwal2024gkd,ko2024distillm}.
-ReAD is off-policy in this sense and treats the objective as a plug-in: its
-contribution is the allocation of a fixed budget across capabilities, not a new
-loss. A separate line of work optimizes the \emph{mixture} of training data:
-DoReMi~\citep{xie2023doremi} and RegMix~\citep{liu2024regmix} learn static
+ReAD is off-policy in this sense and treats the objective as a plug-in. Its contribution lies in allocating a fixed budget across capabilities, and it keeps a standard loss. A separate line of work optimizes the \emph{mixture} of training data. DoReMi~\citep{xie2023doremi} and RegMix~\citep{liu2024regmix} learn static
 domain weights before, or without observing, the target model's training
 trajectory. Closest to ReAD are methods that adapt the mixture during training.
 Skill-It~\citep{chen2023skillit} estimates a graph of prerequisite relations among
-skills and updates skill-sampling weights online, including for a single target
-skill; ODM~\citep{albalak2023odm} treats data domains as arms of a multi-armed
-bandit rewarded by the training loss; and Aioli~\citep{chen2025aioli} estimates
+skills and updates skill-sampling weights online, including for a single target skill. ODM~\citep{albalak2023odm} treats data domains as arms of a multi-armed bandit rewarded by the training loss. Aioli~\citep{chen2025aioli} estimates
 the parameters of a mixing law during training and uses them to adjust the
-proportions. ReAD shares this online, feedback-driven view and studies
-target-oriented allocation in teacher-supervised distillation: supervision is
-generated on the fly by a teacher, the reward is built from measured changes in
-a capability profile rather than from the training loss, and regressions on
-prioritized capabilities receive an extra penalty. Finally, the off-target
+proportions. ReAD shares this online, feedback-driven view and applies it to target-oriented allocation in teacher-supervised distillation. A teacher generates supervision on the fly, the reward comes from measured changes in a capability profile, and regressions on prioritized capabilities receive an extra penalty. Finally, the off-target
 degradation we measure is related to catastrophic forgetting in continual
-fine-tuning~\citep{kirkpatrick2017overcoming,luo2023empirical}; ReAD adds no
-explicit anti-forgetting regularizer but penalizes measured regressions on
-prioritized capabilities directly in its reward (Eq.~\ref{eq:reward}).}
+fine-tuning~\citep{kirkpatrick2017overcoming,luo2023empirical}. ReAD adds no explicit anti-forgetting regularizer. Its reward penalizes measured regressions on prioritized capabilities (Eq.~\ref{eq:reward}).}
 
 \section{Broader Impact}
 \label{sec:broader_impact}
@@ -655,4 +628,4 @@ limitations, and \rev{the safety evaluations that were actually performed}.
 \FloatBarrier
 \section{Limitation and Future Work}
 
-While ReAD improves budget efficiency by using low-cost capability monitoring and adaptive allocation, it still relies on two practical components that can limit performance. First, the task requirement estimator and the probe suite may be imperfect: if the inferred \rev{capability priorities} or probe signals are misaligned with true task utility, ReAD can allocate budget suboptimally. \rev{In particular, the proxy reward is computed on a small probe suite and may deviate from the true task utility; we do not report a quantitative validation of this proxy, so errors in it can mislead the allocation.} Second, our capability set and data generator are necessarily finite and template-driven, which may not cover all behaviors a real task depends on, especially for highly domain-specific or long-horizon tasks. Future work can address these limitations by learning more robust and transferable task requirement models, designing probe suites with stronger coverage and better calibration to task utility, and expanding capability definitions and data generation beyond templates (e.g., automatic discovery of capability axes and open-ended curriculum generation). Another promising direction is to jointly optimize allocation and student training dynamics (e.g., optimizer schedules and parameter-efficient adapters) under the same budget, and to extend ReAD to settings with distribution shift, multi-task deployment, or continual updates where requirements and transfer patterns evolve over time.
+While ReAD improves budget efficiency by using low-cost capability monitoring and adaptive allocation, it still relies on two practical components that can limit performance. First, the task requirement estimator and the probe suite may be imperfect: if the inferred \rev{capability priorities} or probe signals are misaligned with true task utility, ReAD can allocate budget suboptimally. \rev{In particular, the proxy reward is computed on a small probe suite and may deviate from the true task utility. We do not quantify this deviation, and errors in the proxy could mislead the allocation.} Second, our capability set and data generator are necessarily finite and template-driven, which may not cover all behaviors a real task depends on, especially for highly domain-specific or long-horizon tasks. Future work can address these limitations by learning more robust and transferable task requirement models, designing probe suites with stronger coverage and better calibration to task utility, and expanding capability definitions and data generation beyond templates (e.g., automatic discovery of capability axes and open-ended curriculum generation). Another promising direction is to jointly optimize allocation and student training dynamics (e.g., optimizer schedules and parameter-efficient adapters) under the same budget, and to extend ReAD to settings with distribution shift, multi-task deployment, or continual updates where requirements and transfer patterns evolve over time.

@@ -40,8 +40,7 @@ which specifies the allocation of training effort across capabilities, and
 cross-entropy or logit-matching between the student\rev{'s and the teacher's output distributions}.
 \end{definition}
 
-\rev{Under shared representations, budget spent on one capability changes the
-others. We measure this cross-capability effect by distilling with one-hot allocations:}
+\rev{Because capabilities share representations, budget spent on one capability can also change the others. We measure this effect with one-hot allocations.}
 \begin{definition}[Capability interdependence]\label{def:cap_interdependence}
 Let \( S_0 \) be an initial student model, and let \( S(\mathbf{w},B) \) denote
 the student obtained after capability distillation under allocation
@@ -67,11 +66,7 @@ Non-zero off-diagonal entries indicate interdependence between capabilities.
 \rev{We distill Llama-3.3-70B-Instruct into Llama-3.1-8B-Instruct under fixed
 token budgets, one target capability at a time, and evaluate the student on all
 benchmarks to form the transfer matrix of Definition~\ref{def:cap_interdependence}
-(strategies and settings in Appendix~\ref{sec:app_em}). All
-benchmark metrics are accuracies or success rates on a $0$--$100$ scale, a
-capability score is the unweighted mean over its benchmarks, and every entry of
-the transfer matrix is an absolute difference in these points
-with no further rescaling.}
+(strategies and settings in Appendix~\ref{sec:app_em}). All benchmark metrics are accuracies or success rates on a $0$--$100$ scale. A capability score is the unweighted mean over its benchmarks, and each entry of the transfer matrix is an absolute difference in these points, without further rescaling.}
 
 %==================== Figure 1: empirical study (top float; all four panels share one height) ====================
 \begin{figure}[t]
@@ -105,44 +100,23 @@ with no further rescaling.}
     \caption{Rising spillover}
     \label{fig:rising_spillover}
   \end{subfigure}
-  \caption{\rev{Exploratory study. (a--b) Cross-capability transfer under
-  single-capability distillation: larger budgets sharpen target gains but expose
-  stronger negative transfer. (c--d) Budget waste: extra tokens yield smaller
-  target gains while increasing harmful spillover to non-target capabilities.}}
+  \caption{\rev{Exploratory study. (a--b) Cross-capability transfer under single-capability distillation. Larger budgets sharpen target gains and tend to expose stronger negative transfer. (c--d) Budget waste. Extra tokens yield smaller target gains and more spillover to non-target capabilities.}}
   \label{fig:capability_transfer_heatmaps}
   \label{fig:budget_waste_mechanism}
   \vspace{-0.6em}
 \end{figure}
 
 \textbf{Observation 1: Distilling a specific capability redistributes performance across other capabilities in a budget-dependent manner.}
-\rev{Figure~\ref{fig:capability_transfer_heatmaps}(a--b) shows the transfer
-matrices at a small and a large budget. The off-diagonal mass is consistently
-non-zero, so optimizing one capability moves the others rather than leaving
-them unchanged, and the structure is budget-dependent: at small budgets the
-changes are weak and diffuse, whereas at large budgets the diagonal sharpens and
-negative off-diagonals appear for specific non-targets.}
+\rev{Figure~\ref{fig:capability_transfer_heatmaps}(a--b) shows the transfer matrices at a small and a large budget. The off-diagonal mass stays non-zero in both, so optimizing one capability also moves the others. The pattern shifts with the budget. At small budgets the changes are weak and diffuse, while at large budgets the diagonal sharpens and negative entries appear for specific non-targets.}
 
 \textbf{Observation 2: Capability distillation exhibits substantial budget waste
 due to diminishing returns and negative spillover.}
-\rev{For the strongest-improving targets, the marginal target gain of
-20M$\rightarrow$80M is consistently larger than that of 80M$\rightarrow$150M
-(\emph{diminishing returns}, Figure~\ref{fig:diminishing_returns}), while the
-drop on non-target capabilities grows with the target's budget (\emph{negative
-spillover}, Figure~\ref{fig:rising_spillover}). Beyond a capability-specific
-knee point, extra tokens thus buy little target benefit and amplify
-cross-capability degradation. Neither effect is new in isolation: off-target
-drops are a form of catastrophic
-forgetting~\citep{kirkpatrick2017overcoming,luo2023empirical}, and saturation
-is ordinary diminishing returns. What allocation can exploit is their
-\emph{structure}: transfer is signed, source-specific, and budget-dependent, so
-a token's marginal value depends on where the budget has already gone.}
+\rev{For the targets that improve most, the marginal gain from 20M$\rightarrow$80M tokens is larger than that from 80M$\rightarrow$150M (\emph{diminishing returns}, Figure~\ref{fig:diminishing_returns}). Over the same range, the drop on non-target capabilities grows with the target's budget (\emph{negative spillover}, Figure~\ref{fig:rising_spillover}). Past a capability-specific knee point, extra tokens seem to buy little target benefit and add cross-capability degradation. Each effect is familiar on its own. Off-target drops resemble catastrophic forgetting~\citep{kirkpatrick2017overcoming,luo2023empirical}, and saturation is ordinary diminishing returns. An allocator can use their \emph{structure}, since transfer is signed, source-specific, and budget-dependent.}
 
 \subsection{\rev{Target-Oriented Budget Allocation}}
 \label{sec:prelim:problem}
 
-\rev{We formalize the allocation of a fixed budget as a sequential problem; in
-our experiments, the task $\tau$ is a specified target capability and $U_\tau$
-is its on-target score:}
+\rev{We formalize the allocation of a fixed budget as a sequential problem. In our experiments, the task $\tau$ is a specified target capability and $U_\tau$ is its on-target score.}
 
 \begin{problem}[\rev{Budget allocation for target-capability distillation}]\label{prob:budget_alloc}
 Given a teacher model \( T \), an initial student model \( S_0 \), a downstream
