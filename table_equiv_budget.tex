@@ -8,9 +8,9 @@
   budget and therefore gives smaller estimates than linear interpolation
   (last column).}}
   \label{tab:equiv_budget}
-  \scriptsize
-  \setlength{\tabcolsep}{3.5pt}
-  \begin{tabular}{@{}lcccccc@{}}
+  \small
+  \setlength{\tabcolsep}{2pt}
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccccc@{}}
     \toprule
     \textbf{Capability} & \textbf{ReAD @20M} & \textbf{Strongest baseline} & \textbf{@20M} & \textbf{@150M} & \textbf{Tokens needed} & \textbf{Linear interp.} \\
     \midrule
@@ -23,5 +23,5 @@
     LCU & $33.58$ & Logit-KD & $31.72$ & $33.73$ & $129$M ($6.5\times$) & $140$M \\
     Multilingual & $73.04$ & Logit-KD & $70.81$ & $79.97$ & $33$M ($1.6\times$) & $52$M \\
     \bottomrule
-  \end{tabular}
+  \end{tabular*}
 \end{table}
