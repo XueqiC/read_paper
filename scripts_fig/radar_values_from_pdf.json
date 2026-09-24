@@ -1,0 +1,42 @@
+{
+ "ReAD": {
+  "General": 0.6285,
+  "Steerability": 0.7109,
+  "Reasoning": 0.9384,
+  "Math": 0.599,
+  "Code": 0.7152,
+  "Tool Use": 0.9012,
+  "LCU": 0.8967,
+  "Multilingual": 0.6848
+ },
+ "Step-by-Step": {
+  "General": 0.4759,
+  "Steerability": 0.5293,
+  "Reasoning": 0.8937,
+  "Math": 0.4862,
+  "Code": 0.4747,
+  "Tool Use": 0.5553,
+  "LCU": 0.5001,
+  "Multilingual": 0.4415
+ },
+ "EoTD": {
+  "General": 0.4348,
+  "Steerability": 0.4802,
+  "Reasoning": 0.7428,
+  "Math": 0.5899,
+  "Code": 0.424,
+  "Tool Use": 0.4729,
+  "LCU": 0.4656,
+  "Multilingual": 0.4145
+ },
+ "CodePLAN": {
+  "General": 0.4114,
+  "Steerability": 0.4336,
+  "Reasoning": 0.4635,
+  "Math": 0.4404,
+  "Code": 0.6772,
+  "Tool Use": 0.44,
+  "LCU": 0.4139,
+  "Multilingual": 0.392
+ }
+}
