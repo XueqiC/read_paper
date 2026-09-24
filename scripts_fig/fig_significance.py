@@ -12,7 +12,7 @@ import fig_style as S
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUTDIR = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, '..', 'figure')
 PREV = sys.argv[2] if len(sys.argv) > 2 else HERE
-S.apply(6.6)
+S.apply(7.8)
 n = 3
 caps = ["General", "Steerability", "Reasoning", "Math", "Code", "Tool Use", "LCU", "Multilingual"]
 read = {20: ([35.02, 58.03, 10.01, 21.06, 77.06, 29.82, 33.58, 73.04], [.41, .61, .12, .68, .97, .64, .49, .84]),
@@ -56,19 +56,29 @@ def panel(fname, labels, res, figsize, legend=False, xlim=(-1.0, 7.8)):
     for B, off in ((20, 0.16), (150, -0.16)):
         col, mk = S.BUDGET[B]['color'], S.BUDGET[B]['marker']
         for yy, (d, lo, hi, p) in zip(y, res[B]):
-            ax.plot([lo, hi], [yy + off] * 2, color=col, lw=1.0, zorder=3)
-            ax.plot([d], [yy + off], marker=mk, ms=3.2, mec=col, mew=0.8, mfc=col if p < 0.05 else 'white', zorder=4)
+            ax.plot([lo, hi], [yy + off] * 2, color=col, lw=1.3, zorder=3)
+            ax.plot([d], [yy + off], marker=mk, ms=4.3, mec=col, mew=1.0, mfc=col if p < 0.05 else 'white', zorder=4)
     ax.axvline(0, color=S.INK, lw=0.6, zorder=2)
-    ax.set_yticks(y); ax.set_yticklabels(labels, fontweight='normal', fontsize=6.3); ax.set_ylim(-0.55, len(labels) - 0.45)
+    ax.set_yticks(y); ax.set_yticklabels(labels, fontweight='normal', fontsize=7.6); ax.set_ylim(-0.55, len(labels) - 0.45)
     ax.set_xlim(*xlim); ax.set_xticks([0, 2, 4, 6]); ax.set_xlabel('Advantage [points]'); S.grid(ax)
     if legend:
-        h = [Line2D([], [], color=S.BLUE, marker='o', ms=3.8, lw=1.0, label='20M'),
-             Line2D([], [], color=S.ORANGE, marker='s', ms=3.8, lw=1.0, label='150M'),
-             Line2D([], [], color='black', marker='o', ms=3.8, lw=0, label='significant'),
-             Line2D([], [], color='black', marker='o', ms=3.8, mfc='white', lw=0, label='n.s.')]
-        ax.legend(handles=h, loc='center right', fontsize=5.8, handlelength=1.2, labelspacing=0.15, borderaxespad=0.1, ncol=1)
+        h = [Line2D([], [], color=S.BLUE, marker='o', ms=4.6, lw=1.2, label='20M'),
+             Line2D([], [], color=S.ORANGE, marker='s', ms=4.6, lw=1.2, label='150M'),
+             Line2D([], [], color='black', marker='o', ms=4.6, lw=0, label='significant'),
+             Line2D([], [], color='black', marker='o', ms=4.6, mfc='white', lw=0, label='n.s.')]
+        ax.legend(handles=h, loc='center right', fontsize=7.0, handlelength=1.2, labelspacing=0.15, borderaxespad=0.1, ncol=1)
     fig.savefig(os.path.join(OUTDIR, fname + '.pdf')); fig.savefig(os.path.join(PREV, fname + '_preview.png'), dpi=240)
     print('wrote', fname)
-panel('signif_onehot', caps, onehot, (2.2, 1.25))
-panel('signif_alloc', list(alloc), allocb, (1.95, 1.25), legend=True)
-panel('signif_xstest', ['Safe-refusal\n(reduction)', 'Unsafe-refusal'], xst, (1.65, 1.25))
+panel('signif_onehot', caps, onehot, (2.03, 1.39))
+panel('signif_alloc', list(alloc), allocb, (1.82, 1.39))
+panel('signif_xstest', ['Safe-refusal\n(reduction)', 'Unsafe-refusal'], xst, (1.54, 1.39))
+
+# one-row legend shared by the three panels (placed above them in the paper, like the budget-curve legend)
+fig = plt.figure(figsize=(4.6, 0.2))
+h = [Line2D([], [], color=S.BLUE, marker='o', ms=4.6, lw=1.2, label='20M'),
+     Line2D([], [], color=S.ORANGE, marker='s', ms=4.6, lw=1.2, label='150M'),
+     Line2D([], [], color='black', marker='o', ms=4.6, lw=0, label='significant after Holm'),
+     Line2D([], [], color='black', marker='o', ms=4.6, mfc='white', lw=0, label='not significant')]
+fig.legend(handles=h, loc='center', ncol=4, fontsize=7.6, handlelength=1.6, columnspacing=1.6, frameon=False)
+fig.savefig(os.path.join(OUTDIR, 'signif_legend.pdf')); fig.savefig(os.path.join(PREV, 'signif_legend_preview.png'), dpi=240)
+print('wrote signif_legend')
