@@ -465,65 +465,26 @@ $\mathbf{90.54 \pm 0.92}$ \\
 absolute gains over the initial student, next to the best one-hot baseline of
 each capability, which makes the per-capability margins directly comparable.
 Table~\ref{tab:scaling} reports how much each method gains per additional
-$10$M tokens between the two budgets, and Table~\ref{tab:equiv_budget}
+$10$M tokens between the two budgets, and Table~\ref{tab:equiv_budget} in the main text
 inverts the comparison: it estimates how many tokens the strongest one-hot
 baseline would need to reach ReAD's $20$M score on each of the eight capabilities.}
 
 \input{table_scaling}
 
-\input{table_equiv_budget}
 
-\begin{figure}[t]
-  \centering
-  \begin{subfigure}[b]{0.37\linewidth}
-    \centering
-    \includegraphics[height=82pt]{figure/signif_onehot.pdf}
-    \caption{vs.\ strongest one-hot baseline}
-  \end{subfigure}\hfill
-  \begin{subfigure}[b]{0.33\linewidth}
-    \centering
-    \includegraphics[height=82pt]{figure/signif_alloc.pdf}
-    \caption{vs.\ allocation schedules}
-  \end{subfigure}\hfill
-  \begin{subfigure}[b]{0.28\linewidth}
-    \centering
-    \includegraphics[height=82pt]{figure/signif_xstest.pdf}
-    \caption{XSTest}
-  \end{subfigure}
-  \caption{\rev{ReAD's advantage in every reported comparison, with an unadjusted
-  95\% Welch confidence interval computed from the reported means and standard
-  deviations (three seeds); blue circles are 20M and orange squares 150M. Filled
-  markers remain significant ($p<0.05$) after Holm correction within each panel
-  and budget (across all four tests in (c)); safe-refusal is shown as a
-  reduction, so positive values favor ReAD in every panel.}}
-  \label{fig:signif}
-\end{figure}
 
-\rev{\textbf{Statistical view and exact values.} Figure~\ref{fig:signif} shows
-ReAD's advantage in every comparison of Section~\ref{sec:exp} with its confidence
-interval. Table~\ref{tab:xstest} lists the XSTest scores shown in
+
+\rev{\textbf{Exact values.} Figure~\ref{fig:signif} in Section~\ref{sec:exp} shows
+ReAD's advantage in every comparison with its confidence interval. Table~\ref{tab:xstest} lists the XSTest scores shown in
 Figure~\ref{fig:xstest}, and Table~\ref{tab:signif} lists the differences and
 Welch $t$ statistics shown in Figure~\ref{fig:signif}, with significance marks
-after Holm correction within each block and budget.}
+after Holm correction within each block and budget, exactly as in the figure.}
 
 \input{xstest_table}
 
 \input{tables_signif}
 
-\rev{\textbf{Where the margin comes from.} ReAD's margin over the strongest
-one-hot baseline grows with the headroom between teacher and student: across
-the eight capabilities, the Spearman correlation between the margin and the
-teacher--student gap is $0.74$ at $150$M ($p=0.04$) and $0.43$ at $20$M (not
-significant). The margin is largest on Steerability and Multilingual, where
-the teacher leads by more than $20$ points, and smallest on Reasoning, where
-it leads by only $1.8$ points and where the difference is not significant
-(Table~\ref{tab:signif}). The small Reasoning margin is therefore consistent
-with limited headroom on GPQA and ARC-Challenge rather than with a failure of
-the allocation. In relative terms, ReAD's gain over the initial student is
-$1.9\times$ that of the strongest one-hot baseline at $20$M and $1.3\times$ at
-$150$M on average, i.e., the relative benefit of allocation is largest when the
-budget is scarce, while the absolute margin grows with budget
-($+2.0$ versus $+2.6$ points on average).}
+
 
 \begin{figure}[t]
   \centering

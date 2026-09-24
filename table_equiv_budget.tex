@@ -1,15 +1,13 @@
 \begin{table}[t]
   \centering
-  \caption{\rev{Equivalent budget: tokens the strongest one-hot baseline would
-  need to match ReAD's $20$M-token score on each capability, obtained by
-  interpolating each baseline log-linearly in the budget between its measured
-  $20$M and $150$M scores (Table~\ref{tab:llama_20m}) and taking the baseline
-  that needs the fewest tokens. Log-linear interpolation is concave in the
-  budget and therefore gives smaller estimates than linear interpolation
-  (last column).}}
+  \caption{\rev{Tokens the strongest one-hot baseline would need to match ReAD's
+  $20$M score, interpolating each baseline log-linearly between its measured $20$M
+  and $150$M scores (Table~\ref{tab:llama_20m}); linear interpolation, which gives
+  larger estimates, is shown for reference.}}
   \label{tab:equiv_budget}
-  \small
+  \footnotesize
   \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{0.92}
   \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccccc@{}}
     \toprule
     \textbf{Capability} & \textbf{ReAD @20M} & \textbf{Strongest baseline} & \textbf{@20M} & \textbf{@150M} & \textbf{Tokens needed} & \textbf{Linear interp.} \\
