@@ -18,7 +18,7 @@ for ax, met, title, lim in ((axes[0], 'safe', 'Safe-refusal [%] (lower is better
         yy = 1 - i; col, mk = S.BUDGET[B]
         (bm, bs), (rm, rs) = xs[met]['base'][i], xs[met]['read'][i]
         ax.plot([bm, rm], [yy, yy], color='#d9d8d2', lw=2.0, zorder=1, solid_capstyle='round')
-        ax.errorbar(bm, yy, xerr=bs, fmt=mk, ms=4, mfc='white', mec=S.GRAY, color=S.GRAY, elinewidth=0.8,
+        ax.errorbar(bm, yy, xerr=bs, fmt=mk, ms=4, mfc='white', mec=S.BASE, color=S.BASE, elinewidth=0.8,
                     capsize=1.8, capthick=0.8, zorder=3)
         ax.errorbar(rm, yy, xerr=rs, fmt=mk, ms=4, mfc=col, mec=col, color=col, elinewidth=0.8, capsize=1.8,
                     capthick=0.8, zorder=4)

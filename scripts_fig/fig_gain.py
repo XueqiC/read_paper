@@ -24,7 +24,7 @@ for ax, B in zip(axes, (20, 150)):
     gr, gb = read[B][0] - student, best[B][0] - student
     for yy, a, b in zip(y, gb, gr):
         ax.plot([a, b], [yy, yy], color='#d9d8d2', lw=2.0, zorder=1, solid_capstyle='round')
-    ax.errorbar(gb, y, xerr=best[B][1], fmt=mk, ms=3.8, mfc='white', mec=S.GRAY, color=S.GRAY, elinewidth=0.7,
+    ax.errorbar(gb, y, xerr=best[B][1], fmt=mk, ms=3.8, mfc='white', mec=S.BASE, color=S.BASE, elinewidth=0.7,
                 capsize=1.5, capthick=0.7, zorder=3, label='strongest one-hot baseline')
     ax.errorbar(gr, y, xerr=read[B][1], fmt=mk, ms=3.8, mfc=col, mec=col, color=col, elinewidth=0.7,
                 capsize=1.5, capthick=0.7, zorder=4, label='ReAD')
@@ -32,6 +32,6 @@ for ax, B in zip(axes, (20, 150)):
     ax.set_xlabel('Gain over student [points]'); S.grid(ax); ax.set_xlim(left=0)
 axes[0].set_yticks(y); axes[0].set_yticklabels(caps, fontweight='normal')
 # direct labels on the Steerability row of the 20M panel (largest gap), instead of a legend box
-axes[0].text(best[20][0][1] - student[1], y[1] + 0.42, 'baseline', ha='center', fontsize=6.3, color=S.GRAY)
+axes[0].text(best[20][0][1] - student[1], y[1] + 0.42, 'baseline', ha='center', fontsize=6.3, color=S.BASE)
 axes[0].text(read[20][0][1] - student[1], y[1] + 0.42, 'ReAD', ha='center', fontsize=6.3, color=S.BLUE)
 fig.savefig(OUT); fig.savefig(PNG, dpi=240); print('wrote', OUT)

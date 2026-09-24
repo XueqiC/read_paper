@@ -3,6 +3,7 @@
 import matplotlib.pyplot as plt
 BLUE, ORANGE, GREEN, RED, GRAY = '#4C72B0', '#DD8452', '#55A868', '#C44E52', '#8C8C8C'
 INK = '#1d1d1b'
+BASE = '#8172B3'   # one-hot / SFT-KD baselines (same hue as 'One-hot KD' in Figure 4b)
 BUDGET = {20: (BLUE, 'o'), 150: (ORANGE, 's')}      # as in the original ablation figure
 def apply(size=7):
     plt.rcParams.update({'font.family': 'serif', 'font.serif': ['Times New Roman', 'Liberation Serif'],
