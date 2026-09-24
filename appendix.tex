@@ -460,7 +460,17 @@ $\mathbf{90.54 \pm 0.92}$ \\
 
 
 
-\textbf{Additional evidence showing that ReAD improves capability distillation under a fixed budget}. We compare ReAD with six capability distillation baselines. \rev{Table~\ref{tab:llama_20m} (main text) reports the Llama results at $B{=}20$M and $B{=}150$M, and Tables~\ref{tab:qwen_20m} and~\ref{tab:qwen_150m} report the corresponding Qwen results.} In both budgets and for both model families, ReAD achieves the best overall capability profile and outperforms all six baselines on every capability, with the largest improvements appearing on bottleneck capabilities such as Steerability and Math while still maintaining strong gains on Code, Tool Use, and LCU. Scaling the budget from 20M to 150M strengthens all methods, but ReAD benefits more consistently, indicating that its allocation policy converts additional tokens into broader capability improvements rather than concentrating gains on a narrow subset of skills. Across model families, Qwen starts from a stronger student and teacher on most capabilities and also reaches higher absolute performance after distillation, but the relative ordering between methods is unchanged and ReAD remains the top performer, suggesting that ReAD is robust to the choice of teacher--student backbone and that its advantage is not tied to a specific LLM family.
+\textbf{Additional evidence showing that ReAD improves capability distillation under a fixed budget}. We compare ReAD with six capability distillation baselines. \rev{Table~\ref{tab:llama_20m} (main text) reports the Llama results at $B{=}20$M and $B{=}150$M, and Tables~\ref{tab:qwen_20m} and~\ref{tab:qwen_150m} report the corresponding Qwen results.} \rev{In both budgets and for both model families, ReAD achieves the best
+capability profile and outperforms all six baselines on every capability. The
+largest margin is on Steerability and the smallest on Reasoning in all four
+settings, in line with the headroom analysis of Section~\ref{subsec:rq1}. Scaling
+the budget from 20M to 150M strengthens all methods; ReAD's average margin over the
+strongest baseline grows for Llama ($+2.0$ to $+2.6$ points) and narrows slightly
+for Qwen ($+1.8$ to $+1.6$ points), whose stronger student leaves less headroom.
+Qwen starts from a stronger student and teacher on every capability and reaches
+higher absolute scores after distillation, but the strongest baseline for each
+capability and the top rank of ReAD are unchanged, suggesting that ReAD's advantage
+is not tied to a specific LLM family.}
 \rev{Figure~\ref{fig:gain_over_student} visualizes the same Llama numbers as
 absolute gains over the initial student, next to the best one-hot baseline of
 each capability, which makes the per-capability margins directly comparable.

@@ -159,9 +159,9 @@ $\mathbf{83.90\pm1.00}$ & $\mathbf{31.30\pm0.55}$ & $\mathbf{35.60\pm0.55}$ & $\
 
 Table~\ref{tab:llama_20m} shows that ReAD achieves the strongest capability
 profile at $20$M tokens\rev{ and at $150$M tokens, outperforming the six one-hot
-baselines on every capability at both budgets}. The gains
-are especially pronounced on bottleneck capabilities such as Steerability, Math,
-Tool Use, and LCU. \rev{Since each one-hot baseline spends the whole budget on one capability,
+baselines on every capability at both budgets}. \rev{The largest margins are on
+Steerability at both budgets, followed by Code and Tool Use at $20$M and by
+Multilingual and Code at $150$M.} \rev{Since each one-hot baseline spends the whole budget on one capability,
 this isolates the value of distributing the budget at all; the matched
 comparison for \emph{how} to distribute it is Figure~\ref{fig:diagnostics}c (RQ3).} The Qwen results in
 Appendix~\ref{sec:app_experiment} show the same ordering, suggesting that the
@@ -186,16 +186,17 @@ better elsewhere, giving a stronger and more balanced profile.}
 \label{subsec:rq2}
 
 Figure~\ref{fig:rq2_budget} reports budget-scaling curves for Reasoning, Math,
-Tool Use, and LCU. ReAD achieves higher performance at the same budget and
-maintains the strongest scaling trend, indicating that adaptive allocation
-reduces wasted tokens on low-marginal-return updates.
+Tool Use, and LCU. ReAD achieves higher performance at \rev{every} budget\rev{
+and scales most steeply on Math and LCU; on Reasoning and Tool Use the baselines
+narrow the gap by $150$M as all methods approach the teacher.}
 \rev{ReAD also gains the most per additional $10$M tokens on six of the eight
 capabilities (Appendix Table~\ref{tab:scaling}). Conversely, interpolating each
 baseline log-linearly between its two measured budgets, the strongest one-hot
 baseline would need $1.3$--$6.5\times$ ReAD's tokens (median about $2\times$)
 to match ReAD's $20$M score, and none reaches ReAD's $20$M Tool Use score even
 at $150$M (Table~\ref{tab:equiv_budget}). This token saving is an
-order of magnitude larger than ReAD's $5.63\%$ online overhead, so the
+\rev{far larger than ReAD's $5.63\%$ online overhead (the closest case still
+needs $29\%$ more tokens)}, so the
 advantage does not rest on the costs that we exclude from the token budget $B$ shared
 by all methods (Section~\ref{subsec:exp_setup}).}
 
@@ -228,7 +229,7 @@ adapt once marginal returns and spillover change during training, while the
 greedy heuristic ignores uncertainty and remaining budget. ReAD outperforms
 both, with a larger margin at $150$M where saturation and spillover are stronger.
 \rev{The margins ($+1.0$/$+1.2$ over Greedy one-step and $+1.2$/$+1.4$ over
-Grid-searched at $20$M/$150$M; seed std $0.3$--$0.4$) are smaller than over one-hot
+Grid-searched at $20$M/$150$M; seed std $0.28$--$0.42$) are smaller than over one-hot
 baselines because every schedule already mixes capabilities; they measure the value
 of re-estimating the mix as the student and the remaining budget change. All four gains remain significant
 after Holm correction at $150$M, and the gain over Uniform static also at $20$M
