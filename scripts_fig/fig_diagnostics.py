@@ -28,15 +28,17 @@ cols = [S.GRAY, '#a6a6a6', '#7a7a7a', '#5e5e5e', S.BLUE]
 fig = plt.figure(figsize=(5.5, 1.52))
 gs = fig.add_gridspec(1, 3, width_ratios=[1.25, 0.95, 1.45], wspace=0.42, left=0.075, right=0.995, top=0.87, bottom=0.30)
 ax = fig.add_subplot(gs[0])
-for i in range(5):
-    ax.errorbar(off[i][0], on[i][0], xerr=off[i][1], yerr=on[i][1], fmt=mk[i], ms=6.5 if i == 4 else 4.2,
-                color=cols[i], mec='black' if i == 4 else cols[i], mew=0.5, elinewidth=0.7, capsize=1.5, zorder=3 + i)
-lab = {0: (6, -9, 'Single-cap. KD'), 1: (-2, -12, 'Task-static'), 2: (-6, 7, 'Greedy'), 3: (4, 6, 'Grid'), 4: (-12, 9, 'ReAD')}
-for i, (dx, dy, t) in lab.items():
-    ax.annotate(t, (off[i][0], on[i][0]), xytext=(dx, dy), textcoords='offset points', fontsize=6.2,
-                color=S.BLUE if i == 4 else S.INK, ha='center')
-ax.set_xlabel('Off-target change [points]'); ax.set_ylabel('On-target gain')
-ax.set_xlim(-1.95, -0.1); ax.set_ylim(4.25, 5.2); S.grid(ax, 'both')
+x = np.arange(5); bw = 0.62
+ek = dict(elinewidth=0.7, capsize=1.5)
+hat = [None, None, None, None, '///']
+ax.bar(x, [v for v, _ in on], bw, yerr=[e for _, e in on], color=S.GREEN, edgecolor='black', linewidth=0.5,
+       hatch=hat, error_kw=ek, zorder=3, label='on-target gain')
+ax.bar(x, [v for v, _ in off], bw, yerr=[e for _, e in off], color=S.RED, edgecolor='black', linewidth=0.5,
+       hatch=hat, error_kw=ek, zorder=3, label='off-target change')
+ax.axhline(0, color=S.INK, lw=0.6, zorder=4)
+ax.set_xticks(x); ax.set_xticklabels(['One-hot KD', 'Task-static', 'Greedy', 'Grid', 'ReAD'], rotation=35, ha='right', fontsize=6.3)
+ax.set_ylabel('Change [points]'); ax.set_ylim(-2.4, 6.6); S.grid(ax, 'y')
+ax.legend(loc='upper center', fontsize=5.9, ncol=2, handlelength=1.0, columnspacing=0.6, borderaxespad=0.15)
 ax.set_title('(a) Gain vs. spillover, 150M', fontsize=7.2, pad=3)
 ax = fig.add_subplot(gs[1])
 x = np.arange(5)
