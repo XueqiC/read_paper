@@ -63,10 +63,10 @@ gives a statistical view of every comparison.}
 \centering
 \tiny
 \setlength\tabcolsep{1pt}
-\caption{\rev{Capability profile on Llama under 20M- and 150M-token budgets
-(mean $\pm$ std over three seeds). ReAD achieves the strongest profile at both
-budgets while using the same student initialization and token budget as all
-baselines. Best in bold, second best underlined.}}
+\caption{\rev{Target-specific distillation performance on Llama at 20M and 150M
+tokens: each column is a separate run distilled toward that capability and
+evaluated on it (mean $\pm$ std over three seeds), with the same student and budget
+for all methods. Best in bold, second best underlined.}}
 \begin{tabular}{lcccccccc}
 \toprule
 \textbf{Method} &
@@ -157,12 +157,12 @@ $\mathbf{83.90\pm1.00}$ & $\mathbf{31.30\pm0.55}$ & $\mathbf{35.60\pm0.55}$ & $\
 \label{subsec:exp_results}
 \label{subsec:rq1}
 
-Table~\ref{tab:llama_20m} shows that ReAD achieves the strongest capability
-profile at $20$M tokens\rev{ and at $150$M tokens, outperforming the six one-hot
-baselines on every capability at both budgets}. \rev{The largest margins are on
+\rev{Table~\ref{tab:llama_20m} reports target-specific performance: for each target
+capability, every method is distilled separately toward it and evaluated on it.
+ReAD gives the best target performance for all eight targets at both budgets.} \rev{The largest margins are on
 Steerability at both budgets, followed by Code and Tool Use at $20$M and by
-Multilingual and Code at $150$M.} \rev{Since each one-hot baseline spends the whole budget on one capability,
-this isolates the value of distributing the budget at all; the matched
+Multilingual and Code at $150$M.} \rev{Since each one-hot baseline spends the whole budget on the target itself,
+this tests whether supervision on other capabilities improves the target more; the matched
 comparison for \emph{how} to distribute it is Figure~\ref{fig:diagnostics}c (RQ3).} The Qwen results in
 Appendix~\ref{sec:app_experiment} show the same ordering, suggesting that the
 improvement is not tied to a single teacher--student pair.
@@ -179,8 +179,8 @@ strongest baseline at $20$M and $1.3\times$ at $150$M, so allocation matters mos
 
 \rev{Against the three capability-specific methods at $150$M
 (Figure~\ref{fig:radar}), which concentrate gains on their own target as
-Section~\ref{sec:emp_res} predicts, ReAD is never worse on that target and clearly
-better elsewhere, giving a stronger and more balanced profile.}
+Section~\ref{sec:emp_res} predicts, ReAD's target-specific run is never worse on
+that target.}
 
 \subsection{RQ2: Budget Efficiency and Spillover}
 \label{subsec:rq2}

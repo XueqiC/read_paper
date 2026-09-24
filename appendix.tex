@@ -251,7 +251,7 @@ By calibration, the true reward of any action is at most its upper confidence sc
 \centering
 \tiny
 \setlength\tabcolsep{1pt}
-\caption{Capability profile of different methods under a 20M-token budget (Qwen). ReAD consistently outperforms all six \rev{one-hot} baselines\rev{ on every capability}.}
+\caption{\rev{Target-specific distillation performance under a 20M-token budget (Qwen). ReAD outperforms all six one-hot baselines on every target.}}
 \begin{tabular}{lcccccccc}
 \toprule
 \textbf{Method} &
@@ -357,7 +357,7 @@ $\mathbf{87.23 \pm 0.95}$ \\
 \centering
 \tiny
 \setlength\tabcolsep{1pt}
-\caption{Capability profile of different methods under a 150M-token budget (Qwen). ReAD consistently outperforms all six baselines.}
+\caption{\rev{Target-specific distillation performance under a 150M-token budget (Qwen). ReAD outperforms all six one-hot baselines on every target.}}
 \begin{tabular}{lcccccccc}
 \toprule
 \textbf{Method} &
@@ -461,7 +461,7 @@ $\mathbf{90.54 \pm 0.92}$ \\
 
 
 \textbf{Additional evidence showing that ReAD improves capability distillation under a fixed budget}. We compare ReAD with six capability distillation baselines. \rev{Table~\ref{tab:llama_20m} (main text) reports the Llama results at $B{=}20$M and $B{=}150$M, and Tables~\ref{tab:qwen_20m} and~\ref{tab:qwen_150m} report the corresponding Qwen results.} \rev{In both budgets and for both model families, ReAD achieves the best
-capability profile and outperforms all six baselines on every capability. The
+target-specific performance on every target capability. The
 largest margin is on Steerability and the smallest on Reasoning in all four
 settings, in line with the headroom analysis of Section~\ref{subsec:rq1}. Scaling
 the budget from 20M to 150M strengthens all methods; ReAD's average margin over the
