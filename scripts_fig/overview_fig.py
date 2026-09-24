@@ -195,7 +195,7 @@ def module(x, w, k, title):
     T(x + 3.2, H - 3.85, str(k), size=6.6, color='white', weight='bold', z=4)
     T(x + 6.0, H - 3.8, title, size=7.0, weight='bold', ha='left')
 
-module(1.0, 42.0, 1, 'What does the task need?')
+module(1.0, 42.0, 1, 'Set capability priorities')
 module(45.0, 50.0, 2, 'Generate and distill one step')
 module(97.0, 42.0, 3, 'Measure and re-allocate')
 
@@ -205,13 +205,13 @@ arrow((11.3, 44.6), (15.3, 44.6))
 i_net(21.5, 44.6, 8.4, BLUE); T(21.5, 38.6, r'identifier $g_\phi$', size=5.8, color=INK2)
 arrow((26.4, 44.6), (29.6, 44.6))
 T(35.6, 47.6, r'$\mathbf{r}_\tau$', size=7.0, weight='bold')
-T(35.6, 45.2, 'capability', size=5.2, color=MUTED); T(35.6, 43.3, 'weights', size=5.2, color=MUTED)
+T(35.6, 45.2, 'capability', size=5.2, color=MUTED); T(35.6, 43.3, 'priorities', size=5.2, color=MUTED)
 r_rows = [('math', .40), ('reasoning', .22), ('general', .15), ('steerability', .08),
           ('code', .06), ('tool_use', .045), ('lcu', .035), ('multilingual', .025)]
 bars(3.2, 34.2, r_rows, bar_w=24.0, row_h=2.45, colors=[BLUE] * 3 + ['#b7c6df'] * 5)
 ax.add_patch(FancyBboxPatch((2.8, 28.1), 37.6, 7.4, boxstyle='round,pad=0,rounding_size=0.6', fc='none', ec=BLUE,
                             lw=0.7, ls=(0, (2.2, 1.3)), zorder=7))
-T(39.6, 32.6, 'essential', size=5.6, color=BLUE, ha='right', weight='bold')
+T(39.6, 32.6, 'prioritized', size=5.6, color=BLUE, ha='right', weight='bold')
 # offline pretraining (icons only)
 rbox(2.8, 2.4, 37.6, 12.2, fc='#f6f8fb', ec=BLUE, lw=0.55, ls=(0, (2.4, 1.4)), r=1.0)
 T(4.0, 12.9, 'offline, once', size=5.4, color=BLUE, ha='left', weight='bold')

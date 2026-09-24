@@ -22,34 +22,30 @@ change of each capability $c$ at step $t$ decomposes as}
 \nabla_\theta[\tilde{\mathbf{s}}(\theta)]_c^\top d_{c'}(\theta).
 \label{eq:transfer_decomp_short}
 \end{equation}
-\rev{$\Gamma$ is the local analogue of the empirical transfer matrix: diagonal
-terms are intended gains, and an off-diagonal term is nonzero whenever the
-update direction for $c'$ is not orthogonal to the readout direction of $c$,
-which shared representations make the rule rather than the exception. This is
-why allocating budget to one capability alters others at every decision step.}
+\rev{$\Gamma$ is the local analogue of the empirical transfer matrix: an
+off-diagonal entry is nonzero whenever the update direction for $c'$ is not
+orthogonal to the readout direction of $c$, which shared representations make
+common, so allocating budget to one capability alters others at every step.}
 
 \rev{\textbf{Budget waste from diminishing returns.} Let $b_c\ge0$ be the tokens
-assigned to capability $c$ over the run, $\sum_c b_c\le B$, and suppose
-task-aligned gains are concave in the budget,
+assigned to capability $c$, $\sum_c b_c\le B$, and suppose task-aligned gains
+are concave in the budget,
 $\mathbb{E}[U_\tau(S)-U_\tau(S_0)]\approx\sum_c r_{\tau,c}\,G_{\tau,c}(b_c)$
-with $G_{\tau,c}$ nondecreasing and concave. Any optimal allocation over a
-subset $\mathcal{K}\subseteq\mathcal{C}$ equalizes weighted marginal gains,
-$r_{\tau,c}G'_{\tau,c}(b_c^\star)=\nu^\star$ for every active $c$
-(Proposition~\ref{prop:kkt}); in particular, moving an infinitesimal budget
-from a single target $\bar c$ to another task-relevant capability $c'$
-improves the objective whenever
-$r_{\tau,c'}G'_{\tau,c'}(0)>r_{\tau,\bar c}G'_{\tau,\bar c}(b_{\bar c})$.
-This is Observation~2 in one line: once the target saturates, further tokens
-have lower task-aligned marginal value than tokens spent elsewhere. ReAD's
-reward in Eq.~\eqref{eq:reward} is richer than this proxy because it also
-penalizes measured spillover on task-essential capabilities.}
+with $G_{\tau,c}$ nondecreasing and concave. An optimal allocation equalizes
+weighted marginal gains across active capabilities (Proposition~\ref{prop:kkt}),
+so moving a small budget from a single target $\bar c$ to another capability
+$c'$ helps whenever
+$r_{\tau,c'}G'_{\tau,c'}(0)>r_{\tau,\bar c}G'_{\tau,\bar c}(b_{\bar c})$: once
+the target saturates, further tokens can be worth less than tokens spent
+elsewhere (Observation~2). This proxy ignores spillover, which ReAD's reward in
+Eq.~\eqref{eq:reward} penalizes separately.}
 
 \rev{\textbf{Why uncertainty-aware allocation helps.} Let
-$\overline{R}(\mathbf{x},\mathbf{w}):=\mathbb{E}[\widehat{R}_t\mid\mathbf{x}_t=\mathbf{x},\mathbf{w}_t=\mathbf{w}]$
-be the conditional expected proxy reward. If the ensemble is calibrated,
-$|\mu-\overline{R}|\le\kappa\,\sigma$ with high probability, the action chosen
-by Eq.~\eqref{eq:ucb} is within $2\kappa\,\sigma(\mathbf{x}_t,\mathbf{w}_t)$ of
-the best action in expected reward (Proposition~\ref{prop:regret}): the
-allocator can only be wrong where its own uncertainty is large, which is where
-the exploration bonus directs budget. This justifies the local ranking rule at
-each step; it does not claim global optimality for nonconvex fine-tuning.}
+$\overline{R}(\mathbf{x},\mathbf{w})$ be the conditional expected proxy reward
+of allocation $\mathbf{w}$ in context $\mathbf{x}$. If the ensemble is
+calibrated, $|\mu-\overline{R}|\le\kappa\,\sigma$ with high probability, the
+action chosen by Eq.~\eqref{eq:ucb} is within $2\kappa\,\sigma(\mathbf{x}_t,\mathbf{w}_t)$
+of the best action in expected reward (Proposition~\ref{prop:regret}): the
+allocator can only be badly wrong where its own uncertainty is large, which is
+where the bonus directs exploration. This is a local, per-step statement, not a
+global guarantee for nonconvex fine-tuning.}

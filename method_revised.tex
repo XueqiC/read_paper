@@ -6,45 +6,43 @@
   \includegraphics[width=\linewidth]{figure/overview.pdf}
   \vspace{-1.4em}
   \caption{\rev{Overview of ReAD. \textbf{(1)} An identifier $g_\phi$, pretrained
-  once on low-budget probe interventions, maps a task card to the requirement
-  vector $\mathbf{r}_\tau$, whose top-$k$ entries form $\mathcal{C}_{\mathrm{ess}}$.
+  once on low-budget probe interventions, maps a task card to the capability-priority
+  vector $\mathbf{r}_\tau$, whose top-$k$ entries form the prioritized set $\mathcal{C}_{\mathrm{pri}}$.
   \textbf{(2)} At step $t$, capabilities are sampled from the allocation
   $\mathbf{w}_t$, prompts are instantiated from typed templates under a difficulty
   curriculum, and the student is distilled on the teacher's answers.
   \textbf{(3)} The probe-profile change $\Delta\mathbf{s}_t$ gives the proxy reward,
   which trains a bootstrap ensemble whose mean $\mu$ and uncertainty $\sigma$ select
-  $\mathbf{w}_{t+1}$ by UCB; the loop repeats until $B$ is spent. Values in the
-  figure are illustrative.}}
+  $\mathbf{w}_{t+1}$ by UCB; the loop repeats until $B$ is spent. Values are
+  illustrative.}}
   \label{fig:overview}
   \vspace{-0.8em}
 \end{figure}
 
 ReAD treats Problem~\ref{prob:budget_alloc} as state-dependent budget allocation
-over capabilities \rev{(Figure~\ref{fig:overview})}. At each step, it estimates task requirements, generates
-capability-targeted teacher supervision, and uses an uncertainty-aware contextual
+over capabilities \rev{(Figure~\ref{fig:overview})}. \rev{It first sets task-conditioned capability priorities; then, at each step, it} generates
+capability-targeted teacher supervision\rev{ and} uses an uncertainty-aware contextual
 bandit to choose the next token allocation. As the student profile changes, ReAD
 can shift budget away from saturated or high-spillover capabilities.
 \rev{ReAD is \emph{off-policy}~\citep{agarwal2024gkd}: the student learns from
-teacher completions, never from its own samples. The allocator is orthogonal to
-this choice, so on-policy losses~\citep{gu2024minillm,ko2024distillm} could be
-plugged in unchanged.}
+teacher completions, and on-policy losses~\citep{gu2024minillm,ko2024distillm}
+could replace this objective without changing the allocator.}
 
-\subsection{Identifying Task-Essential Capabilities}
+\subsection{\rev{Task-Conditioned Capability Priorities}}
 \label{sec:method:essential}
 
-\paragraph{Task requirement vector.}
+\paragraph{\rev{Capability-priority vector.}}
 \rev{For each downstream task $\tau$, ReAD builds a task card
 $\mathcal{D}^{\mathrm{spec}}_\tau$ from non-test data (a short description,
 input/output format, evaluation target, and a few exemplars) and estimates from
-it a requirement vector $\mathbf{r}_\tau\in\Delta_{|\mathcal{C}|}$, where
-$r_{\tau,c}$ is how useful capability $c$ is for the task utility
-$U_\tau(\cdot)$. $\mathbf{r}_\tau$ acts as an allocation prior: high-mass
-capabilities are prioritized, and drops on them are treated as harmful
-spillover. It lives on the simplex because token allocations cannot be
+it a capability-priority vector $\mathbf{r}_\tau\in\Delta_{|\mathcal{C}|}$, a
+simplex-constrained allocation prior in which $r_{\tau,c}$ is the priority of
+capability $c$ for the task utility $U_\tau(\cdot)$. High-mass capabilities
+are prioritized in the candidate allocations, and regressions on them are penalized. It lives on the simplex because token allocations cannot be
 negative; negative sensitivities enter through signed capability changes and
-the spillover penalty of Section~\ref{sec:method:bandit}.}
+the regression penalty of Section~\ref{sec:method:bandit}.}
 
-\paragraph{Requirement identifier and its supervision.}
+\paragraph{\rev{Priority identifier and its supervision.}}
 \rev{A lightweight identifier $g_\phi$ (a small Transformer encoder over the
 task card, a two-layer MLP, and a softmax head) maps the card to
 $\mathbf{r}_\tau=g_\phi(\mathcal{D}^{\mathrm{spec}}_\tau)$. Since
@@ -61,10 +59,10 @@ U_\tau(S')-U_\tau(S)
 \nabla_{\mathbf{s}}F_\tau(\mathbf{s})^\top\Delta\mathbf{s}
 \label{eq:local_linear}
 \end{equation}
-\rev{(first-order expansion, Appendix~\ref{sec:app_method}), so
-$\mathbf{r}_\tau$ is trained as a simplex-constrained surrogate for the
-beneficial part of this local sensitivity,
-$\mathbf{r}_\tau\approx\Pi_\Delta([\nabla_{\mathbf{s}}F_\tau(\mathbf{s})]_+)$.}
+\rev{(first-order expansion, Appendix~\ref{sec:app_method}). This expansion
+motivates the training signal only: $\mathbf{r}_\tau$ is not an estimate of
+the true sensitivity but an allocation prior whose inner product with a
+capability change is fit to the observed utility change, as follows.}
 
 \paragraph{Offline pretraining.}
 \rev{We build an intervention set
@@ -85,7 +83,7 @@ change,}
 +\lambda_{\mathrm{ent}}\,\mathcal{H}\!\left(g_\phi(\mathcal{D}^{\mathrm{spec}}_\tau)\right),
 \label{eq:req_pretrain}
 \end{equation}
-\rev{where the entropy penalty discourages near-uniform requirement vectors.
+\rev{where the entropy penalty discourages near-uniform priority vectors.
 At deployment, $\mathbf{r}_\tau$ is computed once per task and reused for the
 whole run; because the identifier is trained once and shared across tasks, it
 is not charged to the per-run distillation budget.}
@@ -110,7 +108,7 @@ scaffold from dominating the generated data.}
 \label{sec:method:bandit}
 
 \paragraph{Decision loop.}
-ReAD runs for $T_{\mathrm{step}}=20$ decision steps\rev{, with the bandit update, data resampling, and proxy refresh at every step (Section~\ref{subsec:exp_setup})}. At step $t$, the context summarizes the task requirement, current student profile, remaining budget, and recent allocation history:
+ReAD runs for $T_{\mathrm{step}}=20$ decision steps\rev{, with the bandit update, data resampling, and proxy refresh at every step (Section~\ref{subsec:exp_setup})}. At step $t$, the context summarizes the \rev{task priorities}, current student profile, remaining budget, and recent allocation history:
 \begin{equation}
 \mathbf{x}_t=[\mathbf{r}_\tau;\mathbf{s}^{\mathrm{probe}}(S_t);b_t;\boldsymbol{\rho}_t],
 \label{eq:bandit_context}
@@ -130,11 +128,11 @@ $\Delta\mathbf{s}^{\mathrm{probe}}_t=\mathbf{s}^{\mathrm{probe}}(S_{t+1})-\mathb
 =\mathbf{r}_\tau^\top\Delta\mathbf{s}^{\mathrm{probe}}_t
 -\beta\,\mathrm{Spill}_t
 -\lambda\,\mathrm{cost}_t, \quad\ \mathrm{Spill}_t=
-\sum_{c\in\mathcal{C}_{\mathrm{ess}}}
+\sum_{c\in\mathcal{C}_{\mathrm{pri}}}
  r_{\tau,c}\,[-\Delta s^{\mathrm{probe}}_{t,c}]_+
 \label{eq:reward}
 \end{equation}
-Here $\mathcal{C}_{\mathrm{ess}}$ contains the top-$k$ capabilities under $\mathbf{r}_\tau$, and $\mathrm{cost}_t$ is the token budget consumed at the step. The first term rewards task-aligned capability gains, the second penalizes regressions on task-essential capabilities, and the third enforces budget awareness.
+Here $\mathcal{C}_{\mathrm{pri}}$ contains the top-$k$ \rev{(prioritized)} capabilities under $\mathbf{r}_\tau$, and $\mathrm{cost}_t$ is the token budget consumed at the step. The first term rewards task-aligned capability gains\rev{ and the second adds an extra penalty for regressions on prioritized capabilities, which already lower the first term. Because every step in our experiments consumes the same number of tokens, the third term is constant; the budget is enforced by the fixed total $B$ and the update schedule.}
 
 \paragraph{Reward model and UCB allocation.}
 \rev{We append $(\mathbf{x}_t,\mathbf{w}_t,\widehat{R}_t)$ to a history buffer

@@ -1,24 +1,22 @@
 \begin{table}[t]
   \centering
-  \caption{\rev{Tokens the strongest one-hot baseline would need to match ReAD's $20$M
-  score, interpolating log-linearly between its measured $20$M and $150$M scores
-  (Table~\ref{tab:llama_20m}); the last column uses linear interpolation instead, for reference.}}
+  \caption{\rev{Interpolation-based estimates of the tokens the strongest one-hot
+  baseline needs to match ReAD's $20$M score, from its $20$M and $150$M scores in
+  Table~\ref{tab:llama_20m} (ratio to $20$M).}}
   \label{tab:equiv_budget}
-  \footnotesize
+  \scriptsize
   \setlength{\tabcolsep}{2pt}
   \renewcommand{\arraystretch}{0.92}
-  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccccc@{}}
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccccccc@{}}
     \toprule
-    \textbf{Capability} & \textbf{ReAD @20M} & \textbf{Strongest baseline} & \textbf{@20M} & \textbf{@150M} & \textbf{Tokens needed} & \textbf{Linear interp.} \\
+    & \textbf{General} & \textbf{Steer.} & \textbf{Reason.} & \textbf{Math} & \textbf{Code} & \textbf{Tool} & \textbf{LCU} & \textbf{Multi.} \\
     \midrule
-    General & $35.02$ & Logit-KD & $34.02$ & $40.18$ & $28$M ($1.4\times$) & $41$M \\
-    Steerability & $58.03$ & Logit-KD & $54.21$ & $72.63$ & $30$M ($1.5\times$) & $47$M \\
-    Reasoning & $10.01$ & CoT-KD & $9.62$ & $10.26$ & $68$M ($3.4\times$) & $99$M \\
-    Math & $21.06$ & CoT-KD & $19.34$ & $33.02$ & $26$M ($1.3\times$) & $36$M \\
-    Code & $77.06$ & Logit-KD & $74.62$ & $80.57$ & $46$M ($2.3\times$) & $73$M \\
-    Tool Use & $29.82$ & Logit-KD & $27.41$ & $29.48$ & $>150$M (not reached) & $>150$M \\
-    LCU & $33.58$ & Logit-KD & $31.72$ & $33.73$ & $129$M ($6.5\times$) & $140$M \\
-    Multilingual & $73.04$ & Logit-KD & $70.81$ & $79.97$ & $33$M ($1.6\times$) & $52$M \\
+    ReAD @20M & $35.02$ & $58.03$ & $10.01$ & $21.06$ & $77.06$ & $29.82$ & $33.58$ & $73.04$ \\
+    Strongest baseline & Logit-KD & Logit-KD & CoT-KD & CoT-KD & Logit-KD & Logit-KD & Logit-KD & Logit-KD \\
+    \quad @20M / @150M & $34.02$/$40.18$ & $54.21$/$72.63$ & $9.62$/$10.26$ & $19.34$/$33.02$ & $74.62$/$80.57$ & $27.41$/$29.48$ & $31.72$/$33.73$ & $70.81$/$79.97$ \\
+    \midrule
+    Log-linear interp. & $28$M ($1.4\times$) & $30$M ($1.5\times$) & $68$M ($3.4\times$) & $26$M ($1.3\times$) & $46$M ($2.3\times$) & $>150$M & $129$M ($6.5\times$) & $33$M ($1.6\times$) \\
+    Linear interp. & $41$M ($2.1\times$) & $47$M ($2.3\times$) & $99$M ($5.0\times$) & $36$M ($1.8\times$) & $73$M ($3.7\times$) & $>150$M & $140$M ($7.0\times$) & $52$M ($2.6\times$) \\
     \bottomrule
   \end{tabular*}
 \end{table}

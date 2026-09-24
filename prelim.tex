@@ -134,11 +134,11 @@ is ordinary diminishing returns. What allocation can exploit is their
 \emph{structure}: transfer is signed, source-specific, and budget-dependent, so
 a token's marginal value depends on where the budget has already gone.}
 
-\rev{Effective distillation under a fixed budget must therefore reason jointly
-about task-relevant capabilities, their interactions, and allocation. We
-formalize this as a sequential budget allocation problem across interdependent capabilities, as follows:}
+\rev{We formalize the allocation of a fixed budget as a sequential problem; in
+our experiments, the task $\tau$ is a specified target capability and $U_\tau$
+is its on-target score:}
 
-\begin{problem}[Budget allocation for interdependent capability distillation]\label{prob:budget_alloc}
+\begin{problem}[\rev{Budget allocation for target-capability distillation}]\label{prob:budget_alloc}
 Given a teacher model \( T \), an initial student model \( S_0 \), a downstream
 task \( \tau \), and a total distillation budget \( B \), consider a sequential
 distillation process over steps \( t=1,\ldots,T \) with cumulative cost not
