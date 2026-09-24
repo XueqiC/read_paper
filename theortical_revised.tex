@@ -27,7 +27,7 @@ off-diagonal entry is nonzero whenever the update direction for $c'$ is not
 orthogonal to the readout direction of $c$, which shared representations make
 common, so allocating budget to one capability alters others at every step.}
 
-\rev{\textbf{Budget waste from diminishing returns.} Let $b_c\ge0$ be the tokens
+\rev{\textbf{Diminishing returns and budget waste.} Let $b_c\ge0$ be the tokens
 assigned to capability $c$, $\sum_c b_c\le B$, and suppose task-aligned gains
 are concave in the budget,
 $\mathbb{E}[U_\tau(S)-U_\tau(S_0)]\approx\sum_c r_{\tau,c}\,G_{\tau,c}(b_c)$
@@ -40,12 +40,12 @@ the target saturates, further tokens can be worth less than tokens spent
 elsewhere (Observation~2). This proxy ignores spillover, which ReAD's reward in
 Eq.~\eqref{eq:reward} penalizes separately.}
 
-\rev{\textbf{Why uncertainty-aware allocation helps.} Let
+\rev{\textbf{Uncertainty-aware allocation.} Let
 $\overline{R}(\mathbf{x},\mathbf{w})$ be the conditional expected proxy reward
 of allocation $\mathbf{w}$ in context $\mathbf{x}$. If the ensemble is
 calibrated, $|\mu-\overline{R}|\le\kappa\,\sigma$ with high probability, the
 action chosen by Eq.~\eqref{eq:ucb} is within $2\kappa\,\sigma(\mathbf{x}_t,\mathbf{w}_t)$
 of the best action in expected reward (Proposition~\ref{prop:regret}): the
-allocator can only be badly wrong where its own uncertainty is large, which is
+allocator errs substantially only where its own uncertainty is large, which is
 where the bonus directs exploration. This is a local, per-step statement, not a
 global guarantee for nonconvex fine-tuning.}

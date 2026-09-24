@@ -21,6 +21,7 @@
 \usepackage{subcaption}
 \usepackage{array}
 \usepackage{tabularx}
+\usepackage{placeins}
 
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 
@@ -88,6 +89,8 @@
 \bibliography{ref}
 
 \appendix
+% appendix only: allow up to three top floats per page so tables do not pile up at the end
+\setcounter{topnumber}{3}\setcounter{totalnumber}{5}\renewcommand{\topfraction}{0.9}\renewcommand{\textfraction}{0.08}
 
 \newpage
 \input{appendix}

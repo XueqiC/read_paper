@@ -54,7 +54,7 @@ def panel(fname, labels, res, figsize, legend=False, xlim=(-1.0, 7.8)):
     fig, ax = plt.subplots(figsize=figsize, constrained_layout=True)
     y = np.arange(len(labels))[::-1].astype(float)
     for B, off in ((20, 0.16), (150, -0.16)):
-        col, mk = S.BUDGET[B]
+        col, mk = S.BUDGET[B]['color'], S.BUDGET[B]['marker']
         for yy, (d, lo, hi, p) in zip(y, res[B]):
             ax.plot([lo, hi], [yy + off] * 2, color=col, lw=1.0, zorder=3)
             ax.plot([d], [yy + off], marker=mk, ms=3.2, mec=col, mew=0.8, mfc=col if p < 0.05 else 'white', zorder=4)
@@ -64,8 +64,8 @@ def panel(fname, labels, res, figsize, legend=False, xlim=(-1.0, 7.8)):
     if legend:
         h = [Line2D([], [], color=S.BLUE, marker='o', ms=3.8, lw=1.0, label='20M'),
              Line2D([], [], color=S.ORANGE, marker='s', ms=3.8, lw=1.0, label='150M'),
-             Line2D([], [], color=S.GRAY, marker='o', ms=3.8, lw=0, label='significant'),
-             Line2D([], [], color=S.GRAY, marker='o', ms=3.8, mfc='white', lw=0, label='n.s.')]
+             Line2D([], [], color='black', marker='o', ms=3.8, lw=0, label='significant'),
+             Line2D([], [], color='black', marker='o', ms=3.8, mfc='white', lw=0, label='n.s.')]
         ax.legend(handles=h, loc='center right', fontsize=5.8, handlelength=1.2, labelspacing=0.15, borderaxespad=0.1, ncol=1)
     fig.savefig(os.path.join(OUTDIR, fname + '.pdf')); fig.savefig(os.path.join(PREV, fname + '_preview.png'), dpi=240)
     print('wrote', fname)

@@ -1,5 +1,13 @@
 \section*{Supplementary Material}
 
+\subsection*{Ethics statement}
+
+\rev{This work involves no human subjects or personal data and uses only public
+models and benchmarks. Distilled students may inherit biases or unsafe
+behaviors from their teachers, and cheaper distillation may ease building
+dual-use models; Appendix~\ref{sec:broader_impact} discusses these risks and
+mitigations.}
+
 
 \section{Benchmark Datasets}\label{sec:bench_datasets}
 
@@ -459,8 +467,7 @@ $\mathbf{90.54 \pm 0.92}$ \\
 \end{table*}
 
 
-
-\textbf{Additional evidence showing that ReAD improves capability distillation under a fixed budget}. We compare ReAD with six capability distillation baselines. \rev{Table~\ref{tab:llama_20m} (main text) reports the Llama results at $B{=}20$M and $B{=}150$M, and Tables~\ref{tab:qwen_20m} and~\ref{tab:qwen_150m} report the corresponding Qwen results.} \rev{In both budgets and for both model families, ReAD achieves the highest
+\textbf{\rev{Results across model families and budgets.}} We compare ReAD with six capability distillation baselines. \rev{Table~\ref{tab:llama_20m} (main text) reports the Llama results at $B{=}20$M and $B{=}150$M, and Tables~\ref{tab:qwen_20m} and~\ref{tab:qwen_150m} report the corresponding Qwen results.} \rev{In both budgets and for both model families, ReAD achieves the highest
 mean on-target score on every target capability. The
 largest margin is on Steerability and the smallest on Reasoning in all four
 settings, in line with the headroom analysis of Section~\ref{subsec:rq1}. Scaling
@@ -479,12 +486,22 @@ $10$M tokens between the two budgets, and Table~\ref{tab:equiv_budget} in the ma
 gives interpolation-based estimates of how many tokens the strongest one-hot
 baseline would need to reach ReAD's $20$M score on each of the eight capabilities.}
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figure/gain_over_student.pdf}
+  \caption{\rev{Points gained over the initial student on each capability at
+  20M (left) and 150M (right) for ReAD and for the best one-hot baseline of
+  that capability, read off Table~\ref{tab:llama_20m}, with the method colors of
+  Figure~\ref{fig:rq2_budget} and the budget markers of Figure~\ref{fig:signif}. Error
+  bars are the standard deviation over three seeds of the distilled student's score.
+  Values are absolute percentage points.}}
+  \label{fig:gain_over_student}
+\end{figure}
+
 \input{table_scaling}
 
 
-
-
-\rev{\textbf{Exact values.} Figure~\ref{fig:signif} in Section~\ref{sec:exp} shows
+\rev{\textbf{Tabulated values.} Figure~\ref{fig:signif} in Section~\ref{sec:exp} shows
 ReAD's advantage in every comparison with its confidence interval. Table~\ref{tab:xstest} lists the XSTest scores shown in
 Figure~\ref{fig:xstest}, Table~\ref{tab:budget_diagnostics} the values of Figure~\ref{fig:diagnostics}, and Table~\ref{tab:signif} lists the differences and
 Welch $t$ statistics shown in Figure~\ref{fig:signif}, with significance marks
@@ -568,27 +585,11 @@ allocation schedules under the same generator.}}
 \input{tables_signif}
 
 
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{figure/gain_over_student.pdf}
-  \caption{\rev{Points gained over the initial student on each capability at
-  20M (left) and 150M (right) for ReAD and for the best one-hot baseline of
-  that capability, read off Table~\ref{tab:llama_20m}. Error bars are the standard deviation over three
-  seeds of the distilled student's score. Values are absolute percentage
-  points, so small changes stay small.}}
-  \label{fig:gain_over_student}
-\end{figure}
-
-
-
-
 % \subsection{Held-out Downstream Transfer}
 % \label{sec:app_xstest}
 
 
 \rev{(The comparison with capability-specific distillation methods, the XSTest evaluation, and the significance analysis were moved to Section~\ref{sec:exp}.)}
-
 
 
 \section{Related Work}
@@ -651,6 +652,7 @@ or deployment of distilled models should follow the usage restrictions of the
 underlying models and include appropriate documentation of intended use,
 limitations, and \rev{the safety evaluations that were actually performed}.
 
+\FloatBarrier
 \section{Limitation and Future Work}
 
 While ReAD improves budget efficiency by using low-cost capability monitoring and adaptive allocation, it still relies on two practical components that can limit performance. First, the task requirement estimator and the probe suite may be imperfect: if the inferred \rev{capability priorities} or probe signals are misaligned with true task utility, ReAD can allocate budget suboptimally. \rev{In particular, the proxy reward is computed on a small probe suite and may deviate from the true task utility; we do not report a quantitative validation of this proxy, so errors in it can mislead the allocation.} Second, our capability set and data generator are necessarily finite and template-driven, which may not cover all behaviors a real task depends on, especially for highly domain-specific or long-horizon tasks. Future work can address these limitations by learning more robust and transferable task requirement models, designing probe suites with stronger coverage and better calibration to task utility, and expanding capability definitions and data generation beyond templates (e.g., automatic discovery of capability axes and open-ended curriculum generation). Another promising direction is to jointly optimize allocation and student training dynamics (e.g., optimizer schedules and parameter-efficient adapters) under the same budget, and to extend ReAD to settings with distribution shift, multi-task deployment, or continual updates where requirements and transfer patterns evolve over time.

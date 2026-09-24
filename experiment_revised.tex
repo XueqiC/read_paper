@@ -162,12 +162,12 @@ positive and all but Reasoning at $150$M are significant before correction;
 after Holm correction over the eight capabilities, Steerability at both budgets
 and Multilingual at $150$M remain significant (Figure~\ref{fig:signif}).}
 
-\rev{\textbf{When the margin is large.} The margin grows with the
+\rev{\textbf{Margin and teacher--student headroom.} The margin grows with the
 teacher--student headroom (Spearman $\rho=0.74$ at $150$M, $p=0.04$): it is
 largest on Steerability and Multilingual (teacher ahead by over $20$ points) and
 smallest on Reasoning ($1.8$ points). ReAD's gain over the student is
 $1.9\times$ that of the strongest baseline at $20$M and $1.3\times$ at $150$M,
-so the relative advantage peaks when tokens are scarce.}
+so the advantage peaks when tokens are scarce.}
 
 \rev{Against the three capability-specific methods at $150$M
 (Figure~\ref{fig:radar}), which concentrate gains on their own target as
@@ -208,8 +208,8 @@ never worse on it.}
   \vspace{-0.4em}
   \caption{\rev{(a) Component ablation (average score over eight capabilities). (b)
   ReAD vs.\ step-by-step distillation, EoTD, and CodePLAN at 150M (fraction of the
-  teacher--student gap closed). (c) XSTest: ReAD (filled) vs.\ the best SFT/KD baseline
-  (hollow purple); blue 20M, orange 150M.}}
+  teacher--student gap closed). (c) XSTest refusal rates of ReAD and the best SFT/KD
+  baseline. Bars: blue /// 20M, orange dots 150M.}}
   \label{fig:ablation_radar}
   \vspace{-1.0em}
 \end{figure}

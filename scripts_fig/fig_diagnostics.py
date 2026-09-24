@@ -13,7 +13,6 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, '..', 'figure', 'diagnostics.pdf')
 PNG = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, 'diagnostics_preview.png')
 S.apply(7)
-import matplotlib as _m; _m.rcParams['hatch.color'] = 'white'; _m.rcParams['hatch.linewidth'] = 0.7
 # (a)-(b): 150M, from the capability transfer matrix
 m = ['Single-cap. KD', 'Task-static mix', 'Greedy one-step', 'Grid-searched', 'ReAD']
 on = [(4.79, .29), (4.61, .25), (4.72, .23), (4.66, .24), (4.79, .24)]
@@ -23,40 +22,35 @@ neg = [(0.43, .03), (0.29, .03), (0.31, .03), (0.25, .03), (0.17, .02)]
 sched = ['Uniform', 'Task-static', 'Greedy', 'Grid', 'ReAD']
 u20 = [(60.94, .48), (61.71, .43), (62.03, .41), (61.88, .42), (63.04, .39)]
 u150 = [(64.73, .36), (65.52, .33), (66.01, .30), (65.81, .31), (67.21, .28)]
-mk = ['v', '^', 'D', 'P', '*']
-cols = ['#8172B3', '#64B5CD', '#CCB974', '#DA8BC3', S.BLUE]   # seaborn-deep hues per method; ReAD blue
-def darker(c, f=0.72):
-    import matplotlib.colors as mc
-    r, g, b = mc.to_rgb(c); return (r * f, g * f, b * f)
-ERR = dict(elinewidth=0.7, capsize=1.5, ecolor='#3a3a3a')
+# Same encoding as the original component-ablation figure: bars colored and hatched by budget
+# (20M blue '///', 150M orange dots), methods on the x-axis, black edges and error bars.
+B20, B150 = S.BUDGET[20], S.BUDGET[150]
+LIGHT150 = '#ffcc9e'   # lighter tint of the 150M orange, for the off-target (downward) bars in (a)
 fig = plt.figure(figsize=(5.5, 1.52))
 gs = fig.add_gridspec(1, 3, width_ratios=[1.25, 0.95, 1.45], wspace=0.42, left=0.075, right=0.995, top=0.87, bottom=0.30)
+labs = ['One-hot KD', 'Task-static', 'Greedy', 'Grid', 'ReAD']
 ax = fig.add_subplot(gs[0])
 x = np.arange(5); bw = 0.62
-ek = ERR
-hat = [None, None, None, None, '///']
-ax.bar(x, [v for v, _ in on], bw, yerr=[e for _, e in on], color=S.GREEN, edgecolor=darker(S.GREEN), linewidth=0.6,
-       hatch=hat, error_kw=ek, zorder=3, label='on-target gain')
-ax.bar(x, [v for v, _ in off], bw, yerr=[e for _, e in off], color=S.RED, edgecolor=darker(S.RED), linewidth=0.6,
-       hatch=hat, error_kw=ek, zorder=3, label='off-target change')
-ax.axhline(0, color='#3a3a3a', lw=0.6, zorder=4)
-ax.set_xticks(x); ax.set_xticklabels(['One-hot KD', 'Task-static', 'Greedy', 'Grid', 'ReAD'], rotation=35, ha='right', fontsize=6.3)
+ax.bar(x, [v for v, _ in on], bw, yerr=[e for _, e in on], color=B150['color'], hatch=B150['hatch'],
+       error_kw=S.ERR, zorder=3, label='on-target gain', **S.EDGE)
+ax.bar(x, [v for v, _ in off], bw, yerr=[e for _, e in off], color=LIGHT150, hatch=B150['hatch'],
+       error_kw=S.ERR, zorder=3, label='off-target change', **S.EDGE)
+ax.axhline(0, color='black', lw=0.6, zorder=4)
+ax.set_xticks(x); ax.set_xticklabels(labs, rotation=35, ha='right', fontsize=6.3)
 ax.set_ylabel('Change [points]'); ax.set_ylim(-2.4, 6.6); S.grid(ax, 'y')
 ax.legend(loc='upper center', fontsize=5.9, ncol=2, handlelength=1.0, columnspacing=0.6, borderaxespad=0.15)
 ax.set_title('(a) Gain vs. spillover, 150M', fontsize=7.2, pad=3)
 ax = fig.add_subplot(gs[1])
-x = np.arange(5)
-ax.bar(x, [v for v, _ in neg], yerr=[s for _, s in neg], color=cols, edgecolor=[darker(c) for c in cols],
-       linewidth=0.6, error_kw=ERR, zorder=3, hatch=[None, None, None, None, '///'])
-ax.set_xticks(x); ax.set_xticklabels(['One-hot KD', 'Task-static', 'Greedy', 'Grid', 'ReAD'], rotation=35, ha='right', fontsize=6.3)
+ax.bar(x, [v for v, _ in neg], bw, yerr=[s for _, s in neg], color=B150['color'], hatch=B150['hatch'],
+       error_kw=S.ERR, zorder=3, **S.EDGE)
+ax.set_xticks(x); ax.set_xticklabels(labs, rotation=35, ha='right', fontsize=6.3)
 ax.set_ylabel('Negative transfer'); ax.set_ylim(0, 0.5); S.grid(ax, 'y')
 ax.set_title('(b) Harmful transfer, 150M', fontsize=7.2, pad=3)
 ax = fig.add_subplot(gs[2])
 w = 0.38
-ax.bar(x - w / 2, [v for v, _ in u20], w, yerr=[s for _, s in u20], color=S.BLUE, edgecolor=darker(S.BLUE),
-       linewidth=0.6, hatch='///', error_kw=ERR, label='20M', zorder=3)
-ax.bar(x + w / 2, [v for v, _ in u150], w, yerr=[s for _, s in u150], color=S.ORANGE, edgecolor=darker(S.ORANGE),
-       linewidth=0.6, hatch='..', error_kw=ERR, label='150M', zorder=3)
+for B, sgn, vals in ((B20, -1, u20), (B150, 1, u150)):
+    ax.bar(x + sgn * w / 2, [v for v, _ in vals], w, yerr=[s for _, s in vals], color=B['color'], hatch=B['hatch'],
+           error_kw=S.ERR, label=B['label'], zorder=3, **S.EDGE)
 ax.set_xticks(x); ax.set_xticklabels(sched, rotation=35, ha='right', fontsize=6.3)
 ax.set_ylabel('Avg. utility'); ax.set_ylim(59.5, 68.5); S.grid(ax, 'y')
 ax.legend(loc='upper left', fontsize=6.2, ncol=2, handlelength=1.2, columnspacing=0.8, borderaxespad=0.2)
