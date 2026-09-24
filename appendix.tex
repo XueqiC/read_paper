@@ -76,7 +76,7 @@ small in the figures.}
 \section{Method Details}\label{sec:app_method}
 \rev{The following details were moved here from Section~\ref{sec:method}.}
 
-\textbf{Local utility sensitivity.} With $U_\tau(S)=F_\tau(\mathbf{s}(S))$, a small intervention that changes the profile from $\mathbf{s}$ to $\mathbf{s}+\Delta\mathbf{s}$ gives
+\textbf{Local utility sensitivity.} With $U_\tau(S)=F_\tau(\mathbf{s}(S))$, a small intervention that changes the profile from $\mathbf{s}$ to $\mathbf{s}+\Delta\mathbf{s}$ \rev{changes the utility according to the first-order expansion}
 \begin{equation}
 F_\tau(\mathbf{s}+\Delta\mathbf{s})
 =
@@ -96,7 +96,7 @@ d_c(x)=\frac{1}{|\mathcal{F}_c|}\sum_{f\in\mathcal{F}_c}
 \end{equation}
 where $\mathcal{F}_c$ is the set of capability-specific control factors and $\mathcal{Q}_c$ is a calibration prompt pool for capability $c$. For example, reasoning templates use factors such as the number of constraints, reasoning hops, and symbolic complexity; code templates use the number of required functions and tests; steerability templates use the number of rules and schema fields. We split each capability's calibration pool into easy, medium, and hard buckets by tertiles of $d_c(x)$.
 
-\textbf{Ensemble mean and uncertainty.} For a candidate allocation $\mathbf{w}$, the ensemble of $J$ reward regressors gives
+\textbf{Ensemble mean and uncertainty.} For a candidate allocation $\mathbf{w}$, the $J$ reward regressors \rev{give the ensemble mean and the ensemble standard deviation}
 \begin{equation}
 \mu(\mathbf{x}_t,\mathbf{w})=\frac{1}{J}\sum_{j=1}^J h_{\eta_j}(\mathbf{x}_t,\mathbf{w}),
 \quad
@@ -138,7 +138,7 @@ $\Delta s_{t,c}\approx\sum_{c'\in\mathcal{C}} w_{t,c'}\,\Gamma_{c,c'}(\theta_{t-
 $\Gamma_{c,c'}(\theta):=\nabla_\theta[\tilde{\mathbf{s}}(\theta)]_c^\top d_{c'}(\theta)$.
 \end{proposition}
 \begin{proof}
-\rev{Substituting the mixture update of Assumption~\ref{ass:mixture_update} into the local readout of Assumption~\ref{ass:local_readout} gives
+\rev{Substituting the mixture update of Assumption~\ref{ass:mixture_update} into the local readout of Assumption~\ref{ass:local_readout} yields, for every capability $c$ and step $t$,
 \[
 \Delta s_{t,c}\approx\nabla_\theta[\tilde{\mathbf{s}}(\theta_{t-1})]_c^\top\sum_{c'}w_{t,c'}d_{c'}(\theta_{t-1})=\sum_{c'}w_{t,c'}\Gamma_{c,c'}(\theta_{t-1}).
 \]}
@@ -158,9 +158,9 @@ The previous subsection explains spillover. We now isolate diminishing returns w
 
 \begin{assumption}[Concave task-aligned gains]
 \label{assump:concave_gains_short}
-For task $\tau$ and capability $c$, there is a nondecreasing concave gain function $G_{\tau,c}:\mathbb{R}_{\ge0}\to\mathbb{R}_{\ge0}$ such that $\mathbb{E}[U_\tau(S)-U_\tau(S_0)]
+For task $\tau$ and capability $c$, there is a nondecreasing concave gain function $G_{\tau,c}:\mathbb{R}_{\ge0}\to\mathbb{R}_{\ge0}$ such that\rev{, for every allocation with $\sum_{c\in\mathcal{C}} b_c\le B$,} $\mathbb{E}[U_\tau(S)-U_\tau(S_0)]
 \approx
-\sum_{c\in\mathcal{C}} r_{\tau,c}G_{\tau,c}(b_c)$ where $\sum_{c\in\mathcal{C}} b_c\le B$.
+\sum_{c\in\mathcal{C}} r_{\tau,c}G_{\tau,c}(b_c)$\rev{, i.e., task-aligned gains add up across capabilities}.
 \end{assumption}
 
 Consider a restricted distillation strategy that allocates budget only to a subset $\mathcal{K}\subseteq\mathcal{C}$:
@@ -201,7 +201,7 @@ accounts for both diminishing returns and cross-capability degradation.
 \subsection{Uncertainty-Aware UCB Allocation}
 \label{subsec:theory_ucb_short}
 
-Here, we show that action-level regret is controlled by predictive uncertainty. At interval $t$, ReAD maintains a bandit context
+Here, we show that action-level regret is controlled by predictive uncertainty. At interval $t$, ReAD \rev{summarizes the requirement vector, the current capability profile, and the remaining budget in the bandit context that the reward regressors take as input}
 \begin{equation}
 \mathbf{x}_t := [\,\mathbf{r}_\tau;\ \mathbf{s}(S_{t});\ b_t\,],
 \label{eq:context_short}
@@ -225,12 +225,12 @@ where $\mu$ and $\sigma$ are the ensemble mean and standard deviation defined fr
 Since ReAD selects allocations by the UCB rule in Eq.~\eqref{eq:ucb}, we can compare its chosen action $\mathbf{w}_t$ to the optimal action $\mathbf{w}_t^\star$ under the same context and bound the resulting gap in conditional expected reward using the calibrated uncertainty condition in Assumption~\ref{ass:calibrated_uncertainty_app}, which leads to the following instantaneous regret bound\rev{ on the chosen action}.
 
 \begin{proposition}[Instantaneous regret bound]\label{prop:regret}
-    Let $\mathbf{w}_t^\star\in\arg\max_{\mathbf{w}\in\mathcal{A}(\tau)} \bar R(\mathbf{x}_t,\mathbf{w})$. Under Assumption~\ref{ass:calibrated_uncertainty_app},
+    Let $\mathbf{w}_t^\star\in\arg\max_{\mathbf{w}\in\mathcal{A}(\tau)} \bar R(\mathbf{x}_t,\mathbf{w})$. Under Assumption~\ref{ass:calibrated_uncertainty_app}, \rev{the action chosen by Eq.~\eqref{eq:ucb} satisfies}
 \begin{equation}
 \bar R(\mathbf{x}_t,\mathbf{w}_t^\star)-\bar R(\mathbf{x}_t,\mathbf{w}_t)\ \le\ 2\kappa\,\sigma(\mathbf{x}_t,\mathbf{w}_t),
 \label{eq:inst_regret_short}
 \end{equation}
-and consequently,
+and consequently, \rev{summing over the $T$ decision steps of the run},
 \begin{equation}
 \sum_{t=1}^T \Big(\bar R(\mathbf{x}_t,\mathbf{w}_t^\star)-\bar R(\mathbf{x}_t,\mathbf{w}_t)\Big)
 \ \le\ 2\kappa\sum_{t=1}^T \sigma(\mathbf{x}_t,\mathbf{w}_t).
@@ -476,11 +476,84 @@ baseline would need to reach ReAD's $20$M score on each of the eight capabilitie
 
 \rev{\textbf{Exact values.} Figure~\ref{fig:signif} in Section~\ref{sec:exp} shows
 ReAD's advantage in every comparison with its confidence interval. Table~\ref{tab:xstest} lists the XSTest scores shown in
-Figure~\ref{fig:xstest}, and Table~\ref{tab:signif} lists the differences and
+Figure~\ref{fig:xstest}, Table~\ref{tab:budget_diagnostics} the values of Figure~\ref{fig:diagnostics}, and Table~\ref{tab:signif} lists the differences and
 Welch $t$ statistics shown in Figure~\ref{fig:signif}, with significance marks
 after Holm correction within each block and budget, exactly as in the figure.}
 
 \input{xstest_table}
+
+\begin{table}[h]
+  \centering
+  \captionsetup{font=small, width=0.96\linewidth, skip=3pt}
+  \caption{\rev{Exact values behind Figure~\ref{fig:diagnostics}. (a) 150M-token
+gain--spillover trade-off from the capability transfer matrix. (b) Matched-budget
+allocation schedules under the same generator.}}
+  \label{tab:budget_diagnostics}
+
+  \footnotesize
+  \setlength{\tabcolsep}{2.2pt}
+  \renewcommand{\arraystretch}{0.94}
+
+  \begin{subtable}[t]{0.55\linewidth}
+    \centering
+    \caption*{\textbf{(a) Harmful transfer at 150M}}
+    \begin{tabular}{@{}lccc@{}}
+      \toprule
+      \textbf{Method} & \textbf{On-tgt $\uparrow$} & \textbf{Off-tgt $\Delta\uparrow$} & \textbf{Neg. $\downarrow$} \\
+      \midrule
+      Single-cap. KD
+        & $\mathbf{4.79{\pm}0.29}$
+        & $-1.57{\pm}0.21$
+        & $0.43{\pm}0.03$ \\
+      Task-static mix
+        & $4.61{\pm}0.25$
+        & $-0.87{\pm}0.17$
+        & $0.29{\pm}0.03$ \\
+      Greedy one-step
+        & $4.72{\pm}0.23$ % placeholder in the original source: replace with measured value
+        & $-0.94{\pm}0.19$ % placeholder in the original source: replace with measured value
+        & $0.31{\pm}0.03$ % placeholder in the original source: replace with measured value
+        \\
+      Grid-searched
+        & $4.66{\pm}0.24$ % placeholder in the original source: replace with measured value
+        & $-0.71{\pm}0.16$ % placeholder in the original source: replace with measured value
+        & $0.25{\pm}0.03$ % placeholder in the original source: replace with measured value
+        \\
+      \textbf{ReAD}
+        & $4.79{\pm}0.24$
+        & $\mathbf{-0.38{\pm}0.12}$
+        & $\mathbf{0.17{\pm}0.02}$ \\
+      \bottomrule
+    \end{tabular}
+  \end{subtable}
+  \hfill
+  \begin{subtable}[t]{0.42\linewidth}
+    \centering
+    \caption*{\textbf{(b) Allocation schedules}}
+    \begin{tabular}{@{}lcc@{}}
+      \toprule
+      \textbf{Method} & \textbf{20M $\uparrow$} & \textbf{150M $\uparrow$} \\
+      \midrule
+      Uniform static
+        & $60.94{\pm}0.48$
+        & $64.73{\pm}0.36$ \\
+      Task-static mix
+        & $61.71{\pm}0.43$
+        & $65.52{\pm}0.33$ \\
+      Greedy one-step
+        & $62.03{\pm}0.41$
+        & $66.01{\pm}0.30$ \\
+      Grid-searched
+        & $61.88{\pm}0.42$
+        & $65.81{\pm}0.31$ \\
+      \textbf{ReAD}
+        & $\mathbf{63.04{\pm}0.39}$
+        & $\mathbf{67.21{\pm}0.28}$ \\
+      \bottomrule
+    \end{tabular}
+  \end{subtable}
+
+  \end{table}
 
 \input{tables_signif}
 

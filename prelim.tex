@@ -45,14 +45,15 @@ the student obtained after capability distillation under allocation
 \( \mathbf{w}^{(i)}\in\Delta_{|\mathcal{C}|} \) by \( w^{(i)}_i=1 \) and
 \( w^{(i)}_j=0 \) for all \( j\neq i \). The \emph{capability interdependence}
 under capability distillation is characterized by the capability transfer matrix
+\rev{$\mathbf{T}(B)\in\mathbb{R}^{|\mathcal{C}|\times|\mathcal{C}|}$ with entries}
 \[
 \mathbf{T}_{ij}(B)
 := s_j\!\left(S(\mathbf{w}^{(i)},B)\right) - s_j(S_0),
 \]
-where $\mathbf{T}(B)\in\mathbb{R}^{|\mathcal{C}|\times|\mathcal{C}|}$, \( \mathbf{T}_{ij}(B) \) quantifies the effect of distilling
+where \( \mathbf{T}_{ij}(B) \) quantifies the effect of distilling
 toward capability \( c_i \) on the performance of capability \( c_j \).
 Non-zero off-diagonal entries indicate interdependence between capabilities
-under shared representations.
+under \rev{the shared representations of the student model}.
 \end{definition}
 
 \vspace{-0.6em}

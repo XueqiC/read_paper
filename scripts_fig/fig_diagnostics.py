@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""Figure replacing the budget-allocation diagnostics table: (a) gain-spillover trade-off at 150M,
+(b) negative-transfer rate at 150M, (c) matched-budget allocation schedules at 20M/150M.
+Numbers are the means/stds printed in the paper.
+NOTE: in the original LaTeX source, the Greedy one-step and Grid-searched values of panels (a)-(b)
+were marked "% placeholder: replace with measured value"."""
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import numpy as np
+import matplotlib; matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import fig_style as S
+HERE = os.path.dirname(os.path.abspath(__file__))
+OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, '..', 'figure', 'diagnostics.pdf')
+PNG = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, 'diagnostics_preview.png')
+S.apply(7)
+# (a)-(b): 150M, from the capability transfer matrix
+m = ['Single-cap. KD', 'Task-static mix', 'Greedy one-step', 'Grid-searched', 'ReAD']
+on = [(4.79, .29), (4.61, .25), (4.72, .23), (4.66, .24), (4.79, .24)]
+off = [(-1.57, .21), (-0.87, .17), (-0.94, .19), (-0.71, .16), (-0.38, .12)]
+neg = [(0.43, .03), (0.29, .03), (0.31, .03), (0.25, .03), (0.17, .02)]
+# (c): allocation schedules, average utility
+sched = ['Uniform', 'Task-static', 'Greedy', 'Grid', 'ReAD']
+u20 = [(60.94, .48), (61.71, .43), (62.03, .41), (61.88, .42), (63.04, .39)]
+u150 = [(64.73, .36), (65.52, .33), (66.01, .30), (65.81, .31), (67.21, .28)]
+mk = ['v', '^', 'D', 'P', '*']
+cols = [S.GRAY, '#a6a6a6', '#7a7a7a', '#5e5e5e', S.BLUE]
+fig = plt.figure(figsize=(5.5, 1.52))
+gs = fig.add_gridspec(1, 3, width_ratios=[1.25, 0.95, 1.45], wspace=0.42, left=0.075, right=0.995, top=0.87, bottom=0.30)
+ax = fig.add_subplot(gs[0])
+for i in range(5):
+    ax.errorbar(off[i][0], on[i][0], xerr=off[i][1], yerr=on[i][1], fmt=mk[i], ms=6.5 if i == 4 else 4.2,
+                color=cols[i], mec='black' if i == 4 else cols[i], mew=0.5, elinewidth=0.7, capsize=1.5, zorder=3 + i)
+lab = {0: (6, -9, 'Single-cap. KD'), 1: (-2, -12, 'Task-static'), 2: (-6, 7, 'Greedy'), 3: (4, 6, 'Grid'), 4: (-12, 9, 'ReAD')}
+for i, (dx, dy, t) in lab.items():
+    ax.annotate(t, (off[i][0], on[i][0]), xytext=(dx, dy), textcoords='offset points', fontsize=6.2,
+                color=S.BLUE if i == 4 else S.INK, ha='center')
+ax.set_xlabel('Off-target change [points]'); ax.set_ylabel('On-target gain')
+ax.set_xlim(-1.95, -0.1); ax.set_ylim(4.25, 5.2); S.grid(ax, 'both')
+ax.set_title('(a) Gain vs. spillover, 150M', fontsize=7.2, pad=3)
+ax = fig.add_subplot(gs[1])
+x = np.arange(5)
+ax.bar(x, [v for v, _ in neg], yerr=[s for _, s in neg], color=cols, edgecolor='black', linewidth=0.5,
+       error_kw=dict(elinewidth=0.7, capsize=1.5), zorder=3, hatch=[None, None, None, None, '///'])
+ax.set_xticks(x); ax.set_xticklabels(['One-hot KD', 'Task-static', 'Greedy', 'Grid', 'ReAD'], rotation=35, ha='right', fontsize=6.3)
+ax.set_ylabel('Negative transfer'); ax.set_ylim(0, 0.5); S.grid(ax, 'y')
+ax.set_title('(b) Harmful transfer, 150M', fontsize=7.2, pad=3)
+ax = fig.add_subplot(gs[2])
+w = 0.38
+ax.bar(x - w / 2, [v for v, _ in u20], w, yerr=[s for _, s in u20], color=S.BLUE, edgecolor='black', linewidth=0.5,
+       hatch='///', alpha=0.92, error_kw=dict(elinewidth=0.7, capsize=1.5), label='20M', zorder=3)
+ax.bar(x + w / 2, [v for v, _ in u150], w, yerr=[s for _, s in u150], color=S.ORANGE, edgecolor='black',
+       linewidth=0.5, hatch='..', alpha=0.8, error_kw=dict(elinewidth=0.7, capsize=1.5), label='150M', zorder=3)
+ax.set_xticks(x); ax.set_xticklabels(sched, rotation=35, ha='right', fontsize=6.3)
+ax.set_ylabel('Avg. utility'); ax.set_ylim(59.5, 68.5); S.grid(ax, 'y')
+ax.legend(loc='upper left', fontsize=6.2, ncol=2, handlelength=1.2, columnspacing=0.8, borderaxespad=0.2)
+ax.set_title('(c) Allocation schedules', fontsize=7.2, pad=3)
+fig.savefig(OUT); fig.savefig(PNG, dpi=240); print('wrote', OUT)
