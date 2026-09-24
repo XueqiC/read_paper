@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Figure replacing the budget-allocation diagnostics table: (a) gain-spillover trade-off at 150M,
 (b) negative-transfer rate at 150M, (c) matched-budget allocation schedules at 20M/150M.
-Numbers are the means/stds printed in the paper.
-NOTE: in the original LaTeX source, the Greedy one-step and Grid-searched values of panels (a)-(b)
-were marked "% placeholder: replace with measured value"."""
+Numbers are the means/stds printed in the paper (all measured; the author confirmed on 2026-09-24
+that the Greedy one-step / Grid-searched rows are real despite an old "placeholder" comment in the source)."""
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
