@@ -21,9 +21,7 @@ latexmk -pdf main.tex
 | `ref.bib` | bibliography (`iclr2027_conference.bst`, natbib author–year) |
 | `tables_signif.tex`, `table_scaling.tex`, `table_equiv_budget.tex` | significance, marginal-gain and equivalent-budget tables, computed from the reported means and standard deviations |
 | `figure/` | figures (`figure/overview.pdf` is the method overview) |
-| `scripts_fig/overview_fig.py` | regenerates `figure/overview.pdf` (`python scripts_fig/overview_fig.py`; needs matplotlib and pillow). All new figures share the original figures' style: Times bold, seaborn-deep colors, black-edged hatched bars |
-| `scripts_fig/fig_gain.py` | regenerates `figure/gain_over_student.pdf` (appendix) from Table 1 |
-| `scripts_fig/fig_significance.py` | regenerates `figure/signif_xstest.pdf` from the reported means and standard deviations (needs matplotlib and scipy) |
+| `scripts_fig/` | regenerate the new figures from the numbers in the paper: `overview_fig.py` (method overview), `fig_xstest.py` (Figure 4c), `fig_significance.py` and `fig_gain.py` (appendix); `fig_style.py` holds the shared style (Times, seaborn-deep colors, 20M blue circles / 150M orange squares). Needs matplotlib, pillow, scipy |
 | `xstest_table.tex` | XSTest table (appendix; the main text shows it as a figure) |
 | `iclr2027_conference.sty`, `iclr2027_conference.bst`, `fancyhdr.sty`, `natbib.sty`, `math_commands.tex` | official ICLR 2027 style files (unmodified) |
 

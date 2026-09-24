@@ -56,8 +56,8 @@ We study four questions: \textbf{RQ1} utility gains under the same budget\rev{,
 including against capability-specific distillation methods};
 \textbf{RQ2} reduced waste and spillover; \textbf{RQ3} the value of adaptive
 bandit scheduling over static or greedy alternatives; and \textbf{RQ4}
-transfer beyond capability-aligned benchmarks\rev{. Figure~\ref{fig:signif}
-gives a statistical view of every comparison.}
+transfer beyond capability-aligned benchmarks\rev{. Appendix
+Figure~\ref{fig:signif} gives a statistical view of every comparison.}
 
 \begin{table*}[t]
 \centering
@@ -167,7 +167,7 @@ improvement is not tied to a single teacher--student pair.
 \rev{With three seeds, all sixteen differences are positive and all but
 Reasoning at $150$M are significant before correction; after Holm correction
 over the eight capabilities, Steerability at both budgets and Multilingual at
-$150$M remain significant (Figure~\ref{fig:signif}a).}
+$150$M remain significant (Appendix Figure~\ref{fig:signif}).}
 \rev{Figure~\ref{fig:radar} compares ReAD at $150$M with the three
 capability-specific methods, each distilled with its own capability pool under
 the same evaluation protocol. These methods concentrate their gains on the
@@ -292,28 +292,35 @@ seed standard deviations of $0.3$--$0.4$), as every allocation baseline already
 mixes capabilities; the remaining gain is the value of re-estimating the mix as
 the student and the remaining budget change. All four gains remain significant
 after Holm correction at $150$M, and the gain over Uniform static also at $20$M
-(Figure~\ref{fig:signif}a).}
+(Appendix Figure~\ref{fig:signif}).}
 
 \begin{figure}[t]
   \centering
-  \begin{subfigure}[b]{0.58\linewidth}
+  \begin{subfigure}[b]{0.44\linewidth}
     \centering
-    \includegraphics[height=108pt]{figure/rq3_ablation_avgmetric_20m_150m.pdf}
+    \includegraphics[height=92pt]{figure/rq3_ablation_avgmetric_20m_150m.pdf}
     \caption{Component ablation}
     \label{fig:rq3_ablation}
   \end{subfigure}\hfill
-  \begin{subfigure}[b]{0.38\linewidth}
+  \begin{subfigure}[b]{0.22\linewidth}
     \centering
-    \includegraphics[height=108pt]{figure/rqX_radar_sota_vs_read_150m.pdf}
-    \caption{Capability-specific methods}
+    \includegraphics[height=92pt]{figure/rqX_radar_sota_vs_read_150m.pdf}
+    \caption{Specialized methods}
     \label{fig:radar}
+  \end{subfigure}\hfill
+  \begin{subfigure}[b]{0.30\linewidth}
+    \centering
+    \includegraphics[height=92pt]{figure/xstest_compact.pdf}
+    \caption{Held-out XSTest}
+    \label{fig:xstest}
   \end{subfigure}
   \vspace{-0.4em}
-  \caption{\rev{(a) Ablation of ReAD components: average benchmark score over
-  the eight capabilities at 20M and 150M tokens (higher is better). (b) ReAD
-  versus step-by-step distillation, EoTD, and CodePLAN at 150M, each designed
-  for one capability; axes show the fraction of the teacher--student gap closed
-  per capability (higher is better).}}
+  \caption{\rev{(a) Ablation of ReAD components: average benchmark score over the
+  eight capabilities at 20M and 150M tokens. (b) ReAD versus step-by-step
+  distillation, EoTD, and CodePLAN at 150M; axes show the fraction of the
+  teacher--student gap closed per capability. (c) XSTest scores of ReAD (filled)
+  and the best SFT/KD baseline (hollow), mean $\pm$ std over three seeds; blue
+  circles are 20M and orange squares 150M, as in (a).}}
   \label{fig:ablation_radar}
   \vspace{-1.0em}
 \end{figure}
@@ -331,25 +338,9 @@ modeling adds a further improvement by reducing harmful transfer.}
 \rev{On held-out XSTest~\citep{rottger2024xstest}, with the same identifier and
 allocation pipeline and no new capability head, ReAD lowers safe-refusal and
 raises unsafe-refusal scores over the best SFT/KD baseline at both budgets
-(Figure~\ref{fig:signif}b--c; exact values in Appendix Table~\ref{tab:xstest}).
+(Figure~\ref{fig:xstest}; exact values in Appendix Table~\ref{tab:xstest}).
 The four differences agree in direction, but with three seeds none of them
-survives Holm correction (Figure~\ref{fig:signif}a), so we read this as
+survives Holm correction (Appendix Figure~\ref{fig:signif}), so we read this as
 preliminary evidence of transfer beyond the eight capabilities rather than as a
 firm result.}
 
-\begin{figure}[!t]
-  \centering
-  \includegraphics[width=\linewidth]{figure/signif_xstest.pdf}
-  \vspace{-1.4em}
-  \caption{\rev{Statistical view of the results, computed from the reported means
-  and standard deviations (three seeds). (a) ReAD's advantage in each comparison
-  with an unadjusted 95\% Welch confidence interval; filled markers remain
-  significant ($p<0.05$) after Holm correction within each group and budget
-  (across all four tests for XSTest). Safe-refusal is shown as a reduction, so
-  positive is better everywhere. (b--c) XSTest scores of ReAD and the best
-  SFT/KD baseline (mean $\pm$ std). Exact values and $t$ statistics are in
-  Appendix Tables~\ref{tab:xstest} and~\ref{tab:signif}; per-seed scores will be
-  released with the code so that paired significance tests can be run on them.}}
-  \label{fig:signif}
-  \vspace{-0.6em}
-\end{figure}

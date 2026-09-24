@@ -473,10 +473,24 @@ baseline would need to reach ReAD's $20$M score on each of the eight capabilitie
 
 \input{table_equiv_budget}
 
-\rev{\textbf{Exact values behind Figure~\ref{fig:signif}.} Table~\ref{tab:xstest}
-lists the XSTest scores shown in Figure~\ref{fig:signif}(b--c), and
-Table~\ref{tab:signif} lists the differences and Welch $t$ statistics shown in
-Figure~\ref{fig:signif}(a), with significance marks after Holm correction within each block and budget.}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figure/signif_xstest.pdf}
+  \vspace{-1.2em}
+  \caption{\rev{ReAD's advantage in every reported comparison, with an unadjusted
+  95\% Welch confidence interval computed from the reported means and standard
+  deviations (three seeds). Filled markers remain significant ($p<0.05$) after Holm
+  correction within each group and budget (across all four tests for XSTest);
+  safe-refusal is shown as a reduction, so positive is better everywhere.}}
+  \label{fig:signif}
+\end{figure}
+
+\rev{\textbf{Statistical view and exact values.} Figure~\ref{fig:signif} shows
+ReAD's advantage in every comparison of Section~\ref{sec:exp} with its confidence
+interval. Table~\ref{tab:xstest} lists the XSTest scores shown in
+Figure~\ref{fig:xstest}, and Table~\ref{tab:signif} lists the differences and
+Welch $t$ statistics shown in Figure~\ref{fig:signif}, with significance marks
+after Holm correction within each block and budget.}
 
 \input{xstest_table}
 

@@ -5,13 +5,16 @@
   \centering
   \includegraphics[width=\linewidth]{figure/overview.pdf}
   \vspace{-1.4em}
-  \caption{\rev{Overview of ReAD. (1) An identifier maps a task card to the
-  requirement vector $\mathbf{r}_\tau$. (2) Each step, the allocation
-  $\mathbf{w}_t$ decides which capabilities' prompts are generated; the teacher
-  answers them and the student is distilled on the answers. (3) Probes measure
-  the profile change $\Delta\mathbf{s}_t$, whose reward (gain minus spillover
-  and cost) updates a UCB bandit that picks $\mathbf{w}_{t+1}$. The example task
-  and all values shown in the figure are illustrative.}}
+  \caption{\rev{Overview of ReAD. \textbf{(1)} An identifier $g_\phi$, pretrained
+  once on low-budget probe interventions, maps a task card to the requirement
+  vector $\mathbf{r}_\tau$, whose top-$k$ entries form $\mathcal{C}_{\mathrm{ess}}$.
+  \textbf{(2)} At step $t$, capabilities are sampled from the allocation
+  $\mathbf{w}_t$, prompts are instantiated from typed templates under a difficulty
+  curriculum, and the student is distilled on the teacher's answers.
+  \textbf{(3)} The probe-profile change $\Delta\mathbf{s}_t$ gives the proxy reward,
+  which trains a bootstrap ensemble whose mean $\mu$ and uncertainty $\sigma$ select
+  $\mathbf{w}_{t+1}$ by UCB; the loop repeats until $B$ is spent. Values in the
+  figure are illustrative.}}
   \label{fig:overview}
   \vspace{-0.8em}
 \end{figure}
