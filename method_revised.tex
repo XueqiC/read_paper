@@ -5,16 +5,17 @@
   \centering
   \includegraphics[width=\linewidth]{figure/overview.pdf}
   \vspace{-1.4em}
-  \caption{\rev{Overview of ReAD. \textbf{(1)} An identifier $g_\phi$, pretrained
-  once on low-budget probe interventions, maps a task card to the capability-priority
-  vector $\mathbf{r}_\tau$, whose top-$k$ entries form the prioritized set $\mathcal{C}_{\mathrm{pri}}$.
-  \textbf{(2)} At step $t$, capabilities are sampled from the allocation
-  $\mathbf{w}_t$, prompts are instantiated from typed templates under a difficulty
-  curriculum, and the student is distilled on the teacher's answers.
-  \textbf{(3)} The probe-profile change $\Delta\mathbf{s}_t$ gives the proxy reward,
-  which trains a bootstrap ensemble whose mean $\mu$ and uncertainty $\sigma$ select
-  $\mathbf{w}_{t+1}$ by UCB; the loop repeats until $B$ is spent. Values are
-  illustrative.}}
+  \caption{\rev{Overview of ReAD. \textbf{(1)} An identifier $g_\phi$, fitted once
+  offline on probe interventions, maps the task card to the allocation prior
+  $\mathbf{r}_\tau$, fixed per task. \textbf{(2)} From the context $\mathbf{x}_t$
+  (priorities, probe scores, remaining budget, recent history), a reward ensemble
+  scores candidate mixtures and UCB ($\mu+\kappa\sigma$) selects $\mathbf{w}_t$.
+  \textbf{(3)} Capabilities are sampled from $\mathbf{w}_t$ under a
+  within-capability curriculum, and the student is distilled on the frozen
+  teacher's outputs. \textbf{(4)} The probe change $\Delta\mathbf{s}$ gives the proxy
+  reward (task-aligned change, priority regression, token cost); the transition is
+  logged, the ensemble is updated, and the loop runs for $20$ equal budget steps.
+  Values are illustrative.}}
   \label{fig:overview}
   \vspace{-0.8em}
 \end{figure}
