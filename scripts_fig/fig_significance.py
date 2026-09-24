@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""Appendix figure: ReAD advantage with unadjusted 95% Welch CIs for every reported comparison,
-one panel per budget, filled = significant after Holm correction. Numbers: means/stds printed in the paper."""
+"""Appendix figures: ReAD's advantage with unadjusted 95% Welch CIs, split by comparison group.
+Writes signif_onehot.pdf, signif_alloc.pdf, signif_xstest.pdf. Numbers: means/stds printed in the paper."""
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
 from scipy import stats
 import matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import matplotlib.transforms as mtrans
+from matplotlib.lines import Line2D
 import fig_style as S
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, '..', 'figure', 'signif_xstest.pdf')
-PNG = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, 'signif_preview.png')
+OUTDIR = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, '..', 'figure')
+PREV = sys.argv[2] if len(sys.argv) > 2 else HERE
 S.apply(7)
 n = 3
 caps = ["General", "Steerability", "Reasoning", "Math", "Code", "Tool Use", "LCU", "Multilingual"]
@@ -34,13 +34,13 @@ def holm(ps):
     for k, i in enumerate(order):
         run = max(run, (len(ps) - k) * ps[i]); adj[i] = min(1, run)
     return adj
-res = {20: [], 150: []}
-labels, heads = [], []
-for bi, B in enumerate((20, 150)):
-    r = [welch(read[B][0][j], read[B][1][j], best[B][0][j], best[B][1][j]) for j in range(8)]
-    a = holm([x[3] for x in r]); res[B] += [x[:3] + (p,) for x, p in zip(r, a)]
-    r = [welch(read_alloc[bi][0], read_alloc[bi][1], v[bi][0], v[bi][1]) for v in alloc.values()]
-    a = holm([x[3] for x in r]); res[B] += [x[:3] + (p,) for x, p in zip(r, a)]
+def block(rows_fn, k):   # returns {B: [(d, lo, hi, p_holm), ...]}
+    out = {}
+    for bi, B in enumerate((20, 150)):
+        r = rows_fn(bi, B); a = holm([x[3] for x in r]); out[B] = [x[:3] + (p,) for x, p in zip(r, a)]
+    return out
+onehot = block(lambda bi, B: [welch(read[B][0][j], read[B][1][j], best[B][0][j], best[B][1][j]) for j in range(8)], 8)
+allocb = block(lambda bi, B: [welch(read_alloc[bi][0], read_alloc[bi][1], v[bi][0], v[bi][1]) for v in alloc.values()], 4)
 xr = []
 for met, sign in (("safe", -1), ("unsafe", 1)):
     for bi in range(2):
@@ -48,27 +48,27 @@ for met, sign in (("safe", -1), ("unsafe", 1)):
         if sign < 0: d, lo, hi = -d, -hi, -lo
         xr.append((d, lo, hi, p))
 a = holm([x[3] for x in xr])
-res[20] += [xr[0][:3] + (a[0],), xr[2][:3] + (a[2],)]; res[150] += [xr[1][:3] + (a[1],), xr[3][:3] + (a[3],)]
-groups = [('vs. strongest one-hot', caps), ('vs. allocation schedules', list(alloc)),
-          ('XSTest', ['Safe-refusal (reduction)', 'Unsafe-refusal'])]
-ypos, y = [], 0.0
-for g, rows in groups:
-    heads.append((y, g)); y -= 1
-    for rr in rows: ypos.append(y); labels.append(rr); y -= 1
-    y -= 0.3
-fig, axes = plt.subplots(1, 2, figsize=(5.5, 2.35), sharey=True, gridspec_kw=dict(wspace=0.06))
-fig.subplots_adjust(left=0.24, right=0.99, top=0.9, bottom=0.15)
-for ax, B in zip(axes, (20, 150)):
-    col, mk = S.BUDGET[B]
-    for yy, (d, lo, hi, p) in zip(ypos, res[B]):
-        ax.plot([lo, hi], [yy, yy], color=col, lw=1.0, zorder=3)
-        ax.plot([d], [yy], marker=mk, ms=3.8, mec=col, mew=0.9, mfc=col if p < 0.05 else 'white', zorder=4)
+xst = {20: [xr[0][:3] + (a[0],), xr[2][:3] + (a[2],)], 150: [xr[1][:3] + (a[1],), xr[3][:3] + (a[3],)]}
+
+def panel(fname, labels, res, figsize, legend=False, xlim=(-1.0, 7.8)):
+    fig, ax = plt.subplots(figsize=figsize, constrained_layout=True)
+    y = np.arange(len(labels))[::-1].astype(float)
+    for B, off in ((20, 0.16), (150, -0.16)):
+        col, mk = S.BUDGET[B]
+        for yy, (d, lo, hi, p) in zip(y, res[B]):
+            ax.plot([lo, hi], [yy + off] * 2, color=col, lw=1.0, zorder=3)
+            ax.plot([d], [yy + off], marker=mk, ms=3.8, mec=col, mew=0.9, mfc=col if p < 0.05 else 'white', zorder=4)
     ax.axvline(0, color=S.INK, lw=0.6, zorder=2)
-    ax.set_xlim(-1.0, 7.8); ax.set_title(f'Budget {B}M', fontsize=7.5, color=col, pad=3)
-    ax.set_xlabel('ReAD advantage [points]'); S.grid(ax)
-axes[0].set_yticks(ypos); axes[0].set_yticklabels(labels, fontsize=6.6, fontweight='normal')
-axes[0].set_ylim(y + 0.5, 0.6)
-htr = mtrans.blended_transform_factory(fig.transFigure, axes[0].transData)
-for yy, g in heads:
-    axes[0].text(0.01, yy, g, transform=htr, ha='left', va='center', fontsize=6.9, clip_on=False)
-fig.savefig(OUT); fig.savefig(PNG, dpi=240); print('wrote', OUT)
+    ax.set_yticks(y); ax.set_yticklabels(labels, fontweight='normal'); ax.set_ylim(-0.6, len(labels) - 0.4)
+    ax.set_xlim(*xlim); ax.set_xticks([0, 2, 4, 6]); ax.set_xlabel('Advantage [points]'); S.grid(ax)
+    if legend:
+        h = [Line2D([], [], color=S.BLUE, marker='o', ms=3.8, lw=1.0, label='20M'),
+             Line2D([], [], color=S.ORANGE, marker='s', ms=3.8, lw=1.0, label='150M'),
+             Line2D([], [], color=S.GRAY, marker='o', ms=3.8, lw=0, label='significant'),
+             Line2D([], [], color=S.GRAY, marker='o', ms=3.8, mfc='white', lw=0, label='n.s.')]
+        ax.legend(handles=h, loc='center right', fontsize=6.2, handlelength=1.3, labelspacing=0.25, borderaxespad=0.2)
+    fig.savefig(os.path.join(OUTDIR, fname + '.pdf')); fig.savefig(os.path.join(PREV, fname + '_preview.png'), dpi=240)
+    print('wrote', fname)
+panel('signif_onehot', caps, onehot, (2.25, 1.8))
+panel('signif_alloc', list(alloc), allocb, (2.05, 1.8), legend=True)
+panel('signif_xstest', ['Safe-refusal\n(reduction)', 'Unsafe-refusal'], xst, (1.75, 1.8))
