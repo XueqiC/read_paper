@@ -5,17 +5,12 @@
   \centering
   \includegraphics[width=\linewidth]{figure/overview.pdf}
   \vspace{-1.4em}
-  \caption{\rev{Overview of ReAD. \textbf{(1)} An identifier $g_\phi$, fitted once
-  offline on probe interventions, maps the task card to the allocation prior
-  $\mathbf{r}_\tau$, fixed per task. \textbf{(2)} From the context $\mathbf{x}_t$
-  (priorities, probe scores, remaining budget, recent history), a reward ensemble
-  scores candidate mixtures and UCB ($\mu+\kappa\sigma$) selects $\mathbf{w}_t$.
-  \textbf{(3)} Capabilities are sampled from $\mathbf{w}_t$ under a
-  within-capability curriculum, and the student is distilled on the frozen
-  teacher's outputs. \textbf{(4)} The probe change $\Delta\mathbf{s}$ gives the proxy
-  reward (task-aligned change, priority regression, token cost); the transition is
-  logged, the ensemble is updated, and the loop runs for $20$ equal budget steps.
-  Values are illustrative.}}
+  \caption{\rev{Overview of ReAD. \textbf{(1)} A pretrained identifier sets the
+  task's capability priorities $\mathbf{r}_\tau$. ReAD then repeats three steps
+  until the budget $B$ is spent: \textbf{(2)} a bandit selects the allocation
+  $\mathbf{w}_t$ by UCB; \textbf{(3)} the student is distilled on teacher outputs
+  for prompts sampled from $\mathbf{w}_t$; \textbf{(4)} the measured capability
+  change yields a proxy reward that updates the bandit.}}
   \label{fig:overview}
   \vspace{-0.8em}
 \end{figure}

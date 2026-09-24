@@ -1,7 +1,12 @@
 \section{Preliminary}
 \label{sec:prelim}
 
-\subsection{Notation and Formalization}
+\rev{We formalize budgeted capability distillation (Section~\ref{sec:prelim:setup}),
+measure cross-capability transfer under single-target distillation
+(Section~\ref{sec:emp_res}), and state the allocation problem (Section~\ref{sec:prelim:problem}).}
+
+\subsection{\rev{Capability Distillation under a Token Budget}}
+\label{sec:prelim:setup}
 
 In this paper, we study budgeted capability distillation from a large teacher model \(T\) to a
 smaller student model \(S\), with total training-token budget \(B\). Let
@@ -52,12 +57,11 @@ under capability distillation is characterized by the capability transfer matrix
 \]
 where \( \mathbf{T}_{ij}(B) \) quantifies the effect of distilling
 toward capability \( c_i \) on the performance of capability \( c_j \).
-Non-zero off-diagonal entries indicate interdependence between capabilities
-under \rev{the shared representations of the student model}.
+Non-zero off-diagonal entries indicate interdependence between capabilities.
 \end{definition}
 
 \vspace{-0.6em}
-\subsection{Exploratory Study and Problem Formulation}
+\subsection{\rev{Cross-Capability Transfer in Single-Target Distillation}}
 \label{sec:emp_res}
 
 \rev{We distill Llama-3.3-70B-Instruct into Llama-3.1-8B-Instruct under fixed
@@ -67,8 +71,7 @@ benchmarks to form the transfer matrix of Definition~\ref{def:cap_interdependenc
 benchmark metrics are accuracies or success rates on a $0$--$100$ scale, a
 capability score is the unweighted mean over its benchmarks, and every entry of
 the transfer matrix is an absolute difference in these points
-(Definition~\ref{def:cap_interdependence}); no further rescaling is applied
-(Appendix~\ref{sec:app_em}).}
+with no further rescaling.}
 
 %==================== Figure 1: empirical study (top float; all four panels share one height) ====================
 \begin{figure}[t]
@@ -133,6 +136,9 @@ forgetting~\citep{kirkpatrick2017overcoming,luo2023empirical}, and saturation
 is ordinary diminishing returns. What allocation can exploit is their
 \emph{structure}: transfer is signed, source-specific, and budget-dependent, so
 a token's marginal value depends on where the budget has already gone.}
+
+\subsection{\rev{Target-Oriented Budget Allocation}}
+\label{sec:prelim:problem}
 
 \rev{We formalize the allocation of a fixed budget as a sequential problem; in
 our experiments, the task $\tau$ is a specified target capability and $U_\tau$

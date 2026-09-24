@@ -277,7 +277,7 @@ regression penalty adds a smaller further gain.}
     \label{fig:r2_lcu}
   \end{subfigure}
 
-  \caption{Performance versus token budget for four bottleneck capabilities. Curves show mean $\pm$ standard deviation over three seeds.}
+  \caption{Performance versus token budget for four bottleneck capabilities\rev{ (mean $\pm$ std, three seeds)}.}
   \label{fig:rq2_budget}
   \vspace{-0.8em}
 \end{figure}
@@ -306,7 +306,6 @@ rate of all methods.}
 
 \rev{On held-out XSTest~\citep{rottger2024xstest}, with the same pipeline and no new
 capability head, ReAD lowers safe-refusal and raises unsafe-refusal scores over the
-best SFT/KD baseline at both budgets (Figure~\ref{fig:xstest}, Appendix
-Table~\ref{tab:xstest}). The four differences agree in direction, but none survives
-Holm correction with three seeds (Figure~\ref{fig:signif}), so this is preliminary
-evidence of transfer beyond the eight capabilities rather than a firm result.}
+best SFT/KD baseline at both budgets (Figure~\ref{fig:xstest}). The four differences agree in direction, but none survives
+Holm correction with three seeds (Figure~\ref{fig:signif}), so this is only preliminary
+evidence of transfer beyond the eight capabilities.}
