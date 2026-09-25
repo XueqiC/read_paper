@@ -41,7 +41,7 @@ the $150$M setting. Proxy refresh adds 3.12\% wall-clock overhead, the full onli
 5.63\%, and the reusable \rev{priority} identifier costs 3.79 GPU-hours to train
 once.
 \rev{\textbf{Cost accounting.} $B$ counts the teacher-generated tokens the
-student is trained on and is identical for all methods. Two ReAD-specific costs fall outside $B$, and we report them separately. The identifier is trained once from auxiliary tasks and reused for every task and budget, so its 3.79 GPU-hours are amortized. The fixed probe suite accounts for the 3.12\% overhead above.}
+student is trained on and is identical for all methods. Two ReAD-specific costs fall outside $B$, and we report them separately. The identifier is trained once and reused across tasks and budgets, so its 3.79 GPU-hours are amortized, and the probe suite is the 3.12\% overhead.}
 
 \section{Experiments}
 \label{sec:exp}
@@ -248,7 +248,7 @@ Figure~\ref{fig:rq2_budget} reports budget-scaling curves for Reasoning, Math,
 Tool Use, and LCU. ReAD achieves higher performance at \rev{every} budget\rev{
 and scales most steeply on Math and LCU. On Reasoning and Tool Use, the baselines narrow the gap by $150$M as all methods approach the teacher.}
 \rev{ReAD also gains the most per additional $10$M tokens on six of the eight
-capabilities (Appendix Table~\ref{tab:scaling}). Table~\ref{tab:equiv_budget} turns the two measured budgets into rough estimates. To match ReAD's $20$M score, the strongest one-hot baseline would need about $1.3$--$6.5\times$ as many tokens (median about $2\times$) under log-linear interpolation and $1.8$--$7.0\times$ (median about $3\times$) under linear interpolation. It does not reach ReAD's $20$M Tool Use score even at $150$M. These estimates assume that each baseline changes smoothly between the two measured budgets.}
+capabilities (Appendix Table~\ref{tab:scaling}). Table~\ref{tab:equiv_budget} turns the two measured budgets into rough estimates. To match ReAD's $20$M score, the strongest one-hot baseline would need about $1.3$--$6.5\times$ as many tokens (median about $2\times$) under log-linear interpolation and $1.8$--$7.0\times$ (median about $3\times$) under linear interpolation. It does not reach ReAD's $20$M Tool Use score even at $150$M.}
 
 Figure~\ref{fig:diagnostics}a--b shows \rev{the trade-off between target gain and
 spillover at $150$M}. Single-capability KD achieves strong target gains but

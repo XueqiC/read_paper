@@ -96,7 +96,7 @@ ReAD runs for $T_{\mathrm{step}}=20$ decision steps\rev{, with the bandit update
 \mathbf{x}_t=[\mathbf{r}_\tau;\mathbf{s}^{\mathrm{probe}}(S_t);b_t;\boldsymbol{\rho}_t],
 \label{eq:bandit_context}
 \end{equation}
-where $\boldsymbol{\rho}_t$ stores a short record of recent allocations and observed gains. The profile $\mathbf{s}^{\mathrm{probe}}(S_t)$ is computed with a small fixed monitoring suite, while full held-out benchmark evaluation is used only for final reporting and coarse calibration.
+where $\boldsymbol{\rho}_t$ stores a short record of recent allocations and observed gains. \rev{A small fixed monitoring suite gives $\mathbf{s}^{\mathrm{probe}}(S_t)$, and held-out benchmarks are used only for final reporting and calibration.}
 
 \paragraph{Candidate allocations and distillation.}
 At each step, ReAD selects an allocation $\mathbf{w}_t$ from a finite candidate set $\mathcal{A}(\tau)$ consisting of local perturbations around the previous allocation and sparse actions concentrated on the top-$k$ capabilities under $\mathbf{r}_\tau$. Weights are chosen from a fixed grid and renormalized to sum to one. Given $\mathbf{w}_t$, ReAD samples capability-targeted data and updates the student by minimizing $\mathcal{L}_{\mathrm{distill}}(\theta_t)
