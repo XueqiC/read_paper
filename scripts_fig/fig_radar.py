@@ -24,7 +24,7 @@ ax.set_theta_zero_location('E'); ax.set_theta_direction(1)
 MK = {'ReAD': 'o', 'Step-by-Step': 's', 'EoTD': '^', 'CodePLAN': 'D'}
 LS = {'ReAD': '-', 'Step-by-Step': (0, (3.2, 1.2)), 'EoTD': (0, (4.0, 1.0, 1.0, 1.0)), 'CodePLAN': (0, (1.2, 1.0))}
 for name in order[::-1]:
-    r = np.array([vals[name][c] for c in caps]); c = S.tint(S.METHOD[name], 0.12)   # slightly softened for this figure
+    r = np.array([vals[name][c] for c in caps]); c = S.tint(S.METHOD[name], 0.22)   # slightly softened for this figure
     a2, r2 = np.r_[ang, ang[:1]], np.r_[r, r[:1]]
     main = name == 'ReAD'
     ax.fill(a2, r2, color=c, alpha=0.13 if main else 0.04, zorder=2)
@@ -38,7 +38,7 @@ for a, c in zip(ang, caps):
     ha = 'left' if np.cos(a) > 0.3 else ('right' if np.cos(a) < -0.3 else 'center')
     va = 'bottom' if np.sin(a) > 0.3 else ('top' if np.sin(a) < -0.3 else 'center')
     ax.text(a, 1.12, c, ha=ha, va=va, fontsize=6.3, fontweight='bold', color='black')
-h = [Line2D([], [], color=S.tint(S.METHOD[n], 0.12), lw=1.4, ls=LS[n], marker=MK[n], ms=3.2, mec='white', mew=0.3, label=n) for n in order]
+h = [Line2D([], [], color=S.tint(S.METHOD[n], 0.22), lw=1.4, ls=LS[n], marker=MK[n], ms=3.2, mec='white', mew=0.3, label=n) for n in order]
 fig.legend(handles=h, loc='upper center', ncol=2, fontsize=6.2, handlelength=1.2, columnspacing=0.8,
            labelspacing=0.25, borderaxespad=0.1, bbox_to_anchor=(0.5, 0.995), prop={'weight': 'bold', 'size': 6.2})
 fig.savefig(OUT); fig.savefig(PNG, dpi=300); print('wrote', OUT)

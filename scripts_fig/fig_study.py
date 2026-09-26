@@ -76,7 +76,7 @@ Hs = np.vstack([harm(T['small']), harm(T['medium']), harm(T['large'])]).T
 o2 = np.argsort(-(Hs[:, 2] - Hs[:, 0]))[:5]
 ax = axes_in(4.62, hm_y, 0.80, hm_s)
 for i in o2:
-    ax.plot([0, 1, 2], Hs[i], marker='o', ms=2.6, lw=1.1, color=S.tint(S.CAP_LINE[caps[i]], 0.12), label=caps[i], zorder=3)
+    ax.plot([0, 1, 2], Hs[i], marker='o', ms=2.6, lw=1.1, color=S.tint(S.CAP_LINE[caps[i]], 0.22), label=caps[i], zorder=3)
 ax.set_xticks([0, 1, 2]); ax.set_xticklabels(['20M', '80M', '150M']); ax.set_xlim(-0.15, 2.15)
 ax.set_ylim(-0.3, 7.4); ax.set_yticks([0, 2, 4, 6])
 ax.set_ylabel('Negative spillover\n[points]', fontsize=6.6, labelpad=4); ax.set_xlabel('Budget [tokens]', fontsize=6.6, labelpad=1)
