@@ -8,9 +8,12 @@ import matplotlib.pyplot as plt
 TAB2DEEP = {'#1f77b4': '#4C72B0', '#ff7f0e': '#DD8452', '#2ca02c': '#55A868', '#d62728': '#C44E52',
             '#9467bd': '#8172B3', '#8c564b': '#937860', '#e377c2': '#DA8BC3', '#7f7f7f': '#8C8C8C',
             '#bcbd22': '#CCB974', '#17becf': '#64B5CD'}
-METHOD = {'Resp-SFT': '#4C72B0', 'CoT-SFT': '#DD8452', 'Logit-SFT': '#55A868', 'Resp-KD': '#C44E52',
-          'CoT-KD': '#8172B3', 'Logit-KD': '#937860', 'ReAD': '#DA8BC3',
-          'Step-by-Step': '#CCB974', 'EoTD': '#64B5CD', 'CodePLAN': '#8C8C8C'}
+# ReAD takes the deep red (it sits better next to the blue/orange budget colours); Resp-KD, which only
+# appears in the budget curves, takes the pink.
+METHOD = {'Resp-SFT': '#4C72B0', 'CoT-SFT': '#DD8452', 'Logit-SFT': '#55A868', 'Resp-KD': '#DA8BC3',
+          'CoT-KD': '#8172B3', 'Logit-KD': '#937860', 'ReAD': '#C44E52',
+          # the three capability-specific methods only appear in the radar: three shades of the palette blue
+          'Step-by-Step': '#27406B', 'EoTD': '#6F93CE', 'CodePLAN': '#A9BFE3'}
 BUDGET = {20: dict(color='#4C72B0', hatch='//////', marker='o', label='20M'),
           150: dict(color='#DD8452', hatch='......', marker='s', label='150M')}
 # The original ablation PDF is drawn with '//' and '..' and shrunk to about one third in the paper;
