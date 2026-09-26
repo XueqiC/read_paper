@@ -19,7 +19,7 @@ Building on these observed insights, we propose \textit{ReAD}, a \textit{Re}info
     Motivated by our observations of budget-dependent cross-capability transfer and diminishing returns, we formulate a new problem of sequentially allocating a limited distillation budget across interdependent capabilities to maximize performance on a specified target.
 
     \item \textbf{Unified Distillation Framework:}
-    We propose ReAD, a unified framework for target-oriented capability distillation that integrates task-conditioned capability priorities with uncertainty-aware adaptive allocation. ReAD adjusts the mixture of teacher supervision according to the student's evolving capability profile, using feedback that rewards task-aligned gains and penalizes regressions on prioritized capabilities.
+    We propose ReAD, a unified framework for target-oriented capability distillation that integrates task-conditioned capability priorities with uncertainty-aware adaptive allocation. ReAD adjusts the mixture of teacher supervision according to the student's evolving capability profile, using feedback that rewards task-aligned gains and penalizes regressions on the task's prioritized capabilities.
 
     \item \textbf{Comprehensive Experimental Evaluation:}
     We conduct extensive experiments across target capabilities, teacher--student pairs, and token budgets. Results show improved target performance over the evaluated baselines under matched distillation budgets, together with reduced off-target degradation in transfer diagnostics. Controlled comparisons and ablation studies further establish the benefits of adaptive allocation and the framework's individual components.
