@@ -1,14 +1,18 @@
-"""Shared style for the new data figures. Colors and shapes follow the paper's ORIGINAL figures:
-- one method, one color: the matplotlib tab10 colors of the original budget-scaling curves
-  (Resp-SFT ... Logit-KD, ReAD pink); methods that never appear there take the remaining tab10 colors;
-- one budget, one color + hatch + marker: the original component-ablation bars
-  (20M blue with '///', 150M orange with dots), black bar edges and black hatching."""
+"""Shared style for all data figures. One palette for the whole paper: the muted seaborn-"deep" tones of
+the original Figure 1, applied with the same hue identities the original figures used:
+- one method, one color (hue order of the original budget-scaling curves; ReAD pink);
+- one budget, one color + hatch + marker (component-ablation convention: 20M blue with '///',
+  150M orange with dots), black bar edges and black hatching."""
 import matplotlib.pyplot as plt
-METHOD = {'Resp-SFT': '#1f77b4', 'CoT-SFT': '#ff7f0e', 'Logit-SFT': '#2ca02c', 'Resp-KD': '#d62728',
-          'CoT-KD': '#9467bd', 'Logit-KD': '#8c564b', 'ReAD': '#e377c2',
-          'Step-by-Step': '#bcbd22', 'EoTD': '#17becf', 'CodePLAN': '#7f7f7f'}
-BUDGET = {20: dict(color='#1f77b4', hatch='//////', marker='o', label='20M'),
-          150: dict(color='#ff7f0e', hatch='......', marker='s', label='150M')}
+# tab10 hue -> seaborn-deep tone (same hue identity)
+TAB2DEEP = {'#1f77b4': '#4C72B0', '#ff7f0e': '#DD8452', '#2ca02c': '#55A868', '#d62728': '#C44E52',
+            '#9467bd': '#8172B3', '#8c564b': '#937860', '#e377c2': '#DA8BC3', '#7f7f7f': '#8C8C8C',
+            '#bcbd22': '#CCB974', '#17becf': '#64B5CD'}
+METHOD = {'Resp-SFT': '#4C72B0', 'CoT-SFT': '#DD8452', 'Logit-SFT': '#55A868', 'Resp-KD': '#C44E52',
+          'CoT-KD': '#8172B3', 'Logit-KD': '#937860', 'ReAD': '#DA8BC3',
+          'Step-by-Step': '#CCB974', 'EoTD': '#64B5CD', 'CodePLAN': '#8C8C8C'}
+BUDGET = {20: dict(color='#4C72B0', hatch='//////', marker='o', label='20M'),
+          150: dict(color='#DD8452', hatch='......', marker='s', label='150M')}
 # The original ablation PDF is drawn with '//' and '..' and shrunk to about one third in the paper;
 # the new figures are placed near 1:1, so their hatches are three times denser to look the same.
 BLUE, ORANGE = BUDGET[20]['color'], BUDGET[150]['color']
@@ -28,3 +32,11 @@ def grid(ax, axis='x'):
 def hatch(B, scale=1.0):
     """Hatch for budget B in a figure shown at `scale` x its native size in the paper."""
     return ('/' if B == 20 else '.') * max(2, round(2 * scale / 0.335))
+
+# capability colors of the original Figure 1(d) (seaborn-deep, indexed by capability)
+CAP_LINE = {'General': '#4C72B0', 'Reasoning': '#55A868', 'Math': '#C44E52', 'Code': '#8172B3', 'Tool Use': '#64B5CD'}
+def diverging():
+    """Blue-white-red map in the same deep tones, for signed score changes."""
+    from matplotlib.colors import LinearSegmentedColormap
+    return LinearSegmentedColormap.from_list('deep_div', ['#1F3A66', '#4C72B0', '#A8BCDC', '#F7F7F7',
+                                                          '#E4A9AB', '#C44E52', '#7A1F24'])

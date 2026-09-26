@@ -25,7 +25,7 @@ u150 = [(64.73, .36), (65.52, .33), (66.01, .30), (65.81, .31), (67.21, .28)]
 # Same encoding as the original component-ablation figure: bars colored and hatched by budget
 # (20M blue '///', 150M orange dots), methods on the x-axis, black edges and error bars.
 B20, B150 = S.BUDGET[20], S.BUDGET[150]
-LIGHT150 = '#ffcc9e'   # lighter tint of the 150M orange, for the off-target (downward) bars in (a)
+LIGHT150 = '#EEC2A9'   # 50% tint of the 150M orange, for the off-target (downward) bars in (a)
 fig = plt.figure(figsize=(5.5, 1.52))
 gs = fig.add_gridspec(1, 3, width_ratios=[1.25, 0.95, 1.45], wspace=0.42, left=0.075, right=0.995, top=0.87, bottom=0.30)
 labs = ['One-hot KD', 'Task-static', 'Greedy', 'Grid', 'ReAD']
