@@ -15,10 +15,12 @@ Building on these observed insights, we propose \textit{ReAD}, a \textit{Re}info
 
 \rev{The main contributions of this paper are as follows.}
 \begin{itemize}[leftmargin=*, itemsep=1pt, topsep=1pt]
-    \item \textbf{\rev{Budget-resolved transfer.}}
-    \rev{We measure how distilling each of eight capabilities changes all eight at three budgets. Transfer is signed and budget-dependent, and the target's marginal gain shrinks as its budget grows (Figure~\ref{fig:capability_transfer_heatmaps}). Spending a whole budget on the target can therefore leave part of it underused, which makes the allocation itself worth optimizing.}
-    \item \textbf{\rev{Target-oriented allocation for distillation.}}
-    \rev{ReAD learns capability priorities from low-budget probe interventions, generates teacher supervision on the fly, and reallocates the budget step by step with an uncertainty-aware bandit. Its reward comes from measured capability changes and penalizes regressions on prioritized capabilities, so the allocation follows the student's current state.}
-    \item \textbf{\rev{Gains under a fixed budget.}}
-    \rev{ReAD has the highest mean on-target score for every target, budget, and model pair we test, e.g., $+3.8$ and $+5.6$ points on Steerability over the strongest baseline at $20$M and $150$M. With the generator held fixed, it beats the best static and greedy schedules by $1.0$--$1.4$ points, and its off-target decline at $150$M is about a quarter of single-capability KD's.}
+    \item \textbf{Novel Problem Formulation:}
+    Motivated by our observations of budget-dependent cross-capability transfer and diminishing returns, we formulate a new problem of sequentially allocating a limited distillation budget across interdependent capabilities to maximize performance on a specified target.
+
+    \item \textbf{Unified Distillation Framework:}
+    We propose ReAD, a unified framework for target-oriented capability distillation that integrates task-conditioned capability priorities with uncertainty-aware adaptive allocation. ReAD adjusts the mixture of teacher supervision according to the student's evolving capability profile, using feedback that rewards task-aligned gains and penalizes regressions on prioritized capabilities.
+
+    \item \textbf{Comprehensive Experimental Evaluation:}
+    We conduct extensive experiments across target capabilities, teacher--student pairs, and token budgets. Results show improved target performance over the evaluated baselines under matched distillation budgets, together with reduced off-target degradation in transfer diagnostics. Controlled comparisons and ablation studies further establish the benefits of adaptive allocation and the framework's individual components.
 \end{itemize}
