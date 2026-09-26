@@ -22,7 +22,7 @@ for ax, met, title, lim in ((axes[0], 'safe', r'Safe-refusal [%] $\downarrow$', 
                             (axes[1], 'unsafe', r'Unsafe-refusal [%] $\uparrow$', (73, 83.5))):
     for i, (B, sgn) in enumerate(((20, -1), (150, 1))):
         vals = [xs[met]['base'][i], xs[met]['read'][i]]
-        ax.bar(x + sgn * w / 2, [v for v, _ in vals], w, yerr=[s for _, s in vals], color=S.BUDGET[B]['color'],
+        ax.bar(x + sgn * w / 2, [v for v, _ in vals], w, yerr=[s for _, s in vals], color=S.BUDGET[B]['fill'],
                hatch=S.hatch(B, SCALE), error_kw=S.ERR, label=S.BUDGET[B]['label'], zorder=3, **S.EDGE)
     ax.set_xticks(x); ax.set_xticklabels(['Best\nbaseline', 'ReAD'], fontsize=6.5)
     ax.set_ylim(*lim); ax.set_title(title, fontsize=6.8, pad=2); S.grid(ax, 'y')

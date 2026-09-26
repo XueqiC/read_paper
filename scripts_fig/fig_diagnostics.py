@@ -25,13 +25,13 @@ u150 = [(64.73, .36), (65.52, .33), (66.01, .30), (65.81, .31), (67.21, .28)]
 # Same encoding as the original component-ablation figure: bars colored and hatched by budget
 # (20M blue '///', 150M orange dots), methods on the x-axis, black edges and error bars.
 B20, B150 = S.BUDGET[20], S.BUDGET[150]
-LIGHT150 = '#EEC2A9'   # 50% tint of the 150M orange, for the off-target (downward) bars in (a)
+LIGHT150 = S.tint(S.ORANGE, 0.72)   # 50% tint of the 150M orange, for the off-target (downward) bars in (a)
 fig = plt.figure(figsize=(5.5, 1.52))
 gs = fig.add_gridspec(1, 3, width_ratios=[1.25, 0.95, 1.45], wspace=0.42, left=0.075, right=0.995, top=0.87, bottom=0.30)
 labs = ['One-hot KD', 'Task-static', 'Greedy', 'Grid', 'ReAD']
 ax = fig.add_subplot(gs[0])
 x = np.arange(5); bw = 0.62
-ax.bar(x, [v for v, _ in on], bw, yerr=[e for _, e in on], color=B150['color'], hatch=B150['hatch'],
+ax.bar(x, [v for v, _ in on], bw, yerr=[e for _, e in on], color=B150['fill'], hatch=B150['hatch'],
        error_kw=S.ERR, zorder=3, label='on-target gain', **S.EDGE)
 ax.bar(x, [v for v, _ in off], bw, yerr=[e for _, e in off], color=LIGHT150, hatch=B150['hatch'],
        error_kw=S.ERR, zorder=3, label='off-target change', **S.EDGE)
@@ -41,7 +41,7 @@ ax.set_ylabel('Change [points]'); ax.set_ylim(-2.4, 6.6); S.grid(ax, 'y')
 ax.legend(loc='upper center', fontsize=5.9, ncol=2, handlelength=1.0, columnspacing=0.6, borderaxespad=0.15)
 ax.set_title('(a) Gain vs. spillover, 150M', fontsize=7.2, pad=3)
 ax = fig.add_subplot(gs[1])
-ax.bar(x, [v for v, _ in neg], bw, yerr=[s for _, s in neg], color=B150['color'], hatch=B150['hatch'],
+ax.bar(x, [v for v, _ in neg], bw, yerr=[s for _, s in neg], color=B150['fill'], hatch=B150['hatch'],
        error_kw=S.ERR, zorder=3, **S.EDGE)
 ax.set_xticks(x); ax.set_xticklabels(labs, rotation=35, ha='right', fontsize=6.3)
 ax.set_ylabel('Negative transfer'); ax.set_ylim(0, 0.5); S.grid(ax, 'y')
@@ -49,7 +49,7 @@ ax.set_title('(b) Harmful transfer, 150M', fontsize=7.2, pad=3)
 ax = fig.add_subplot(gs[2])
 w = 0.38
 for B, sgn, vals in ((B20, -1, u20), (B150, 1, u150)):
-    ax.bar(x + sgn * w / 2, [v for v, _ in vals], w, yerr=[s for _, s in vals], color=B['color'], hatch=B['hatch'],
+    ax.bar(x + sgn * w / 2, [v for v, _ in vals], w, yerr=[s for _, s in vals], color=B['fill'], hatch=B['hatch'],
            error_kw=S.ERR, label=B['label'], zorder=3, **S.EDGE)
 ax.set_xticks(x); ax.set_xticklabels(sched, rotation=35, ha='right', fontsize=6.3)
 ax.set_ylabel('Avg. utility'); ax.set_ylim(59.5, 68.5); S.grid(ax, 'y')

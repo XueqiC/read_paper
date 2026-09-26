@@ -19,17 +19,24 @@ BUDGET = {20: dict(color='#4C72B0', hatch='//////', marker='o', label='20M'),
 # The original ablation PDF is drawn with '//' and '..' and shrunk to about one third in the paper;
 # the new figures are placed near 1:1, so their hatches are three times denser to look the same.
 BLUE, ORANGE = BUDGET[20]['color'], BUDGET[150]['color']
+def tint(c, t):
+    """Mix colour c with white by fraction t (lighter, lower saturation)."""
+    c = c.lstrip('#'); r, g, b = (int(c[i:i + 2], 16) for i in (0, 2, 4))
+    return '#%02X%02X%02X' % tuple(round(v + t * (255 - v)) for v in (r, g, b))
+# bar / area fills are drawn in a light tint of the budget colour ("fresh", low saturation); lines keep full tone
+FILL_T = 0.42
+for _b in BUDGET.values(): _b['fill'] = tint(_b['color'], FILL_T)
 READ = METHOD['ReAD']
 INK = '#1d1d1b'
-EDGE = dict(edgecolor='black', linewidth=0.6)
-ERR = dict(elinewidth=0.7, capsize=1.6, capthick=0.7, ecolor='black')
+EDGE = dict(edgecolor='#474747', linewidth=0.55)
+ERR = dict(elinewidth=0.7, capsize=1.6, capthick=0.7, ecolor='#3d3d3d')
 def apply(size=7):
     plt.rcParams.update({'font.family': 'serif', 'font.serif': ['Times New Roman', 'Liberation Serif'],
                          'font.weight': 'bold', 'axes.labelweight': 'bold', 'axes.titleweight': 'bold',
                          'font.size': size, 'pdf.fonttype': 42, 'mathtext.fontset': 'stix',
                          'axes.edgecolor': '#2E3440', 'axes.linewidth': 0.7, 'xtick.major.width': 0.6,
                          'ytick.major.size': 0, 'xtick.major.size': 2.5, 'legend.frameon': False,
-                         'hatch.color': 'black', 'hatch.linewidth': 0.35})
+                         'hatch.color': '#5a5a5a', 'hatch.linewidth': 0.35})
 def grid(ax, axis='x'):
     ax.grid(True, axis=axis, color=INK, alpha=0.18, lw=0.6, zorder=0); ax.set_axisbelow(True)
 def hatch(B, scale=1.0):
@@ -41,5 +48,5 @@ CAP_LINE = {'General': '#4C72B0', 'Reasoning': '#55A868', 'Math': '#C44E52', 'Co
 def diverging():
     """Blue-white-red map in the same deep tones, for signed score changes."""
     from matplotlib.colors import LinearSegmentedColormap
-    return LinearSegmentedColormap.from_list('deep_div', ['#1F3A66', '#4C72B0', '#A8BCDC', '#F7F7F7',
-                                                          '#E4A9AB', '#C44E52', '#7A1F24'])
+    return LinearSegmentedColormap.from_list('deep_div', ['#3E5C8E', '#7896C8', '#BFCDE6', '#F8F8F8',
+                                                          '#EDC6C7', '#D4888B', '#A5484C'])
